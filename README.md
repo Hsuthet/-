@@ -1,59 +1,137 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# -
+📋 Business Request & Workflow Management System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A streamlined Laravel 11 web application designed to manage inter-departmental task delegation and approval workflows efficiently.
 
-## About Laravel
+This system replaces manual email communication with a structured, role-based workflow that ensures transparency, accountability, and traceability from request submission to completion.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+🚀 Project Overview
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+The Business Request & Workflow Management System centralizes internal company requests into a standardized process.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+It supports three primary user roles:
 
-## Learning Laravel
+Requester – Submits and tracks business requests
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+Approver – Reviews and approves/rejects requests
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Worker – Executes approved tasks and submits completion reports
 
-## Laravel Sponsors
+The platform ensures that every request follows a defined lifecycle with clear status transitions.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+✨ Key Features
+🔐 Role-Based Access Control (RBAC)
 
-### Premium Partners
+Secure and structured access based on user roles:
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Requesters can create and monitor requests
 
-## Contributing
+Approvers can review and decide
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Workers can execute assigned tasks
 
-## Code of Conduct
+📊 Role-Specific Dashboards
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Each user sees a tailored dashboard:
 
-## Security Vulnerabilities
+Role	Capabilities
+Requester	Create requests, save drafts, track status
+Approver	Review pending requests, approve or reject
+Worker	Start tasks, update progress, submit completion
+🔄 Dynamic Workflow System
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Requests follow a standardized lifecycle:
 
-## License
+DRAFT → PENDING → APPROVED → WORKING → COMPLETED
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This ensures consistency and full traceability across departments.
+
+📁 File Attachment Support
+
+Multi-file uploads supported
+
+Ideal for:
+
+Technical drawings
+
+Specifications
+
+Reference documents
+
+Supporting files
+
+🧩 Reusable DataTable Component
+
+Custom Blade component integrated with jQuery DataTables providing:
+
+Server-side searching
+
+Sorting
+
+Pagination
+
+Fast and responsive table rendering
+
+📝 Step-by-Step Submission Process
+
+User-friendly multi-step workflow:
+
+Input → Confirm → Complete
+
+This reduces user errors and ensures accurate data submission.
+
+🛠 Tech Stack
+
+Backend
+
+Laravel 11
+
+PHP 8.2+
+
+Frontend
+
+Blade Components
+
+Tailwind CSS
+
+Alpine.js
+
+Database
+
+MySQL
+
+Interactivity
+
+jQuery DataTables API
+
+⚙️ Installation Guide
+1️⃣ Clone the Repository
+git clone https://github.com/yourusername/business-request-system.git
+cd business-request-system
+2️⃣ Install Dependencies
+composer install
+npm install
+npm run dev
+3️⃣ Environment Setup
+cp .env.example .env
+php artisan key:generate
+
+Update your .env file with your database credentials.
+
+4️⃣ Run Database Migration
+php artisan migrate --seed
+5️⃣ Start the Development Server
+php artisan serve
+
+The application will be available at:
+
+http://127.0.0.1:8000
+📌 Future Improvements (Optional Section)
+
+Email notifications for status updates
+
+Activity logs & audit trail
+
+Export to Excel/PDF
+
+API integration support
