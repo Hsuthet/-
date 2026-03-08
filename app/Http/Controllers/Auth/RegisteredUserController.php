@@ -18,40 +18,35 @@ class RegisteredUserController extends Controller
     /**
      * Display the registration view.
      */
-    // public function create(): View
-    // {
-    //     return view('auth.register');
-    // }
-public function create()
-{
-    $departments = Department::all(); // get all departments
-    return view('auth.register', compact('departments'));
-}
+    public function create()
+    {
+        $departments = Department::all(); 
+        return view('auth.register', compact('departments'));
+    }
+
     /**
      * Handle an incoming registration request.
      */
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-    'name' => ['required', 'string', 'max:255'],
-    'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-    'password' => ['required', 'confirmed', Rules\Password::defaults()],
-    'department_id' => ['required', 'integer', 'exists:departments,id'], // Ensure the ID exists in your DB
-]);
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'department_id' => ['required', 'integer', 'exists:departments,id'],
+        ]);
 
-        // Create user with default role and department
+        // Create user with default role = employee
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'REQUESTER',        // default role
-            'department_id' => $request->department_id,           // default department (General)
+            'role' => 'employee',      // default role
+            'department_id' => $request->department_id,
         ]);
 
-        // Fire registered event
         event(new Registered($user));
 
-        // Login the user
         Auth::login($user);
 
         return redirect(route('dashboard'));

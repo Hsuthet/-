@@ -23,7 +23,7 @@ class DepartmentSeeder extends Seeder
         ];
 
         foreach ($departments as $name) {
-            // updateOrCreate ကိုသုံးရင် ဒေတာအထပ်ထပ် ဖြစ်မသွားအောင် ကာကွယ်ပေးပါတယ်
+          
             Department::updateOrCreate(['name' => $name]);
         }
     }
