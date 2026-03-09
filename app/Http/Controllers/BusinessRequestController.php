@@ -18,23 +18,59 @@ class BusinessRequestController extends Controller
 public function index()
 {
     $user = Auth::user();
-    
-    $query = BusinessRequest::with([
-        'categories', 
-        'user.department', 
-        'targetDepartment', 
-        'attachments' 
-    ]);
 
-    if ($user->role === 'REQUESTER') {
-        $requests = $query->latest()->get();
-    } elseif ($user->role === 'APPROVER') {
-        $requests = $query->latest()->get();
-    } else {
-        $requests = $query->latest()->get();
+    // default empty collections
+    $requests = collect();
+    $workerTasks = collect();
+    $managerRequests = collect();
+
+    // Common relationships
+    $relations = [
+        'categories',
+        'user.department',
+        'targetDepartment',
+        'attachments',
+        'worker'
+    ];
+
+    // EMPLOYEE
+    if ($user->role === 'employee') {
+
+        // Requests created by employee
+        $requests = BusinessRequest::with($relations)
+            ->where('user_id', $user->id)
+            ->latest()
+            ->get();
+
+        // Tasks assigned to employee
+        $workerTasks = BusinessRequest::with($relations)
+            ->where('worker_id', $user->id)
+            ->latest()
+            ->get();
     }
 
-    return view('business-requests.index', compact('requests'));
+    // MANAGER
+    elseif ($user->role === 'manager') {
+
+        $managerRequests = BusinessRequest::with($relations)
+            ->where('status', 'PENDING')
+            ->latest()
+            ->get();
+    }
+
+    // ADMIN (optional)
+    elseif ($user->role === 'admin') {
+
+        $requests = BusinessRequest::with($relations)
+            ->latest()
+            ->get();
+    }
+
+    return view('business-requests.index', compact(
+        'requests',
+        'workerTasks',
+        'managerRequests'
+    ));
 }
 
     // 2. CREATE: Show the input form

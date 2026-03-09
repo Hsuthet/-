@@ -3,11 +3,11 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
             @php
-                $userRole = Auth::user()->role; // 'requester', 'approver', 'worker'
+                $userRole = Auth::user()->role;
             @endphp
 
             {{-- ၁။ Requester View (依頼者) --}}
-            @if($userRole === 'REQUESTER')
+            @if($userRole === 'employee')
                 <div class="flex justify-between items-center mb-6">
                     <h1 class="text-2xl font-bold text-gray-800">依頼者用一覧画面</h1>
                     <a href="{{ route('business-requests.create') }}" class="bg-blue-600 text-white px-6 py-2 rounded-md font-bold shadow-md hover:bg-blue-700">＋ 新規作成</a>
@@ -75,12 +75,12 @@
                 </x-data-table>
 
             {{-- ၂။ Approver View (承認者) --}}
-            @elseif($userRole === 'approver')
+            @elseif($userRole === 'manager')
                 <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">承認者用一覧画面</h1>
                 @php $headers = ['依頼番号', '件名', '依頼者', '依頼部署', '対象部署', '依頼日', '期限', '添付', 'ステータス', '操作']; @endphp
                 
                 <x-data-table id="appTable" :headers="$headers" role="approver">
-                    @foreach($requests as $req)
+                   @foreach($managerRequests as $req)
                         <tr class="hover:bg-gray-50 border-b">
                             <td class="border border-gray-300 px-3 py-4 text-center">{{ $req->request_number }}</td>
                             <td class="border border-gray-300 px-3 py-4 font-medium">{{ $req->title }}</td>
@@ -101,12 +101,12 @@
                 </x-data-table>
 
             {{-- ၃။ Worker View (担当者) --}}
-            @elseif($userRole === 'worker')
+            @elseif($userRole === 'employee')
                 <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">担当者用一覧画面</h1>
                 @php $headers = ['依頼番号', '件名', '依頼区分', '依頼者', '期限', 'ステータス', '操作']; @endphp
                 
                 <x-data-table id="workTable" :headers="$headers" role="worker">
-                    @foreach($requests as $req)
+                   @foreach($workerTasks as $req)
                         <tr class="hover:bg-gray-50 border-b">
                             <td class="border border-gray-300 px-3 py-4 text-center">{{ $req->request_number }}</td>
                             <td class="border border-gray-300 px-3 py-4 text-blue-600 underline font-medium">{{ $req->title }}</td>

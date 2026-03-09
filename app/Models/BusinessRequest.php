@@ -28,15 +28,7 @@ class BusinessRequest extends Model
         'status',
         'description',
         'special_note'
-    ];
-
-    public function targetDepartment(): BelongsTo
-    {
-      
-        return $this->belongsTo(Department::class, 'department_id');
-    }
-
-   
+    ];  
 
     /**
      * RELATIONSHIP: Link to the User who created it
@@ -59,6 +51,15 @@ class BusinessRequest extends Model
         );
     }
 
+    public function targetDepartment()
+{
+    return $this->belongsTo(Department::class, 'target_department_id');
+}
+
+public function worker()
+{
+    return $this->belongsTo(User::class, 'worker_id');
+}
  /**
      * RELATIONSHIP: Link to the request_contents table
      */
@@ -73,5 +74,14 @@ class BusinessRequest extends Model
     return $this->hasMany(Attachment::class, 'request_id');
     }
 
+    public function scopeForEmployee($query, $userId)
+{
+    return $query->where('user_id', $userId);
+}
+
+public function scopeAssignedTo($query, $userId)
+{
+    return $query->where('worker_id', $userId);
+}
 
 }
