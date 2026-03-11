@@ -74,31 +74,54 @@
                     @endforeach
                 </x-data-table>
 
-            {{-- ၂။ Approver View (承認者) --}}
-            @elseif($userRole === 'manager')
-                <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">承認者用一覧画面</h1>
-                @php $headers = ['依頼番号', '件名', '依頼者', '依頼部署', '対象部署', '依頼日', '期限', '添付', 'ステータス', '操作']; @endphp
-                
-                <x-data-table id="appTable" :headers="$headers" role="approver">
-                   @foreach($managerRequests as $req)
-                        <tr class="hover:bg-gray-50 border-b">
-                            <td class="border border-gray-300 px-3 py-4 text-center">{{ $req->request_number }}</td>
-                            <td class="border border-gray-300 px-3 py-4 font-medium">{{ $req->title }}</td>
-                            <td class="border border-gray-300 px-3 py-4">{{ $req->user?->name }}</td>
-                            <td class="border border-gray-300 px-3 py-4">{{ $req->user?->department?->name }}</td>
-                            <td class="border border-gray-300 px-3 py-4 text-center">{{ $req->targetDepartment?->name }}</td>
-                            <td class="border border-gray-300 px-3 py-4 text-center">{{ $req->created_at->format('Y/m/d') }}</td>
-                            <td class="border border-gray-300 px-3 py-4 text-center">{{ $req->due_date }}</td>
-                            <td class="border border-gray-300 px-3 py-4 text-center">あり</td>
-                            <td class="border border-gray-300 px-3 py-4 text-center">
-                                <span class="bg-orange-400 text-white px-4 py-1 rounded-md text-xs">承認待ち</span>
-                            </td>
-                            <td class="border border-gray-300 px-3 py-4 text-center">
-                                <a href="#" class="border border-gray-400 px-3 py-1 rounded text-xs shadow-sm">詳細</a>
-                            </td>
-                        </tr>
-                    @endforeach
-                </x-data-table>
+{{-- ၂။ Approver View (承認者 / Manager) --}}
+@elseif($userRole === 'manager')
+    <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">承認者用一覧画面</h1>
+    @php
+        $headers = ['依頼番号', '件名', '依頼者', '依頼部署', '対象部署', '依頼日', '期限', '添付', 'ステータス', '操作'];
+    @endphp
+
+    <x-data-table id="managerTable" :headers="$headers" role="manager">
+        @foreach($managerRequests as $req)
+            <tr class="hover:bg-gray-50 border-b">
+                <td class="border border-gray-300 px-3 py-4 text-center">{{ $req->request_number }}</td>
+                <td class="border border-gray-300 px-3 py-4 font-medium">{{ $req->title }}</td>
+                <td class="border border-gray-300 px-3 py-4">{{ $req->user?->name }}</td>
+                <td class="border border-gray-300 px-3 py-4">{{ $req->user?->department?->name }}</td>
+                <td class="border border-gray-300 px-3 py-4 text-center">{{ $req->targetDepartment?->name }}</td>
+                <td class="border border-gray-300 px-3 py-4 text-center">{{ $req->created_at->format('Y/m/d') }}</td>
+                <td class="border border-gray-300 px-3 py-4 text-center">{{ $req->due_date }}</td>
+                <td class="border border-gray-300 px-3 py-4 text-center">あり</td>
+                <td class="border border-gray-300 px-3 py-4 text-center">
+                    <span class="bg-orange-400 text-white px-4 py-1 rounded-md text-xs">承認待ち</span>
+                </td>
+                <td class="border border-gray-300 px-3 py-4 text-center">
+                    <div class="flex flex-col space-y-1 justify-center items-center">
+                        {{-- View details --}}
+                        <a href="{{ route('business-requests.show', $req->id) }}" 
+                           class="border border-gray-400 px-3 py-1 rounded text-xs shadow-sm w-full text-center">詳細</a>
+
+                        {{-- Approve & Assign Button --}}
+                        <a href="{{ route('business-requests.approve', $req->id) }}" 
+                           class="bg-green-500 text-white px-3 py-1 rounded text-xs w-full text-center hover:bg-green-600">
+                           承認 / 担当者設定
+                        </a>
+
+                        {{-- Delete Button --}}
+                        <form action="{{ route('business-requests.destroy', $req->id) }}" method="POST" class="w-full">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" 
+                                    onclick="return confirm('本当に削除しますか？');" 
+                                    class="bg-red-500 text-white px-3 py-1 rounded text-xs w-full hover:bg-red-600">
+                                削除
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+        @endforeach
+    </x-data-table>
 
             {{-- ၃။ Worker View (担当者) --}}
             @elseif($userRole === 'employee')
