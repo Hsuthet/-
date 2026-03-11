@@ -19,7 +19,8 @@ return new class extends Migration
                 ->nullable()
                 ->constrained('users')
                 ->nullOnDelete();
-
+                
+            $table->text('reject_reason')->nullable();
         });
     }
 
@@ -32,6 +33,8 @@ return new class extends Migration
 
             $table->dropForeign(['worker_id']);
             $table->dropColumn('worker_id');
+
+             $table->dropColumn('reject_reason');
 
         });
     }
