@@ -276,4 +276,25 @@ if ($user->role === 'manager' || $user->role === 'APPROVER') {
         }
         return $year . '-' . $nextId;
     }
+
+    public function myRequests()
+{
+    $requests = BusinessRequest::with(['targetDepartment', 'requestContent'])
+        ->where('user_id', auth::id())
+        ->latest()
+        ->get();
+
+    return view('business-requests.my_requests', compact('requests'));
+}
+
+public function myTasks()
+{
+    $tasks = BusinessRequest::with(['user.department', 'requestContent'])
+        ->where('worker_id', auth::id())
+        ->where('status', 'APPROVED') // Workers usually only see approved/active tasks
+        ->latest()
+        ->get();
+
+    return view('business-requests.my_tasks', compact('tasks'));
+}
 }
