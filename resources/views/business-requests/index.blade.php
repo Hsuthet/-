@@ -92,33 +92,45 @@
                 <td class="border border-gray-300 px-3 py-4 text-center">{{ $req->created_at->format('Y/m/d') }}</td>
                 <td class="border border-gray-300 px-3 py-4 text-center">{{ $req->due_date }}</td>
                 <td class="border border-gray-300 px-3 py-4 text-center">あり</td>
-                <td class="border border-gray-300 px-3 py-4 text-center">
-                    <span class="bg-orange-400 text-white px-4 py-1 rounded-md text-xs">承認待ち</span>
-                </td>
-                <td class="border border-gray-300 px-3 py-4 text-center">
-                    <div class="flex flex-col space-y-1 justify-center items-center">
-                        {{-- View details --}}
-                        <a href="{{ route('business-requests.show', $req->id) }}" 
-                           class="border border-gray-400 px-3 py-1 rounded text-xs shadow-sm w-full text-center">詳細</a>
+                {{-- Update the Status TD inside your @foreach --}}
+<td class="border border-gray-300 px-3 py-4 text-center">
+    @if($req->status === 'PENDING')
+        <span class="bg-orange-400 text-white px-4 py-1 rounded-md text-xs">承認待ち</span>
+    @elseif($req->status === 'APPROVED')
+        <span class="bg-green-500 text-white px-4 py-1 rounded-md text-xs">承認済み</span>
+    @elseif($req->status === 'REJECTED')
+        <span class="bg-red-500 text-white px-4 py-1 rounded-md text-xs">却下</span>
+    @else
+        <span class="bg-gray-400 text-white px-4 py-1 rounded-md text-xs">{{ $req->status }}</span>
+    @endif
+</td>
+               <td class="border border-gray-300 px-3 py-4 text-center">
+            {{-- logic: Only show content if PENDING --}}
+            @if($req->status === 'PENDING')
+                <div class="flex flex-col space-y-1 justify-center items-center">
+                    <a href="{{ route('business-requests.show', $req->id) }}" 
+                       class="border border-gray-400 px-3 py-1 rounded text-xs shadow-sm w-full text-center hover:bg-gray-100">詳細</a>
 
-                        {{-- Approve & Assign Button --}}
-                        <a href="{{ route('business-requests.approve', $req->id) }}" 
-                           class="bg-green-500 text-white px-3 py-1 rounded text-xs w-full text-center hover:bg-green-600">
-                           承認 / 担当者設定
-                        </a>
+                    <a href="{{ route('business-requests.approve', $req->id) }}" 
+                       class="bg-green-500 text-white px-3 py-1 rounded text-xs w-full text-center hover:bg-green-600">
+                        承認 / 担当者設定
+                    </a>
 
-                        {{-- Delete Button --}}
-                        <form action="{{ route('business-requests.destroy', $req->id) }}" method="POST" class="w-full">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" 
-                                    onclick="return confirm('本当に削除しますか？');" 
-                                    class="bg-red-500 text-white px-3 py-1 rounded text-xs w-full hover:bg-red-600">
-                                削除
-                            </button>
-                        </form>
-                    </div>
-                </td>
+                    <form action="{{ route('business-requests.destroy', $req->id) }}" method="POST" class="w-full">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" 
+                                onclick="return confirm('本当に削除しますか？');" 
+                                class="bg-red-500 text-white px-3 py-1 rounded text-xs w-full hover:bg-red-600">
+                            削除
+                        </button>
+                    </form>
+                </div>
+            @else
+                {{-- Placeholder text or empty to keep table alignment --}}
+                <span class="text-gray-400 text-xs italic">完了済み</span>
+            @endif
+        </td>
             </tr>
         @endforeach
     </x-data-table>

@@ -61,28 +61,42 @@
                     </div>
 
                     {{-- Approve Block --}}
-                    <div x-show="selectedAction === 'approve'" x-transition class="p-4 border-2 border-dashed border-blue-200 rounded-lg bg-blue-50/50">
-                        <label for="worker_id" class="block text-gray-700 font-semibold mb-2">担当者 (Assignee)</label>
-                      <select name="worker_id" id="worker_id" class="w-full border rounded-lg p-2 bg-white"
-                                @if($employees->isEmpty()) disabled @endif>
-                            <option value="">-- 担当者を選択してください --</option>
-                            @foreach($employees as $emp)
-                                <option value="{{ $emp->id }}">{{ $emp->name }}</option>
-                            @endforeach
-                        </select>
+<div x-show="selectedAction === 'approve'" x-transition 
+     class="p-4 border-2 border-dashed border-blue-200 rounded-lg bg-blue-50/50">
+    
+    <label for="worker_id" class="block text-gray-700 font-semibold mb-2">担当者 (Assignee)</label>
+    
+    <select name="worker_id" id="worker_id" 
+            class="w-full border rounded-lg p-2 bg-white"
+            :required="selectedAction === 'approve'" {{-- Required only when approving --}}
+            @if($employees->isEmpty()) disabled @endif>
+        <option value="">-- 担当者を選択してください --</option>
+        @foreach($employees as $emp)
+            <option value="{{ $emp->id }}">{{ $emp->name }}</option>
+        @endforeach
+    </select>
 
-                        @if($employees->isEmpty())
-                            <p class="text-xs text-red-500 mt-2 text-center">この部署には担当者が存在しません。</p>
-                        @endif
-                        <p class="text-xs text-gray-500 mt-2 text-center">※承認時のみ表示</p>
-                    </div>
+    @if($employees->isEmpty())
+        <p class="text-xs text-red-500 mt-2 text-center font-bold">
+            エラー: 対象部署（{{ $request->targetDepartment->name }}）に担当者がいません。
+        </p>
+    @endif
+    <p class="text-xs text-gray-500 mt-2 text-center">※承認時のみ表示</p>
+</div>
 
-                    {{-- Reject Block --}}
-                    <div x-show="selectedAction === 'reject'" x-transition class="p-4 border-2 border-dashed border-red-200 rounded-lg bg-red-50/50">
-                        <label class="block text-gray-700 font-semibold mb-2">却下理由 (Reason)</label>
-                        <input type="text" name="reason" class="w-full border rounded-lg p-2" placeholder="理由を入力してください">
-                        <p class="text-xs text-gray-500 mt-2 text-center">※却下時のみ表示</p>
-                    </div>
+{{-- Reject Block --}}
+<div x-show="selectedAction === 'reject'" x-transition 
+     class="p-4 border-2 border-dashed border-red-200 rounded-lg bg-red-50/50">
+    
+    <label class="block text-gray-700 font-semibold mb-2">却下理由 (Reason)</label>
+    
+    <textarea name="reason" 
+              class="w-full border rounded-lg p-2" 
+              placeholder="却下の理由を詳しく入力してください"
+              :required="selectedAction === 'reject'"></textarea> {{-- Required only when rejecting --}}
+    
+    <p class="text-xs text-gray-500 mt-2 text-center">※却下時のみ表示</p>
+</div>
 
                     {{-- Submit / Cancel --}}
                     <div class="flex gap-3 mt-4" x-show="selectedAction !== ''">

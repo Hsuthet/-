@@ -25,26 +25,36 @@
             </div>
 
             <nav class="flex-grow p-4 space-y-2 overflow-y-auto">
-                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3 mb-2">Menu</p>
-                
-                <a href="{{ route('dashboard') }}" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition {{ request()->routeIs('dashboard') ? 'bg-indigo-600 text-white' : 'hover:bg-slate-800 text-slate-400' }}">
-                    <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
-                    <span class="text-sm font-medium">ダッシュボード</span>
-                </a>
+    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3 mb-2">Menu</p>
+    
+    {{-- Dashboard --}}
+    <a href="{{ route('dashboard') }}" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition {{ request()->routeIs('dashboard') ? 'bg-indigo-600 text-white' : 'hover:bg-slate-800 text-slate-400' }}">
+        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+        <span class="text-sm font-medium">ダッシュボード</span>
+    </a>
 
-                <a href="{{ route('business-requests.index') }}" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition {{ request()->routeIs('business-requests.index') ? 'bg-indigo-600 text-white' : 'hover:bg-slate-800 text-slate-400' }}">
-                    <i data-lucide="clipboard-list" class="w-5 h-5"></i>
-                    <span class="text-sm font-medium">依頼一覧 (List)</span>
-                </a>
+    {{-- General List --}}
+    <a href="{{ route('business-requests.index') }}" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition {{ request()->routeIs('business-requests.index') ? 'bg-indigo-600 text-white' : 'hover:bg-slate-800 text-slate-400' }}">
+        <i data-lucide="clipboard-list" class="w-5 h-5"></i>
+        <span class="text-sm font-medium">依頼一覧 (List)</span>
+    </a>
 
-                @if(auth()->user()->role === 'REQUESTER')
-                <a href="{{ route('business-requests.create') }}" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition {{ request()->routeIs('business-requests.create') ? 'bg-indigo-600 text-white' : 'hover:bg-slate-800 text-slate-400' }}">
-                    <i data-lucide="plus-circle" class="w-5 h-5"></i>
-                    <span class="text-sm font-medium">新規依頼 (New)</span>
-                </a>
-                @endif
-            </nav>
+    {{-- Assigned Tasks: Show only for Employees/Workers --}}
+    @if(auth()->user()->role === 'employee')
+    <a href="{{ route('business-requests.index') }}#workerTable" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition hover:bg-slate-800 text-slate-400 border border-dashed border-slate-700 mt-4">
+        <i data-lucide="briefcase" class="w-5 h-5 text-indigo-400"></i>
+        <span class="text-sm font-medium text-slate-200">担当作業 (My Tasks)</span>
+    </a>
+    @endif
 
+    {{-- Create Request: Show only for Requesters/Employees --}}
+    @if(auth()->user()->role === 'REQUESTER' || auth()->user()->role === 'employee')
+    <a href="{{ route('business-requests.create') }}" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition {{ request()->routeIs('business-requests.create') ? 'bg-indigo-600 text-white' : 'hover:bg-slate-800 text-slate-400' }}">
+        <i data-lucide="plus-circle" class="w-5 h-5"></i>
+        <span class="text-sm font-medium">新規依頼 (New)</span>
+    </a>
+    @endif
+</nav>
     
         </aside>
 

@@ -1,53 +1,133 @@
 <x-app-layout>
-    <div class="py-12">
-        <div class="max-w-4xl mx-auto bg-white p-10 shadow border border-gray-200">
-            <div class="flex justify-between border-b pb-4 mb-6">
-                <h1 class="text-2xl font-bold">{{ $request->request_number }}</h1>
-                <span class="text-gray-500 text-sm">作成者: {{ $request->user->name }}</span>
+    <div class="min-h-screen bg-gray-100 py-12">
+        <div class="max-w-3xl mx-auto bg-white shadow-lg border border-gray-300 rounded-sm">
+            
+            <div class="bg-gray-50 px-8 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h1 class="text-xl font-bold text-gray-800">依頼内容の確認</h1>
+                <a href="{{ route('business-requests.index') }}" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</a>
             </div>
 
-            <div class="grid grid-cols-2 gap-6 mb-8">
-                <div>
-                    <label class="text-xs text-gray-500 block uppercase">件名</label>
-                    <p class="text-lg font-semibold">{{ $request->title }}</p>
-                </div>
-                <div>
-                    <label class="text-xs text-gray-500 block uppercase">期日</label>
-                    <p class="text-lg">{{ $request->due_date }}</p>
-                </div>
-            </div>
+            <div class="p-10 space-y-8 text-gray-700">
+                <p class="text-sm mb-6">下記の内容で依頼が作成されています。</p>
 
-            <div class="mb-10">
-                <label class="text-xs text-gray-500 block uppercase font-bold">特記事項</label>
-                <div class="p-4 bg-gray-50 border rounded mt-2 min-h-[100px]">
-                    {{ $request->requestContent->special_note ?? '記載なし' }}
-                </div>
-            </div>
-
-            <div class="border-t pt-6">
-                @if($request->status == 'pending_approval')
-                    <h3 class="text-red-600 font-bold mb-4">【管理者用操作】</h3>
-                    <form action="{{ route('business-requests.updateStatus', $request->id) }}" method="POST">
-                        @csrf @method('PATCH')
-                        <input type="hidden" name="status" value="in_progress">
-                        <button class="bg-green-600 text-white px-8 py-2 rounded hover:bg-green-700">
-                            承認して作業を開始する (Approve)
-                        </button>
-                    </form>
-                @elseif($request->status == 'in_progress')
-                    <h3 class="text-blue-600 font-bold mb-4">【担当部署用操作】</h3>
-                    <form action="{{ route('business-requests.updateStatus', $request->id) }}" method="POST">
-                        @csrf @method('PATCH')
-                        <input type="hidden" name="status" value="completed">
-                        <button class="bg-black text-white px-8 py-2 rounded hover:bg-gray-800">
-                            完了報告を送る (Mark as Complete)
-                        </button>
-                    </form>
-                @else
-                    <div class="text-center p-4 bg-green-50 text-green-700 rounded font-bold">
-                        ✓ この業務は完了しています。
+                <section>
+                    <h2 class="font-bold border-b pb-2 mb-4 text-sm tracking-widest text-gray-900">【依頼情報】</h2>
+                    <div class="grid grid-cols-1 gap-y-2 ml-4">
+                        <div class="flex">
+                            <span class="w-32 text-sm text-gray-600">依頼番号：</span>
+                            <span class="text-sm font-mono">{{ $request->request_number }}</span>
+                        </div>
+                        <div class="flex">
+                            <span class="w-32 text-sm text-gray-600">依頼日：</span>
+                            <span class="text-sm">{{ $request->created_at->format('Y/m/d') }}</span>
+                        </div>
                     </div>
-                @endif
+                </section>
+
+                <section>
+                    <h2 class="font-bold border-b pb-2 mb-4 text-sm tracking-widest text-gray-900">【依頼者情報】</h2>
+                    <div class="grid grid-cols-1 gap-y-2 ml-4">
+                        <div class="flex">
+                            <span class="w-32 text-sm text-gray-600">件名：</span>
+                            <span class="text-sm font-bold">{{ $request->title }}</span>
+                        </div>
+                        <div class="flex">
+                            <span class="w-32 text-sm text-gray-600">依頼者名：</span>
+                            <span class="text-sm">{{ $request->user->name }}</span>
+                        </div>
+                        <div class="flex">
+                            <span class="w-32 text-sm text-gray-600">依頼者部署：</span>
+                            <span class="text-sm">{{ $request->user->department->name ?? '未設定' }}</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h2 class="font-bold border-b pb-2 mb-4 text-sm tracking-widest text-gray-900">【依頼先情報】</h2>
+                    <div class="grid grid-cols-1 gap-y-4 ml-4">
+                        <div class="flex items-center">
+                            <span class="w-32 text-sm text-gray-600">対象部署：</span>
+                            <span class="px-4 py-1 border border-gray-300 bg-gray-50 text-sm rounded">{{ $request->targetDepartment->name ?? '未設定' }}</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="w-32 text-sm text-gray-600">期日：</span>
+                            <span class="px-4 py-1 border border-gray-300 bg-gray-50 text-sm rounded">{{ $request->due_date }}</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h2 class="font-bold border-b pb-2 mb-4 text-sm tracking-widest text-gray-900">【業務内容】</h2>
+                    <div class="ml-4 space-y-4">
+                        <div class="flex flex-wrap gap-4">
+                            @foreach(\App\Models\Category::all() as $category)
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-4 h-4 border flex items-center justify-center {{ $request->categories->contains($category->id) ? 'bg-green-600 border-green-600' : 'bg-white border-gray-300' }}">
+                                        @if($request->categories->contains($category->id))
+                                            <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                        @endif
+                                    </div>
+                                    <span class="text-sm {{ $request->categories->contains($category->id) ? 'text-gray-900' : 'text-gray-400' }}">{{ $category->name }}</span>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <div>
+                            <span class="text-sm text-gray-600 block mb-2">詳細内容：</span>
+                            <div class="text-sm leading-relaxed text-gray-800 ml-4">
+                                {{ $request->requestContent->description ?? 'なし' }}
+                            </div>
+                        </div>
+
+                        <div>
+                            <span class="text-sm text-gray-600 block mb-2 text-yellow-600">特記事項：</span>
+                            <div class="text-sm text-gray-800 ml-4">
+                                {{ $request->requestContent->special_note ?? 'なし' }}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h2 class="font-bold border-b pb-2 mb-4 text-sm tracking-widest text-gray-900">【添付ファイル】</h2>
+                    <div class="ml-4">
+                        @forelse($request->attachments as $file)
+                            <div class="flex items-center p-3 bg-gray-50 border border-gray-200 rounded text-sm text-gray-700">
+                                <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                <a href="{{ asset('storage/' . $file->file_path) }}" target="_blank" class="hover:underline flex-1">
+                                    {{ $file->file_name }}
+                                </a>
+                                <span class="text-xs text-gray-400 uppercase">View File</span>
+                            </div>
+                        @empty
+                            <p class="text-sm text-gray-400 italic">なし</p>
+                        @endforelse
+                    </div>
+                </section>
+
+                <div class="flex justify-end pt-4">
+                    <div class="inline-flex items-center px-4 py-1 rounded border {{ $request->status === 'PENDING' ? 'bg-yellow-50 border-yellow-400 text-yellow-700' : 'bg-gray-50 border-gray-300 text-gray-600' }} text-xs font-bold">
+                        ステータス：{{ $request->status === 'PENDING' ? '承認待ち' : $request->status }}
+                    </div>
+                </div>
+
+                <div class="flex justify-center space-x-4 border-t pt-10">
+                    <a href="{{ route('business-requests.index') }}" class="px-10 py-2 border border-gray-300 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm transition">
+                        戻る
+                    </a>
+                    
+                    @if($request->status === 'PENDING' && Auth::user()->role === 'manager')
+                        <form action="{{ route('business-requests.updateStatus', $request->id) }}" method="POST">
+                            @csrf @method('PATCH')
+                            <input type="hidden" name="status" value="in_progress">
+                            <button type="submit" class="px-10 py-2 bg-indigo-700 hover:bg-indigo-800 text-white text-sm transition shadow-sm font-bold">
+                                依頼を承認する
+                            </button>
+                        </form>
+                    @endif
+                </div>
             </div>
         </div>
     </div>

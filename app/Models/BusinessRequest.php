@@ -8,80 +8,121 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-
-
 class BusinessRequest extends Model
 {
     use HasFactory;
 
-    // Connect to the 'requests' table
     protected $table = 'requests';
+
+    /*
+    |--------------------------------------------------------------------------
+    | Status Constants
+    |--------------------------------------------------------------------------
+    */
+ 
+    // const PENDING = 'PENDING';
+    // const APPROVED = 'APPROVED';
+    // const WORKING = 'WORKING';
+    // const COMPLETED = 'COMPLETED';
+    // const REJECTED = 'REJECTED';
+
 
     protected $fillable = [
         'request_number',
         'title',
         'user_id',
         'department_id',
-        'category_id',
+        'target_department_id',
+        'worker_id',
+        'reject_reason',
         'status',
-        'due_date',
-        'status',
-        'description',
-        'special_note'
-    ];  
+        'due_date'
+    ];
 
-    /**
-     * RELATIONSHIP: Link to the User who created it
-     */
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
+
+    // Request creator
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
-    public function department()
+
+    // Requester's department
+    public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class);
     }
-        public function categories()
+
+    // Target department
+    public function targetDepartment(): BelongsTo
+    {
+        return $this->belongsTo(Department::class, 'target_department_id');
+    }
+
+    // Assigned worker
+    public function worker(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'worker_id');
+    }
+
+    // Request categories
+    public function categories()
     {
         return $this->belongsToMany(
-            \App\Models\Category::class,
-            'category_request',          // pivot table name
-            'request_id',       //  foreign key in pivot
-            'category_id'                //  related key in pivot
+            Category::class,
+            'category_request',
+            'request_id',
+            'category_id'
         );
     }
 
-    public function targetDepartment()
-{
-    return $this->belongsTo(Department::class, 'target_department_id');
-}
-
-public function worker()
-{
-    return $this->belongsTo(User::class, 'worker_id');
-}
- /**
-     * RELATIONSHIP: Link to the request_contents table
-     */
+    // Request content
     public function requestContent(): HasOne
     {
-      
         return $this->hasOne(RequestContent::class, 'request_id');
     }
 
-    public function attachments()
+    // Attachments
+    public function attachments(): HasMany
     {
-    return $this->hasMany(Attachment::class, 'request_id');
+        return $this->hasMany(Attachment::class, 'request_id');
     }
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Query Scopes
+    |--------------------------------------------------------------------------
+    */
+
+    // Requests created by employee
     public function scopeForEmployee($query, $userId)
+    {
+        return $query->where('user_id', $userId);
+    }
+
+    // Requests assigned to worker
+    public function scopeAssignedTo($query, $userId)
+    {
+        return $query->where('worker_id', $userId);
+    }
+
+    public function approvals()
 {
-    return $query->where('user_id', $userId);
+    return $this->hasMany(Approval::class, 'request_id');
 }
 
-public function scopeAssignedTo($query, $userId)
+// Helper to get the latest rejection reason easily
+public function latestRejection()
 {
-    return $query->where('worker_id', $userId);
+    return $this->hasOne(Approval::class, 'request_id')
+                ->where('approval_status', 'REJECTED')
+                ->latestOfMany();
 }
-
 }
