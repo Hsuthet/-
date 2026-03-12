@@ -60,6 +60,13 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/business-requests/{request}/approve', [RequestApprovalController::class, 'approveForm'])->name('business-requests.approve');
 Route::post('/business-requests/{businessRequest}/assign', [RequestApprovalController::class, 'assign'])
     ->name('business-requests.assign');
-// If using a manual route:
+
 Route::get('/business-requests/{id}', [BusinessRequestController::class, 'showUser'])->name('business-requests.show');
+
+Route::get('/my-requests', [BusinessRequestController::class, 'myRequests'])
+        ->name('business-requests.my_requests');
+
+    // Tasks assigned to me to work on
+    Route::get('/my-tasks', [BusinessRequestController::class, 'myTasks'])
+        ->name('business-requests.my_tasks');
 require __DIR__.'/auth.php';
