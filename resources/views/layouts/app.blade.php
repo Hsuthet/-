@@ -14,49 +14,45 @@
 <body class="font-sans antialiased bg-slate-50 text-slate-900">
     <div class="min-h-screen flex">
         
-        <aside class="w-64 bg-slate-900 text-white hidden md:flex flex-col sticky top-0 h-screen shadow-xl">
-            <div class="p-6 border-b border-slate-800">
-                <a href="{{ route('dashboard') }}" class="flex items-center space-x-3">
-                    <div class="bg-indigo-600 p-2 rounded-lg">
-                        <i data-lucide="layers" class="w-6 h-6"></i>
-                    </div>
-                    <span class="font-bold text-lg tracking-tight">業務依頼システム</span>
-                </a>
+     <aside class="w-72 bg-[#001a4d] text-white hidden md:flex flex-col sticky top-0 h-screen shadow-2xl">
+    
+    <div class="py-10 px-8">
+        <div class="flex flex-col items-center">
+            <img src="{{ asset('images/logo1.png') }}" class="h-10 w-auto object-contain">
+            <div class="mt-4 flex items-center space-x-3 w-full opacity-30">
+                <div class="h-[1px] flex-grow bg-white"></div>
+                <span class="text-[8px] font-bold tracking-[0.5em] uppercase">業務依頼システム</span>
+                <div class="h-[1px] flex-grow bg-white"></div>
             </div>
+        </div>
+    </div>
 
-            <nav class="flex-grow p-4 space-y-2 overflow-y-auto">
-    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3 mb-2">Menu</p>
-    
-    {{-- Dashboard --}}
-    <a href="{{ route('dashboard') }}" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition {{ request()->routeIs('dashboard') ? 'bg-indigo-600 text-white' : 'hover:bg-slate-800 text-slate-400' }}">
-        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
-        <span class="text-sm font-medium">ダッシュボード</span>
-    </a>
+    <nav class="flex-grow px-4 space-y-1 overflow-y-auto">
+        {{-- Section Header --}}
+        <h3 class="text-[10px] font-bold text-white/20 uppercase tracking-[0.2em] px-4 pt-6 pb-2">Main Menu</h3>
+        <x-nav-link-item :href="route('dashboard')" :active="request()->routeIs('dashboard')" icon="layout-dashboard" label="ダッシュボード" />
 
-    {{-- General List --}}
-    <a href="{{ route('business-requests.index') }}" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition {{ request()->routeIs('business-requests.index') ? 'bg-indigo-600 text-white' : 'hover:bg-slate-800 text-slate-400' }}">
-        <i data-lucide="clipboard-list" class="w-5 h-5"></i>
-        <span class="text-sm font-medium">依頼一覧 (List)</span>
-    </a>
+        <h3 class="text-[10px] font-bold text-white/20 uppercase tracking-[0.2em] px-4 pt-8 pb-2">Requests</h3>
+        <x-nav-link-item :href="route('business-requests.create')" :active="request()->routeIs('business-requests.create')" icon="plus-circle" label="新規依頼作成" />
+        <x-nav-link-item :href="route('business-requests.my_requests')" :active="request()->routeIs('business-requests.my_requests')" icon="send" label="自分の依頼" />
+        
+        @if(auth()->user()->role === 'employee')
+            <x-nav-link-item :href="route('business-requests.my_tasks')" :active="request()->routeIs('business-requests.my_tasks')" icon="clipboard-list" label="担当作業" :badge="$assignedTaskCount" />
+        @endif
+    </nav>
 
-    {{-- Assigned Tasks: Show only for Employees/Workers --}}
-    @if(auth()->user()->role === 'employee')
-    <a href="{{ route('business-requests.index') }}#workerTable" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition hover:bg-slate-800 text-slate-400 border border-dashed border-slate-700 mt-4">
-        <i data-lucide="briefcase" class="w-5 h-5 text-indigo-400"></i>
-        <span class="text-sm font-medium text-slate-200">担当作業 (My Tasks)</span>
-    </a>
-    @endif
-
-    {{-- Create Request: Show only for Requesters/Employees --}}
-    @if(auth()->user()->role === 'REQUESTER' || auth()->user()->role === 'employee')
-    <a href="{{ route('business-requests.create') }}" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition {{ request()->routeIs('business-requests.create') ? 'bg-indigo-600 text-white' : 'hover:bg-slate-800 text-slate-400' }}">
-        <i data-lucide="plus-circle" class="w-5 h-5"></i>
-        <span class="text-sm font-medium">新規依頼 (New)</span>
-    </a>
-    @endif
-</nav>
-    
-        </aside>
+    <div class="p-4 mt-auto border-t border-white/5 bg-black/20">
+        <div class="flex items-center space-x-3 p-3 rounded-xl hover:bg-white/5 transition cursor-pointer">
+            <div class="w-10 h-10 rounded-lg bg-white/10 border border-white/10 flex items-center justify-center text-sm font-bold shadow-inner">
+                {{ substr(Auth::user()->name, 0, 1) }}
+            </div>
+            <div class="flex-grow overflow-hidden">
+                <p class="text-xs font-bold truncate">{{ Auth::user()->name }}</p>
+                <p class="text-[10px] text-white/40 uppercase tracking-widest font-medium">{{ Auth::user()->role }}</p>
+            </div>
+        </div>
+    </div>
+</aside>
 
         <div class="flex-grow flex flex-col min-w-0">
                 <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 sticky top-0 z-10">
