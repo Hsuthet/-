@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\BusinessRequestController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\RequestApprovalController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -56,4 +57,9 @@ Route::middleware(['auth'])->group(function () {
 
 });
 
+Route::get('/business-requests/{request}/approve', [RequestApprovalController::class, 'approveForm'])->name('business-requests.approve');
+Route::post('/business-requests/{businessRequest}/assign', [RequestApprovalController::class, 'assign'])
+    ->name('business-requests.assign');
+// If using a manual route:
+Route::get('/business-requests/{id}', [BusinessRequestController::class, 'showUser'])->name('business-requests.show');
 require __DIR__.'/auth.php';
