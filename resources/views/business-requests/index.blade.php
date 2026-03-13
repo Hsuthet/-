@@ -104,38 +104,48 @@
         <span class="bg-gray-400 text-white px-4 py-1 rounded-md text-xs">{{ $req->status }}</span>
     @endif
 </td>
-               <td class="border border-gray-300 px-3 py-4 text-center">
-            {{-- logic: Only show content if PENDING --}}
-            @if($req->status === 'PENDING')
-                <div class="flex flex-col space-y-1 justify-center items-center">
-                    <a href="{{ route('business-requests.show', $req->id) }}" 
-                       class="border border-gray-400 px-3 py-1 rounded text-xs shadow-sm w-full text-center hover:bg-gray-100">詳細</a>
+               <td class="border border-gray-300 px-4 py-3">
+    @if($req->status === 'PENDING')
+        <div class="flex items-center justify-center space-x-2">
+            {{-- View Detail --}}
+            <a href="{{ route('business-requests.show', $req->id) }}" 
+               class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition" 
+               title="詳細">
+                <i data-lucide="eye" class="w-4 h-4"></i>
+            </a>
 
-                    <a href="{{ route('business-requests.approve', $req->id) }}" 
-                       class="bg-green-500 text-white px-3 py-1 rounded text-xs w-full text-center hover:bg-green-600">
-                        承認 / 担当者設定
-                    </a>
+            {{-- Approve / Assign --}}
+            <a href="{{ route('business-requests.approve', $req->id) }}" 
+               class="p-2 text-emerald-500 hover:bg-emerald-50 rounded-lg transition border border-emerald-100" 
+               title="承認 / 担当者設定">
+                <i data-lucide="user-check" class="w-4 h-4"></i>
+            </a>
 
-                    <form action="{{ route('business-requests.destroy', $req->id) }}" method="POST" class="w-full">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" 
-                                onclick="return confirm('本当に削除しますか？');" 
-                                class="bg-red-500 text-white px-3 py-1 rounded text-xs w-full hover:bg-red-600">
-                            削除
-                        </button>
-                    </form>
-                </div>
-            @else
-                {{-- Placeholder text or empty to keep table alignment --}}
-                <span class="text-gray-400 text-xs italic">完了済み</span>
-            @endif
-        </td>
+            {{-- Delete --}}
+            <form action="{{ route('business-requests.destroy', $req->id) }}" method="POST" class="inline">
+                @csrf
+                @method('DELETE')
+                <button type="submit" 
+                        onclick="return confirm('本当に削除しますか？');" 
+                        class="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
+                        title="削除">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+            </form>
+        </div>
+    @else
+        <div class="flex justify-center">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-500 italic">
+                <i data-lucide="check" class="w-3 h-3 mr-1"></i> 完了済み
+            </span>
+        </div>
+    @endif
+</td>
             </tr>
         @endforeach
     </x-data-table>
 
-            {{-- ၃။ Worker View (担当者) --}}
+            {{--  Worker View (担当者) --}}
             @elseif($userRole === 'employee')
                 <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">担当者用一覧画面</h1>
                 @php $headers = ['依頼番号', '件名', '依頼区分', '依頼者', '期限', 'ステータス', '操作']; @endphp

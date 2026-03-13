@@ -8,10 +8,10 @@
                     業務依頼書・連絡書 (編集)
                 </h1>
 
-                {{-- Update route ကို ပို့ပါမယ် --}}
+               
                 <form action="{{ route('business-requests.update', $businessRequest->id) }}" method="POST" enctype="multipart/form-data">
                     @csrf
-                    @method('PUT') {{-- Update လုပ်ဖို့အတွက် PUT method လိုအပ်ပါတယ် --}}
+                    @method('PUT') 
 
                     <div class="grid md:grid-cols-2 gap-6 mb-12">
                         <div>
@@ -131,16 +131,30 @@
                                    class="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-indigo-100 file:text-indigo-700 hover:file:bg-indigo-200">
 
                           
-                            @if($businessRequest->attachments->count() > 0)
-                                <div class="mt-4 p-4 bg-white border rounded-md text-left shadow-sm">
-                                    <p class="text-xs font-bold text-gray-600 mb-2">● アップロード済みファイル:</p>
-                                    <ul class="text-xs text-blue-600 list-disc ml-5 space-y-1">
-                                        @foreach($businessRequest->attachments as $file)
-                                            <li>{{ $file->original_name }}</li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            @endif
+                           @if($businessRequest->attachments && $businessRequest->attachments->count() > 0)
+    <div class="mt-6 p-4 bg-white border border-slate-200 rounded-xl shadow-sm">
+        <div class="flex items-center mb-3">
+            <i data-lucide="paperclip" class="w-4 h-4 text-slate-400 mr-2"></i>
+            <p class="text-xs font-bold text-slate-700 uppercase tracking-wider">アップロード済みファイル</p>
+        </div>
+        
+        <ul class="space-y-2">
+            @foreach($businessRequest->attachments as $file)
+                <li class="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100 group hover:border-indigo-200 transition">
+                    <div class="flex items-center overflow-hidden">
+                        <i data-lucide="file-text" class="w-4 h-4 text-indigo-500 mr-2 flex-shrink-0"></i>
+                        <span class="text-xs text-slate-600 truncate">{{ $file->original_name }}</span>
+                    </div>
+                    
+                    {{-- Optional: Add a Delete button for OJT functionality --}}
+                    <button type="button" class="text-slate-400 hover:text-rose-500 transition">
+                        <i data-lucide="x-circle" class="w-4 h-4"></i>
+                    </button>
+                </li>
+            @endforeach
+        </ul>
+    </div>
+@endif
                         </div>
                     </div>
 
