@@ -172,7 +172,7 @@ if ($user->role === 'manager' || $user->role === 'APPROVER') {
 
             session()->forget(['form_data', 'storedFiles']);
 
-            return redirect()->route('business-requests.index')->with('success', '依頼を登録しました。');
+            return redirect()->route('business-requests.index');
         });
     }
 
@@ -247,7 +247,7 @@ if ($user->role === 'manager' || $user->role === 'APPROVER') {
                 }
             }
 
-            return redirect()->route('business-requests.index')->with('success', '更新しました。');
+            return redirect()->route('business-requests.index');
         });
     }
 

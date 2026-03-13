@@ -28,18 +28,27 @@
     </div>
 
     <nav class="flex-grow px-4 space-y-1 overflow-y-auto">
-        {{-- Section Header --}}
-        <h3 class="text-[10px] font-bold text-white/20 uppercase tracking-[0.2em] px-4 pt-6 pb-2">Main Menu</h3>
-        <x-nav-link-item :href="route('dashboard')" :active="request()->routeIs('dashboard')" icon="layout-dashboard" label="ダッシュボード" />
+    {{-- Section Header --}}
+    <h3 class="text-[10px] font-bold text-white/20 uppercase tracking-[0.2em] px-4 pt-6 pb-2">Main Menu</h3>
+    <x-nav-link-item :href="route('dashboard')" :active="request()->routeIs('dashboard')" icon="layout-dashboard" label="ダッシュボード" />
 
-        <h3 class="text-[10px] font-bold text-white/20 uppercase tracking-[0.2em] px-4 pt-8 pb-2">Requests</h3>
-        <x-nav-link-item :href="route('business-requests.create')" :active="request()->routeIs('business-requests.create')" icon="plus-circle" label="新規依頼作成" />
-        <x-nav-link-item :href="route('business-requests.my_requests')" :active="request()->routeIs('business-requests.my_requests')" icon="send" label="自分の依頼" />
-        
-        @if(auth()->user()->role === 'employee')
-            <x-nav-link-item :href="route('business-requests.my_tasks')" :active="request()->routeIs('business-requests.my_tasks')" icon="clipboard-list" label="担当作業" :badge="$assignedTaskCount" />
-        @endif
-    </nav>
+    {{-- Employee / Requester Section --}}
+    <h3 class="text-[10px] font-bold text-white/20 uppercase tracking-[0.2em] px-4 pt-8 pb-2">Requests</h3>
+    <x-nav-link-item :href="route('business-requests.create')" :active="request()->routeIs('business-requests.create')" icon="plus-circle" label="新規依頼作成" />
+    <x-nav-link-item :href="route('business-requests.my_requests')" :active="request()->routeIs('business-requests.my_requests')" icon="send" label="自分の依頼" />
+    
+    {{-- Worker Section: Only for Employees --}}
+    @if(auth()->user()->role === 'employee')
+        <x-nav-link-item :href="route('business-requests.my_tasks')" :active="request()->routeIs('business-requests.my_tasks')" icon="clipboard-list" label="担当作業" :badge="$assignedTaskCount ?? null" />
+    @endif
+
+    {{-- Manager Section: Only for Managers --}}
+    @if(auth()->user()->role === 'manager')
+        <h3 class="text-[10px] font-bold text-white/20 uppercase tracking-[0.2em] px-4 pt-8 pb-2">Management</h3>
+        {{-- Note: Usually managers view a 'pending list' to select a request to approve --}}
+        <x-nav-link-item :href="route('business-requests.index')" :active="request()->routeIs('business-requests.approve*')" icon="shield-check" label="依頼承認・管理" />
+    @endif
+</nav>
 
     <div class="p-4 mt-auto border-t border-white/5 bg-black/20">
         <div class="flex items-center space-x-3 p-3 rounded-xl hover:bg-white/5 transition cursor-pointer">

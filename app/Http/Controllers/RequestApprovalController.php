@@ -69,8 +69,9 @@ public function assign(Request $request, BusinessRequest $businessRequest)
             'status' => 'REJECTED',
             'rejection_reason' => $request->reason,
         ]);
-        
-        return redirect()->back()->with('success', '依頼を却下しました。');
+        $message = '依頼を却下しました。';
+        $statusType = 'error';
+       return redirect()->route('business-requests.index')->with($statusType, $message);
     }
 }
 }

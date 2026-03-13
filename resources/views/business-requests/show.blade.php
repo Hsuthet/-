@@ -99,7 +99,7 @@
                                 <a href="{{ asset('storage/' . $file->file_path) }}" target="_blank" class="hover:underline flex-1">
                                     {{ $file->file_name }}
                                 </a>
-                                <span class="text-xs text-gray-400 uppercase">View File</span>
+                               
                             </div>
                         @empty
                             <p class="text-sm text-gray-400 italic">なし</p>
@@ -108,10 +108,30 @@
                 </section>
 
                 <div class="flex justify-end pt-4">
-                    <div class="inline-flex items-center px-4 py-1 rounded border {{ $request->status === 'PENDING' ? 'bg-yellow-50 border-yellow-400 text-yellow-700' : 'bg-gray-50 border-gray-300 text-gray-600' }} text-xs font-bold">
-                        ステータス：{{ $request->status === 'PENDING' ? '承認待ち' : $request->status }}
-                    </div>
-                </div>
+    @php
+        // Define the translations
+        $statusMap = [
+            'PENDING'     => '承認待ち',
+            'APPROVED'    => '承認済み',
+            'REJECTED'    => '却下',
+            'WORKING'     => '作業中',
+            'IN_PROGRESS' => '進行中',
+            'COMPLETED'   => '完了済み',
+        ];
+
+        $currentStatus = $request->status;
+        $label = $statusMap[$currentStatus] ?? $currentStatus; // Fallback to original if not found
+    @endphp
+
+    <div class="inline-flex items-center px-4 py-1 rounded border 
+        {{ $currentStatus === 'PENDING' ? 'bg-yellow-50 border-yellow-400 text-yellow-700' : '' }}
+        {{ $currentStatus === 'APPROVED' ? 'bg-green-50 border-green-400 text-green-700' : '' }}
+        {{ $currentStatus === 'REJECTED' ? 'bg-red-50 border-red-400 text-red-700' : '' }}
+        {{ !in_array($currentStatus, ['PENDING', 'APPROVED', 'REJECTED']) ? 'bg-gray-50 border-gray-300 text-gray-600' : '' }}
+        text-xs font-bold">
+        ステータス：{{ $label }}
+    </div>
+</div>
 
                 <div class="flex justify-center space-x-4 border-t pt-10">
                     <a href="{{ route('business-requests.index') }}" class="px-10 py-2 border border-gray-300 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm transition">
