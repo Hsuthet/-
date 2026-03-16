@@ -19,35 +19,58 @@
     <div class="py-10 px-8">
         <div class="flex flex-col items-center">
             <img src="{{ asset('images/logo1.png') }}" class="h-10 w-auto object-contain">
-            <div class="mt-4 flex items-center space-x-3 w-full opacity-30">
-                <div class="h-[1px] flex-grow bg-white"></div>
-                <span class="text-[8px] font-bold tracking-[0.5em] uppercase">業務依頼システム</span>
-                <div class="h-[1px] flex-grow bg-white"></div>
-            </div>
+           <div class="h-[1px] flex-grow bg-white"></div>
+    <span class="text-[10px] font-bold tracking-[0.4em] uppercase text-slate-200">
+        業務依頼システム
+    </span>
+    <div class="h-[1px] flex-grow bg-slate-300"></div>
         </div>
     </div>
 
     <nav class="flex-grow px-4 space-y-1 overflow-y-auto">
+
     {{-- Section Header --}}
-    <h3 class="text-[10px] font-bold text-white/20 uppercase tracking-[0.2em] px-4 pt-6 pb-2">Main Menu</h3>
+   <h3 class="text-[10px] font-bold text-slate-300 uppercase tracking-[0.2em] px-4 pt-6 pb-2">
+    Main Menu
+</h3>
     <x-nav-link-item :href="route('dashboard')" :active="request()->routeIs('dashboard')" icon="layout-dashboard" label="ダッシュボード" />
 
     {{-- Employee / Requester Section --}}
-    <h3 class="text-[10px] font-bold text-white/20 uppercase tracking-[0.2em] px-4 pt-8 pb-2">Requests</h3>
-    <x-nav-link-item :href="route('business-requests.create')" :active="request()->routeIs('business-requests.create')" icon="plus-circle" label="新規依頼作成" />
-    <x-nav-link-item :href="route('business-requests.my_requests')" :active="request()->routeIs('business-requests.my_requests')" icon="send" label="自分の依頼" />
-    
-    {{-- Worker Section: Only for Employees --}}
     @if(auth()->user()->role === 'employee')
-        <x-nav-link-item :href="route('business-requests.my_tasks')" :active="request()->routeIs('business-requests.my_tasks')" icon="clipboard-list" label="担当作業" :badge="$assignedTaskCount ?? null" />
+        <h3 class="text-[10px] font-bold text-slate-300 uppercase tracking-[0.2em] px-4 pt-8 pb-2">Requests</h3>
+
+        <x-nav-link-item 
+            :href="route('business-requests.create')" 
+            :active="request()->routeIs('business-requests.create')" 
+            icon="plus-circle" 
+            label="新規依頼作成" />
+
+        <x-nav-link-item 
+            :href="route('business-requests.my_requests')" 
+            :active="request()->routeIs('business-requests.my_requests')" 
+            icon="send" 
+            label="依頼一覧画面" />
+
+        <x-nav-link-item 
+            :href="route('business-requests.my_tasks')" 
+            :active="request()->routeIs('business-requests.my_tasks')" 
+            icon="clipboard-list" 
+            label="担当作業" 
+            :badge="$assignedTaskCount ?? null" />
     @endif
 
-    {{-- Manager Section: Only for Managers --}}
+
+    {{-- Manager Section --}}
     @if(auth()->user()->role === 'manager')
-        <h3 class="text-[10px] font-bold text-white/20 uppercase tracking-[0.2em] px-4 pt-8 pb-2">Management</h3>
-        {{-- Note: Usually managers view a 'pending list' to select a request to approve --}}
-        <x-nav-link-item :href="route('business-requests.index')" :active="request()->routeIs('business-requests.approve*')" icon="shield-check" label="依頼承認・管理" />
+        <h3 class="text-[10px] font-bold text-slate-300 uppercase tracking-[0.2em] px-4 pt-8 pb-2">Management</h3>
+
+        <x-nav-link-item 
+            :href="route('business-requests.index')" 
+            :active="request()->routeIs('business-requests.*')" 
+            icon="shield-check" 
+            label="依頼承認・管理" />
     @endif
+
 </nav>
 
     <div class="p-4 mt-auto border-t border-white/5 bg-black/20">

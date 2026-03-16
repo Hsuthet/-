@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\BusinessRequestController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RequestApprovalController;
+use App\Http\Controllers\WorkerTaskController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -69,4 +70,7 @@ Route::get('/my-requests', [BusinessRequestController::class, 'myRequests'])
     // Tasks assigned to me to work on
     Route::get('/my-tasks', [BusinessRequestController::class, 'myTasks'])
         ->name('business-requests.my_tasks');
+
+        Route::patch('/tasks/{businessRequest}/status', [WorkerTaskController::class, 'updateStatus'])
+    ->name('tasks.update-status');
 require __DIR__.'/auth.php';
