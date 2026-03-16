@@ -1,5 +1,5 @@
 <x-app-layout>
-    @section('header_title', '担当作業 (My Assigned Tasks)')
+    @section('header_title', '担当作業 ')
 
     <div class="space-y-6">
         {{-- Header Section --}}
@@ -20,7 +20,7 @@
                 $headers = ['依頼番号', '件名・内容', '依頼者', '所属部署', '期限', 'ステータス', '操作'];
             @endphp
 
-            <x-data-table id="tasksTable" :headers="$headers" role="employee">
+            <x-data-table id="tasksTable" :headers="$headers" role="employee" :showFilters="true">
                 @foreach($tasks as $task)
                     <tr class="hover:bg-indigo-50/30 transition border-b border-slate-100">
                         {{-- 1. Request Number --}}
@@ -57,24 +57,67 @@
                         </td>
 
                         {{-- 6. Task Status --}}
-                        <td class="px-4 py-4 text-center">
-                            @if($task->status === 'WORKING' || $task->status === 'APPROVED')
-                                <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-[10px] font-bold border border-blue-200">作業中</span>
-                            @elseif($task->status === 'COMPLETED')
-                                <span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-[10px] font-bold border border-emerald-200">完了</span>
-                            @else
-                                <span class="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-[10px] font-bold border border-slate-200">未着手</span>
-                            @endif
-                        </td>
+
+                <td class="px-4 py-4 text-center">
+
+                    @if($task->status === 'WORKING')
+
+                        <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-[10px] font-bold border border-blue-200">作業中</span>
+
+                    @elseif($task->status === 'APPROVED')
+
+                        {{-- Show as 'Waiting' or 'Approved' until they click start --}}
+
+                        <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-[10px] font-bold border border-amber-200">承認済み</span>
+
+                    @elseif($task->status === 'COMPLETED')
+
+                        <span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-[10px] font-bold border border-emerald-200">完了</span>
+
+                    @else
+
+                        <span class="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-[10px] font-bold border border-slate-200">{{ $task->status }}</span>
+
+                    @endif
+
+                </td>
                         
-                        {{-- 7. Action Button --}}
-                        <td class="px-4 py-4 text-center">
-                            <a href="{{ route('business-requests.show', $task->id) }}" 
-                               class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-indigo-700 shadow-sm transition inline-flex items-center">
-                                <i data-lucide="external-link" class="w-3 h-3 mr-1.5"></i>
-                                内容確認・報告
-                            </a>
-                        </td>
+                        {{-- 7. Action Button: Dynamic Workflow --}}
+<td class="px-4 py-4 text-center">
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-2">
+        {{-- Always show View Details --}}
+        <a href="{{ route('business-requests.show', $task->id) }}" 
+           class="flex items-center justify-center w-9 h-9 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition shadow-sm""
+           title="詳細を見る">
+            <i data-lucide="file-text" class="w-5 h-5"></i>
+        </a>
+
+        @if($task->status === 'APPROVED')
+            {{-- Button to Start Work --}}
+            <form action="{{ route('tasks.update-status', $task->id) }}" method="POST">
+                @csrf
+                @method('PATCH')
+                <input type="hidden" name="status" value="WORKING">
+                <button type="submit" class="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-blue-700 shadow-sm transition flex items-center">
+                    <i data-lucide="play" class="w-3 h-3 mr-1"></i>
+                    作業開始
+                </button>
+            </form>
+
+        @elseif($task->status === 'WORKING')
+            {{-- Button to Complete Work --}}
+            <form action="{{ route('tasks.update-status', $task->id) }}" method="POST">
+                @csrf
+                @method('PATCH')
+                <input type="hidden" name="status" value="COMPLETED">
+                <button type="submit" class="bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-emerald-700 shadow-sm transition flex items-center">
+                    <i data-lucide="check-circle" class="w-3 h-3 mr-1"></i>
+                    完了にする
+                </button>
+            </form>
+        @endif
+    </div>
+</td>
                     </tr>
                 @endforeach
             </x-data-table>

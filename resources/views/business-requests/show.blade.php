@@ -115,7 +115,6 @@
             'APPROVED'    => '承認済み',
             'REJECTED'    => '却下',
             'WORKING'     => '作業中',
-            'IN_PROGRESS' => '進行中',
             'COMPLETED'   => '完了済み',
         ];
 
