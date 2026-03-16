@@ -277,10 +277,10 @@ if ($user->role === 'manager' || $user->role === 'APPROVER') {
         return $year . '-' . $nextId;
     }
 
-    public function myRequests()
+   public function myRequests()
 {
-    $requests = BusinessRequest::with(['targetDepartment', 'requestContent'])
-        ->where('user_id', auth::id())
+    // If you want 'All' to show everything in the system:
+    $requests = BusinessRequest::with(['user', 'categories'])
         ->latest()
         ->get();
 

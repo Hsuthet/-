@@ -71,7 +71,7 @@ public function assign(Request $request, BusinessRequest $businessRequest)
         ]);
         $message = '依頼を却下しました。';
         $statusType = 'error';
-       return redirect()->route('business-requests.index')->with($statusType, $message);
+       return redirect()->route('business-requests.my_requests')->with($statusType, $message);
     }
 }
 }
