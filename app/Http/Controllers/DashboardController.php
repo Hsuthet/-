@@ -23,6 +23,43 @@ class DashboardController extends Controller
         return view('dashboard', compact( 'recentRequests'));
     }
 
+   public function index()
+{
+    $user = auth::user();
+    
+
+    // Get counts for the last 7 days
+    $dailyStats = collect(range(0, 6))->map(function($days) use ($user) {
+        $date = now()->subDays($days);
+        return [
+            'day' => $date->format('m/d'),
+            'count' => \App\Models\BusinessRequest::where('worker_id', $user->id)
+                ->where('status', 'COMPLETED')
+                ->whereDate('updated_at', $date)
+                ->count()
+        ];
+    })->reverse();
+
+    $chartLabels = $dailyStats->pluck('day');
+    $chartData = $dailyStats->pluck('count');
+
+    // Statistics for the logged-in user
+    $stats = [
+        'my_pending_approvals' => \App\Models\BusinessRequest::where('user_id', $user->id)->where('status', 'PENDING')->count(),
+        'assigned_working'    => \App\Models\BusinessRequest::where('worker_id', $user->id)->where('status', 'WORKING')->count(),
+        'assigned_approved'   => \App\Models\BusinessRequest::where('worker_id', $user->id)->where('status', 'APPROVED')->count(),
+        'my_completed'        => \App\Models\BusinessRequest::where('user_id', $user->id)->where('status', 'COMPLETED')->count(),
+    ];
+
+    // Get the 5 most recent tasks assigned to me
+    $recentTasks = \App\Models\BusinessRequest::where('worker_id', $user->id)
+        ->latest()
+        ->take(5)
+        ->get();
+
+   return view('dashboard', compact('stats', 'recentTasks', 'chartLabels', 'chartData'));
+}
+
     // DashboardController.php
 // public function index()
 // {
@@ -52,28 +89,28 @@ class DashboardController extends Controller
 //     return view('dashboard', compact('stats', 'recentRequests'));
 // }
 
-public function index()
-{
-    $user = auth::user();
+// public function index()
+// {
+//     $user = auth::user();
     
-    // Base query
-    $query = BusinessRequest::query();
+//     // Base query
+//     $query = BusinessRequest::query();
 
-    // Data filtering based on logic (Approver sees all for their dept, Requester sees only theirs)
-    if ($user->role === 'APPROVER') {
-        $query->where('department_id', $user->department_id);
-    } else {
-        $query->where('user_id', $user->id);
-    }
+//     // Data filtering based on logic (Approver sees all for their dept, Requester sees only theirs)
+//     if ($user->role === 'APPROVER') {
+//         $query->where('department_id', $user->department_id);
+//     } else {
+//         $query->where('user_id', $user->id);
+//     }
 
-    $stats = [
-        'pending'  => (clone $query)->where('status', 'pending')->count(),
-        'approved' => (clone $query)->where('status', 'approved')->count(),
-        'draft'    => (clone $query)->where('status', 'draft')->count(),
-    ];
+//     $stats = [
+//         'pending'  => (clone $query)->where('status', 'pending')->count(),
+//         'approved' => (clone $query)->where('status', 'approved')->count(),
+//         'draft'    => (clone $query)->where('status', 'draft')->count(),
+//     ];
 
-    $recentRequests = $query->with('user')->latest()->take(5)->get();
+//     $recentRequests = $query->with('user')->latest()->take(5)->get();
 
-    return view('dashboard', compact('stats', 'recentRequests'));
-}
+//     return view('dashboard', compact('stats', 'recentRequests'));
+// }
 }

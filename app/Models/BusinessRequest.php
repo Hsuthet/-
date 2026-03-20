@@ -46,12 +46,14 @@ class BusinessRequest extends Model
     | Relationships
     |--------------------------------------------------------------------------
     */
+    
 
     // Request creator
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
+    
 
     // Requester's department
     public function department(): BelongsTo

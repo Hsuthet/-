@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\BusinessRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use App\Notifications\RequestStatusChanged;
 
 class RequestApprovalController extends Controller
 {
@@ -18,19 +19,25 @@ class RequestApprovalController extends Controller
         return view('business-requests.approve',compact('request','employees'));
     }
 
-    public function approve(Request $req, BusinessRequest $request)
-    {
-        $req->validate([
-            'worker_id' => 'required'
-        ]);
+   // Change $request to $businessRequest
+public function approve(Request $req, BusinessRequest $businessRequest) 
+{
+    $req->validate([
+        'worker_id' => 'required'
+    ]);
 
-        $request->update([
-            'status' => 'APPROVED',
-            'worker_id' => $req->worker_id
-        ]);
+    $businessRequest->update([
+        'status' => 'APPROVED',
+        'worker_id' => $req->worker_id,
+        'approved_at' => now(),
+        'approver_id' => auth::id(), // Use helper auth()->id() or Auth::id()
+    ]);
 
-        return redirect()->route('business-requests.index');
-    }
+    // Send notification to the owner of the request
+    $businessRequest->user->notify(new RequestStatusChanged($businessRequest));
+
+    return redirect()->route('business-requests.index');
+}
 public function reject(Request $req, BusinessRequest $businessRequest)
 {
     $req->validate(['reason' => 'required|string']);
@@ -71,7 +78,7 @@ public function assign(Request $request, BusinessRequest $businessRequest)
         ]);
         $message = '依頼を却下しました。';
         $statusType = 'error';
-       return redirect()->route('business-requests.my_requests')->with($statusType, $message);
+       return redirect()->route('business-requests.requests')->with($statusType, $message);
     }
 }
 }

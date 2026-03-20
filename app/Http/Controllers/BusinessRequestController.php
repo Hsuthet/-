@@ -284,7 +284,7 @@ if ($user->role === 'manager' || $user->role === 'APPROVER') {
         ->latest()
         ->get();
 
-    return view('business-requests.my_requests', compact('requests'));
+    return view('business-requests.requests', compact('requests'));
 }
 
 public function myTasks()
