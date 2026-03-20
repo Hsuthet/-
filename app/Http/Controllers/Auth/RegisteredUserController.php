@@ -34,6 +34,7 @@ class RegisteredUserController extends Controller
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'department_id' => ['required', 'integer', 'exists:departments,id'],
+            'role' => 'required|in:admin,employee,manager',
         ]);
 
         // Create user with default role = employee
@@ -41,7 +42,7 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'employee',      // default role
+            'role' => $request->role,
             'department_id' => $request->department_id,
         ]);
 

@@ -4,6 +4,8 @@
             
             <div class="hidden lg:flex lg:w-1/3 bg-[#1a365d] p-10 flex-col justify-between text-white">
                 <div>
+                      <img src="{{ asset('images/RESONANT.png') }}" alt="Logo" class="mx-auto mb-4 h-12">
+    
                     <h2 class="text-2xl font-bold tracking-wider leading-snug">
                         業務依頼<br>管理システム
                     </h2>
@@ -64,17 +66,17 @@
                         </label>
                         <div class="relative">
                              <select id="department_id" name="department_id" 
-                    class="block mt-1 w-full border-gray-300 rounded-md shadow-sm" 
-                    required>
-                <option value="" disabled selected>部署を選択してください</option>
+                                 class="w-full bg-gray-50 border border-gray-300 rounded px-4 py-2.5 text-sm focus:ring-1 focus:ring-blue-500 focus:bg-white transition outline-none"> 
+                                required>
+                                <option value="" disabled selected>部署を選択してください</option>
 
-                @foreach($departments as $department)
-                    <option value="{{ $department->id }}" 
-                        {{ old('department_id') == $department->id ? 'selected' : '' }}>
-                        {{ $department->name }}
-                    </option>
-                @endforeach
-            </select>
+                                @foreach($departments as $department)
+                                    <option value="{{ $department->id }}" 
+                                        {{ old('department_id') == $department->id ? 'selected' : '' }}>
+                                        {{ $department->name }}
+                                    </option>
+                                @endforeach
+                            </select>
                             <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"></path></svg>
                             </div>
@@ -82,6 +84,23 @@
                         <x-input-error :messages="$errors->get('department_id')" class="mt-1" />
                     </div>
 
+                    <div>
+    <label class="flex justify-between text-xs font-bold text-gray-600 mb-2">
+        <span>役割（ロール）</span>
+        <span class="text-red-500 bg-red-50 px-2 py-0.5 rounded text-[10px]">必須</span>
+    </label>
+
+    <select name="role" required
+        class="w-full bg-gray-50 border border-gray-300 rounded px-4 py-2.5 text-sm focus:ring-1 focus:ring-blue-500 focus:bg-white transition outline-none">
+
+        <option value="">ロールを選択してください</option>
+        <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>管理者</option>
+        <option value="employee" {{ old('role') == 'employee' ? 'selected' : '' }}>従業員</option>
+        <option value="manager" {{ old('role') == 'manager' ? 'selected' : '' }}>マネージャー</option>
+    </select>
+
+    <x-input-error :messages="$errors->get('role')" class="mt-1" />
+</div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-gray-600 mb-2">パスワード</label>
@@ -89,7 +108,7 @@
                                 class="w-full bg-gray-50 border border-gray-300 rounded px-4 py-2.5 text-sm focus:ring-1 focus:ring-blue-500 focus:bg-white outline-none">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-gray-600 mb-2">確認用</label>
+                        <label class="block text-xs font-bold text-gray-600 mb-2">確認用</label>
                             <input type="password" name="password_confirmation" required
                                 class="w-full bg-gray-50 border border-gray-300 rounded px-4 py-2.5 text-sm focus:ring-1 focus:ring-blue-500 focus:bg-white outline-none">
                         </div>
@@ -112,4 +131,4 @@
             </div>
         </div>
     </div>
-</x-guest-layout>
+</x-guest-layout>+
