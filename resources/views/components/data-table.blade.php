@@ -3,40 +3,8 @@
 <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
     <div class="flex flex-wrap items-center justify-between mb-6 gap-4">
         {{-- Unified Filter Buttons Container --}}
-        <div class="inline-flex rounded-xl shadow-sm border border-slate-200 p-1 bg-slate-50 filter-buttons" id="{{ $id }}_filters">
-            
-            @if(strtoupper($role) === 'EMPLOYEE')
-                <button type="button" data-search="" 
-                    class="filter-btn px-5 py-1.5 bg-white shadow-sm border border-slate-200 text-blue-600 rounded-lg text-sm font-bold">
-                    すべて
-                </button>
-
-                <button type="button" data-search="{{ Auth::user()->name }}" 
-                    class="filter-btn px-5 py-1.5 text-slate-500 text-sm font-medium hover:text-slate-700">
-                    自分の依頼
-                </button>
-
-                <button type="button" data-search="承認待ち" 
-                    class="filter-btn px-5 py-1.5 text-slate-500 text-sm font-medium hover:text-slate-700">
-                    承認待ち
-                </button>
-
-            @elseif(strtoupper($role) === 'MANAGER')
-                <button type="button" data-search="承認待ち" 
-                    class="filter-btn px-5 py-1.5 bg-white shadow-sm border border-slate-200 text-blue-600 rounded-lg text-sm font-bold">
-                    承認待ち
-                </button>
-
-                <button type="button" data-search="" 
-                    class="filter-btn px-5 py-1.5 text-slate-500 text-sm font-medium hover:text-slate-700">
-                    すべて
-                </button>
-
-                <button type="button" data-search="承認済み" 
-                    class="filter-btn px-5 py-1.5 text-slate-500 text-sm font-medium hover:text-slate-700">
-                    承認済み
-                </button>
-            @endif
+        <div class="filter-container">
+            {{ $filters ?? '' }}
         </div>
     </div>
 

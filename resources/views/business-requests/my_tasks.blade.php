@@ -1,102 +1,133 @@
 <x-app-layout>
-    @section('header_title', '担当作業 ')
+    @section('header_title', '担当作業')
 
-    <div class="space-y-6">
-        {{-- Header Section --}}
-        <div class="flex items-center space-x-3">
-            <div class="bg-indigo-600 p-2 rounded-lg shadow-md">
-                <i data-lucide="briefcase" class="w-6 h-6 text-white"></i>
+    <div class="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {{-- Page Header --}}
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="bg-indigo-600 p-2.5 rounded-xl shadow-lg shadow-indigo-200">
+                    <i data-lucide="briefcase" class="w-6 h-6 text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-extrabold text-slate-800 tracking-tight">あなたに割り当てられた作業</h1>
+                    <p class="text-sm text-slate-500">担当者として対応が必要な依頼の一覧です。</p>
+                </div>
             </div>
-            <div>
-                <h1 class="text-xl font-bold text-slate-800">あなたに割り当てられた作業</h1>
-                <p class="text-sm text-slate-500">担当者として対応が必要な依頼の一覧です。</p>
+        </div>
+
+        {{-- Filter Control Bar --}}
+        <div class="bg-slate-50 p-2 rounded-2xl border border-slate-200 flex flex-wrap items-center justify-between gap-4">
+            {{-- Left: Task Context Title --}}
+            <div class="px-4">
+                <span class="text-sm font-bold text-slate-600">タスクフィルター</span>
+            </div>
+
+            {{-- Right: Status Dropdown (Using the same component) --}}
+            <div class="flex items-center gap-3">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">ステータス:</span>
+                <x-table-status-filter 
+    tableId="tasksTable" 
+    :options="[
+        '承認済み' => '承認済み (Approved)',
+        '作業中'   => '作業中 (Working)',
+        '完了'     => '完了 (Completed)',
+    ]" 
+/>
             </div>
         </div>
 
         {{-- Table Section --}}
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden border-t-4 border-t-indigo-500">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
             @php
-                $headers = ['依頼番号', '件名・内容', '依頼者', '所属部署', '期限', 'ステータス', '操作'];
+                $headers = ['依頼番号', '件名・内容', '依頼者', '期限', 'ステータス', '操作'];
+                $statusMap = [
+                    'APPROVED'  => ['label' => '承認済み', 'class' => 'bg-amber-50 text-amber-700 border-amber-100'],
+                    'WORKING'   => ['label' => '作業中',   'class' => 'bg-blue-50 text-blue-700 border-blue-100'],
+                    'COMPLETED' => ['label' => '完了',     'class' => 'bg-emerald-50 text-emerald-700 border-emerald-100'],
+                ];
             @endphp
 
-            <x-data-table id="tasksTable" :headers="$headers" role="employee" :showFilters="true">
+            <x-data-table id="tasksTable" :headers="$headers" role="employee" :showFilters="false">
                 @foreach($tasks as $task)
-                    <tr class="hover:bg-indigo-50/30 transition border-b border-slate-100">
+                    @php 
+                        $status = $statusMap[$task->status] ?? ['label' => $task->status, 'class' => 'bg-slate-100 text-slate-700 border-slate-200']; 
+                        $isOverdue = \Carbon\Carbon::parse($task->due_date)->isPast() && $task->status !== 'COMPLETED';
+                    @endphp
+
+                    <tr class="hover:bg-slate-50/80 transition-colors border-b border-slate-100">
                         {{-- 1. Request Number --}}
-                        <td class="px-4 py-4 text-center font-bold text-slate-700">{{ $task->request_number }}</td>
+                        <td class="px-4 py-5 text-center">
+                            <span class="font-mono text-[11px] font-bold bg-slate-100 px-2 py-1 rounded text-slate-600 uppercase tracking-tighter">
+                                {{ $task->request_number }}
+                            </span>
+                        </td>
                         
                         {{-- 2. Title & Description --}}
-                        <td class="px-4 py-4">
-                            <span class="block font-bold text-slate-900">{{ $task->title }}</span>
-                            @if($task->requestContent?->description)
-                                <span class="text-[11px] text-slate-400 line-clamp-1">
-                                    {{ Str::limit($task->requestContent->description, 50) }}
-                                </span>
-                            @endif
+                        <td class="px-4 py-5">
+                            <div class="group">
+                                <p class="text-sm font-bold text-slate-800 group-hover:text-indigo-600 transition-colors">{{ $task->title }}</p>
+                                @if($task->requestContent?->description)
+                                    <p class="text-[11px] text-slate-400 line-clamp-1 mt-1 font-medium">
+                                        {{ Str::limit($task->requestContent->description, 50) }}
+                                    </p>
+                                @endif
+                            </div>
                         </td>
                         
                         {{-- 3. Requester --}}
-                        <td class="px-4 py-4 font-medium text-slate-700 text-sm">{{ $task->user?->name }}</td>
+                        <td class="px-4 py-5">
+                            <div class="flex flex-col">
+                                <span class="text-sm font-bold text-slate-700">{{ $task->user?->name }}</span>
+                                <span class="text-[10px] text-slate-400 uppercase font-bold tracking-tight">{{ $task->user?->department?->name }}</span>
+                            </div>
+                        </td>
                         
-                        {{-- 4. Department --}}
-                        <td class="px-4 py-4 text-xs text-slate-500">{{ $task->user?->department?->name }}</td>
-                        
-                        {{-- 5. Due Date --}}
-                        <td class="px-4 py-4 text-center">
-                            @php 
-                                $isOverdue = \Carbon\Carbon::parse($task->due_date)->isPast() && $task->status !== 'COMPLETED';
-                            @endphp
-                            <span class="px-2 py-1 rounded text-[10px] font-bold {{ $isOverdue ? 'bg-rose-100 text-rose-700 border border-rose-200' : 'bg-slate-100 text-slate-700 border border-slate-200' }}">
+                        {{-- 4. Due Date --}}
+                        <td class="px-4 py-5 text-center">
+                            <span class="text-[11px] font-bold {{ $isOverdue ? 'text-rose-600 bg-rose-50 px-2 py-1 rounded-lg border border-rose-100' : 'text-slate-600' }}">
                                 {{ $task->due_date }}
                             </span>
                         </td>
 
-                        {{-- 6. Task Status --}}
-                        <td class="px-4 py-4 text-center">
-                            @if($task->status === 'WORKING')
-                                <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-[10px] font-bold border border-blue-200">作業中</span>
-                            @elseif($task->status === 'APPROVED')
-                                <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-[10px] font-bold border border-amber-200">承認済み</span>
-                            @elseif($task->status === 'COMPLETED')
-                                <span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-[10px] font-bold border border-emerald-200">完了</span>
-                            @else
-                                <span class="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-[10px] font-bold border border-slate-200">{{ $task->status }}</span>
-                            @endif
+                        {{-- 5. Status Badge --}}
+                        <td class="px-4 py-5 text-center">
+                            <span class="px-3 py-1 rounded-full text-[10px] font-bold border shadow-sm {{ $status['class'] }}">
+                                {{ $status['label'] }}
+                            </span>
                         </td>
                         
-                        {{-- 7. Action Button --}}
-                        <td class="px-4 py-4 text-center">
-                            <div class="flex flex-col sm:flex-row items-center justify-center gap-2">
-                                {{-- Always show View Details --}}
+                        {{-- 6. Action Buttons --}}
+                        <td class="px-4 py-5 text-center">
+                            <div class="flex items-center justify-center gap-2">
+                                {{-- View Detail --}}
                                 <a href="{{ route('business-requests.show', $task->id) }}" 
-                                   class="flex items-center justify-center w-9 h-9 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition shadow-sm"
+                                   class="p-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-indigo-600 hover:text-white transition-all shadow-sm"
                                    title="詳細を見る">
-                                    <i data-lucide="file-text" class="w-5 h-5"></i>
+                                    <i data-lucide="eye" class="w-4 h-4"></i>
                                 </a>
 
+                                {{-- Status Transition Buttons --}}
                                 @if($task->status === 'APPROVED')
                                     <form action="{{ route('tasks.update-status', $task->id) }}" method="POST">
-                                        @csrf
-                                        @method('PATCH')
+                                        @csrf @method('PATCH')
                                         <input type="hidden" name="status" value="WORKING">
-                                        <button type="submit" class="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-blue-700 shadow-sm transition flex items-center">
-                                            <i data-lucide="play" class="w-3 h-3 mr-1"></i> 作業開始
+                                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-[10px] font-bold hover:bg-blue-700 shadow-md shadow-blue-100 transition-all flex items-center">
+                                            <i data-lucide="play" class="w-3 h-3 mr-1.5"></i> 作業開始
                                         </button>
                                     </form>
                                 @elseif($task->status === 'WORKING')
                                     <form action="{{ route('tasks.update-status', $task->id) }}" method="POST" onsubmit="return confirm('作業を完了しますか？');">
-                                        @csrf
-                                        @method('PATCH')
+                                        @csrf @method('PATCH')
                                         <input type="hidden" name="status" value="COMPLETED">
-                                        <button type="submit" class="bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-emerald-700 shadow-sm transition flex items-center">
-                                            <i data-lucide="check-circle" class="w-3 h-3 mr-1"></i> 完了にする
+                                        <button type="submit" class="bg-emerald-600 text-white px-4 py-2 rounded-lg text-[10px] font-bold hover:bg-emerald-700 shadow-md shadow-emerald-100 transition-all flex items-center">
+                                            <i data-lucide="check-circle" class="w-3 h-3 mr-1.5"></i> 完了
                                         </button>
                                     </form>
                                 @elseif($task->status === 'COMPLETED')
-                                    {{-- Optional: Show a "Finished" icon or just leave the Detail button --}}
-                                    <span class="text-slate-400">
-                                        <i data-lucide="check-check" class="w-5 h-5"></i>
-                                    </span>
+                                    <div class="bg-slate-100 p-2 rounded-lg text-slate-400">
+                                        <i data-lucide="check-check" class="w-4 h-4"></i>
+                                    </div>
                                 @endif
                             </div>
                         </td>
@@ -106,11 +137,12 @@
 
             {{-- Empty State --}}
             @if($tasks->isEmpty())
-                <div class="p-12 text-center">
-                    <div class="bg-slate-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i data-lucide="inbox" class="w-8 h-8 text-slate-300"></i>
+                <div class="p-16 text-center">
+                    <div class="bg-slate-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-100">
+                        <i data-lucide="inbox" class="w-10 h-10 text-slate-300"></i>
                     </div>
-                    <p class="text-slate-500 font-medium">現在、担当している作業はありません。</p>
+                    <h3 class="text-slate-800 font-bold">作業はありません</h3>
+                    <p class="text-slate-500 text-sm mt-1">現在、新しく割り当てられた作業は見つかりませんでした。</p>
                 </div>
             @endif
         </div>
