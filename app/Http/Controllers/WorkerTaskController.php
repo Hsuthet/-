@@ -11,14 +11,21 @@ class WorkerTaskController extends Controller
 
 public function index()
 {
-    // English: Fetch only tasks assigned to the current user
+    $user = Auth::user();
+   if ($user->role === 'admin') {
+        $tasks = BusinessRequest::with(['user.department', 'requestContent'])
+           ->whereIn('status', ['APPROVED', 'WORKING', 'COMPLETED'])
+            ->latest()
+            ->get();
+    } else {
     $tasks = BusinessRequest::where('worker_id', auth::id()) 
         ->whereIn('status', ['APPROVED', 'WORKING', 'COMPLETED'])
         ->orderByRaw("FIELD(status, 'WORKING', 'APPROVED', 'COMPLETED')") // Priority to active work
         ->get();
-
+    }
     return view('business-requests.my_tasks', compact('tasks'));
 }
+
 
     public function start(BusinessRequest $businessRequest)
     {

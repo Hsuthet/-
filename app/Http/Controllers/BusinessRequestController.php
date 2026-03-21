@@ -16,70 +16,74 @@ class BusinessRequestController extends Controller
     /**
      * 1. LIST: View requests based on role
      */
-    public function index()
-    {
-        $user = Auth::user();
-        
-        // Default empty collections
-        $requests = collect();
-        $workerTasks = collect();
-        $managerRequests = collect();
+   public function index()
+{
+    $user = Auth::user();
 
-        $relations = [
-            'categories',
-            'user.department',
-            'targetDepartment',
-            'attachments',
-            'worker',
-            'requestContent'
-        ];
+    $relations = [
+        'categories',
+        'user.department',
+        'targetDepartment',
+        'attachments',
+        'worker',
+        'requestContent'
+    ];
 
-        // Role-based logic
-       // BusinessRequestController.php
-if ($user->role === 'employee' || $user->role === 'REQUESTER') {
-    // 1. Requests created BY this user
-    $requests = BusinessRequest::with($relations)
-        ->where('user_id', $user->id)
-        ->latest()
-        ->get();
+    $requests = collect();
+    $workerTasks = collect();
+    $managerRequests = collect();
 
-    // 2. Tasks assigned TO this user (Employee 3)
-    $workerTasks = BusinessRequest::with($relations)
-        ->where('worker_id', $user->id)
-        ->where('status', 'APPROVED') // Usually workers only see approved tasks
-        ->latest()
-        ->get();
-}
-if ($user->role === 'manager' || $user->role === 'APPROVER') {
-    // REMOVE the ->where('status', 'PENDING') constraint
-    $managerRequests = BusinessRequest::with($relations)
-        ->latest()
-        ->get();
-}
-
-        if ($user->role === 'admin') {
-            $requests = BusinessRequest::with($relations)->latest()->get();
-        }
-
-        return view('business-requests.index', compact(
-            'requests',
-            'workerTasks',
-            'managerRequests'
-        ));
+    if ($user->role === 'admin') {
+        // ✅ Admin sees EVERYTHING
+        $requests = BusinessRequest::with($relations)->latest()->get();
+        $workerTasks = BusinessRequest::with($relations)
+            ->where('status', 'APPROVED')
+            ->latest()
+            ->get();
     }
+
+    elseif ($user->role === 'employee' || $user->role === 'REQUESTER') {
+        $requests = BusinessRequest::with($relations)
+            ->where('user_id', $user->id)
+            ->latest()
+            ->get();
+
+        $workerTasks = BusinessRequest::with($relations)
+            ->where('worker_id', $user->id)
+            ->where('status', 'APPROVED')
+            ->latest()
+            ->get();
+    }
+
+    elseif ($user->role === 'manager' || $user->role === 'APPROVER') {
+        $managerRequests = BusinessRequest::with($relations)
+            ->latest()
+            ->get();
+    }
+
+    return view('business-requests.index', compact(
+        'requests',
+        'workerTasks',
+        'managerRequests'
+    ));
+}
 
     /**
      * 2. CREATE: Show form
      */
-    public function create()
-    {
-        $categories = Category::all();
-        $departments = Department::all(); 
-        $nextNumber = $this->generateNextNumber();
-        $user = Auth::user()->load('department');
-
-        return view('business-requests.create', compact('categories', 'departments', 'nextNumber', 'user'));
+   public function create(Request $request)
+{
+    if (!$request->user() || $request->user()->role !== 'employee') {
+        abort(403);
     }
+
+    $categories = Category::all();
+    $departments = Department::all(); 
+    $nextNumber = $this->generateNextNumber();
+    $user = $request->user()->load('department');
+
+    return view('business-requests.create', compact('categories', 'departments', 'nextNumber', 'user'));
+}
 
     /**
      * 3. CONFIRM: Validation and Temporary File Storage
@@ -127,6 +131,9 @@ if ($user->role === 'manager' || $user->role === 'APPROVER') {
      */
     public function complete(Request $request)
     {
+        if (!$request->user() || $request->user()->role !== 'employee') {
+        abort(403);
+    }
         return DB::transaction(function () use ($request) {
             $user = Auth::user();
             // A. Create main record
@@ -169,6 +176,9 @@ if ($user->role === 'manager' || $user->role === 'APPROVER') {
                     }
                 }
             }
+             if (!Auth::check() || Auth::user()->role !== 'employee') {
+                    abort(403);
+                }
 
             session()->forget(['form_data', 'storedFiles']);
 

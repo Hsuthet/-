@@ -35,6 +35,32 @@
 </h3>
     <x-nav-link-item :href="route('dashboard')" :active="request()->routeIs('dashboard')" icon="layout-dashboard" label="ダッシュボード" />
 
+
+        {{-- Admin Section --}}
+    @if(auth()->user()->role === 'admin')
+        <h3 class="text-[10px] font-bold text-slate-300 uppercase tracking-[0.2em] px-4 pt-8 pb-2">
+            Admin Panel
+        </h3>
+
+        <x-nav-link-item 
+            :href="route('users.index')" 
+            :active="request()->routeIs('users.*')" 
+            icon="users" 
+            label="ユーザー管理" />
+
+        <x-nav-link-item 
+            :href="route('business-requests.index')" 
+            :active="request()->routeIs('business-requests.index')" 
+            icon="file-text" 
+            label="依頼一覧（全体）" />
+
+        <x-nav-link-item 
+            :href="route('business-requests.my_tasks')" 
+            :active="request()->routeIs('business-requests.my_tasks')" 
+            icon="clipboard-list" 
+            label="タスク一覧（全体）" />
+    @endif
+
     {{-- Employee / Requester Section --}}
     @if(auth()->user()->role === 'employee')
         <h3 class="text-[10px] font-bold text-slate-300 uppercase tracking-[0.2em] px-4 pt-8 pb-2">Requests</h3>
@@ -46,8 +72,8 @@
             label="新規依頼作成" />
 
         <x-nav-link-item 
-            :href="route('business-requests.my_requests')" 
-            :active="request()->routeIs('business-requests.my_requests')" 
+            :href="route('business-requests.requests')" 
+            :active="request()->routeIs('business-requests.requests')" 
             icon="send" 
             label="依頼一覧画面" />
 
@@ -95,9 +121,56 @@
                     </div>
                     
                     <div class="flex items-center space-x-6">
-                        <button class="p-2 text-slate-400 hover:text-indigo-600 transition">
-                            <i data-lucide="bell" class="w-5 h-5"></i>
-                        </button>
+                       <div class="relative ml-3" x-data="{ open: false }">
+    {{-- Bell Icon Button --}}
+    <button @click="open = !open" class="relative p-2 text-slate-400 hover:text-indigo-600 transition-colors focus:outline-none">
+        <i data-lucide="bell" class="w-6 h-6"></i>
+        
+        {{-- Red Badge: Only shows if there are unread notifications --}}
+        @if(auth()->user()->unreadNotifications->count() > 0)
+            <span class="absolute top-1 right-1 flex h-4 w-4">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-4 w-4 bg-red-500 text-[10px] text-white items-center justify-center font-bold">
+                    {{ auth()->user()->unreadNotifications->count() }}
+                </span>
+            </span>
+        @endif
+    </button>
+
+    {{-- Dropdown Menu --}}
+    <div x-show="open" 
+         @click.away="open = false"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0 scale-95"
+         x-transition:enter-end="opacity-100 scale-100"
+         class="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden">
+        
+        <div class="p-4 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
+            <h3 class="font-bold text-slate-800 text-sm">通知 (Notifications)</h3>
+            @if(auth()->user()->unreadNotifications->count() > 0)
+                <a href="{{ route('notifications.markAsRead') }}" class="text-[10px] text-indigo-600 font-bold hover:underline">すべて既読にする</a>
+            @endif
+        </div>
+
+        <div class="max-h-96 overflow-y-auto">
+            @forelse(auth()->user()->unreadNotifications as $notification)
+                <div class="p-4 border-b border-slate-50 hover:bg-slate-50 transition relative">
+                    <p class="text-xs text-slate-800 font-medium">
+                        {{ $notification->data['message'] }}
+                    </p>
+                    <p class="text-[10px] text-slate-400 mt-1">
+                        {{ $notification->created_at->diffForHumans() }}
+                    </p>
+                </div>
+            @empty
+                <div class="p-8 text-center">
+                    <i data-lucide="bell-off" class="w-8 h-8 text-slate-200 mx-auto mb-2"></i>
+                    <p class="text-xs text-slate-400">新しい通知はありません</p>
+                </div>
+            @endforelse
+        </div>
+    </div>
+</div>
 
                         <div class="relative flex items-center space-x-3 border-l pl-6 border-slate-200">
                             <div class="text-right">
