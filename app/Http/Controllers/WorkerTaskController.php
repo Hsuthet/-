@@ -12,17 +12,23 @@ class WorkerTaskController extends Controller
 public function index()
 {
     $user = Auth::user();
-   if ($user->role === 'admin') {
-        $tasks = BusinessRequest::with(['user.department', 'requestContent'])
-           ->whereIn('status', ['APPROVED', 'WORKING', 'COMPLETED'])
+
+    // 1. Logic for Admin and Manager (Power Users)
+    if ($user->role === 'admin' || $user->role === 'manager') {
+        $tasks = BusinessRequest::with(['user.department', 'worker', 'requestContent'])
+            ->whereIn('status', ['APPROVED', 'WORKING', 'COMPLETED'])
             ->latest()
             ->get();
-    } else {
-    $tasks = BusinessRequest::where('worker_id', auth::id()) 
-        ->whereIn('status', ['APPROVED', 'WORKING', 'COMPLETED'])
-        ->orderByRaw("FIELD(status, 'WORKING', 'APPROVED', 'COMPLETED')") // Priority to active work
-        ->get();
+    } 
+    // 2. Logic for Employees (Personal Tasks)
+    else {
+        $tasks = BusinessRequest::with(['user.department', 'requestContent'])
+            ->where('worker_id', $user->id) 
+            ->whereIn('status', ['APPROVED', 'WORKING', 'COMPLETED'])
+            ->orderByRaw("FIELD(status, 'WORKING', 'APPROVED', 'COMPLETED')") // Priority to active work
+            ->get();
     }
+
     return view('business-requests.my_tasks', compact('tasks'));
 }
 

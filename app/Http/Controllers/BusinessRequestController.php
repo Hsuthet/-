@@ -129,63 +129,70 @@ class BusinessRequestController extends Controller
     /**
      * 4. COMPLETE: Final Database Save
      */
-    public function complete(Request $request)
-    {
-        if (!$request->user() || $request->user()->role !== 'employee') {
+   public function complete(Request $request)
+{
+    // 1. Authorization check at the very start
+    if (!Auth::check() || Auth::user()->role !== 'employee') {
         abort(403);
     }
-        return DB::transaction(function () use ($request) {
-            $user = Auth::user();
-            // A. Create main record
-            $businessRequest = BusinessRequest::create([
-                'request_number' => $request->request_number,
-                'user_id'        => Auth::id(),
-                'department_id'  => $user->department_id,
-                'target_department_id' => $request->target_department_id,
-                'title'          => $request->title,
-                'due_date'       => $request->due_date,
-                'status'         => 'PENDING',
-            ]);
 
-            // B. Create request_contents
-            $businessRequest->requestContent()->create([
-                'description'  => $request->content,
-                'special_note' => $request->notes,
-            ]);
+    // DEBUG TIP: If you still get the error, uncomment the line below to see what's missing:
+    // dd($request->all());
 
-            // C. Attach Categories
-            if ($request->has('categories')) {
-                $businessRequest->categories()->sync($request->categories);
-            }
+    return DB::transaction(function () use ($request) {
+        $user = Auth::user();
 
-            // D. Move files from temp to permanent
-            if ($request->has('attachment_paths')) {
-                foreach ($request->attachment_paths as $index => $tempPath) {
-                    $fileName = $request->attachment_names[$index];
-                    $extension = pathinfo($tempPath, PATHINFO_EXTENSION);
-                    $newName = 'attachments/' . basename($tempPath);
-                    
-                    if (Storage::disk('public')->exists($tempPath)) {
-                        Storage::disk('public')->move($tempPath, $newName);
+        // 2. Create main record
+        $businessRequest = BusinessRequest::create([
+            'request_number'       => $request->request_number, // The culprit for your error
+            'user_id'              => $user->id,
+            'department_id'        => $user->department_id,
+            'target_department_id' => $request->target_department_id,
+            'title'                => $request->title,
+            'due_date'             => $request->due_date,
+            'status'               => 'PENDING',
+        ]);
 
-                        $businessRequest->attachments()->create([
-                            'file_path' => $newName,
-                            'file_name' => $fileName,
-                            'file_type' => $extension,
-                        ]);
-                    }
+        // 3. Create request_contents
+        // Assuming the relationship is 'requestContent' (singular)
+        $businessRequest->requestContent()->create([
+            'description'  => $request->content,
+            'special_note' => $request->notes,
+        ]);
+
+        // 4. Attach Categories
+        if ($request->has('categories')) {
+            $businessRequest->categories()->sync($request->categories);
+        }
+
+        // 5. File Management
+        if ($request->has('attachment_paths')) {
+            foreach ($request->attachment_paths as $index => $tempPath) {
+                // Ensure the name exists for this index
+                $fileName = $request->attachment_names[$index] ?? 'file_' . $index;
+                $extension = pathinfo($tempPath, PATHINFO_EXTENSION);
+                
+                // Move to permanent storage
+                $newPath = 'attachments/' . basename($tempPath);
+                
+                if (Storage::disk('public')->exists($tempPath)) {
+                    Storage::disk('public')->move($tempPath, $newPath);
+
+                    $businessRequest->attachments()->create([
+                        'file_path' => $newPath,
+                        'file_name' => $fileName,
+                        'file_type' => $extension,
+                    ]);
                 }
             }
-             if (!Auth::check() || Auth::user()->role !== 'employee') {
-                    abort(403);
-                }
+        }
 
-            session()->forget(['form_data', 'storedFiles']);
+        // 6. Clean up sessions
+        session()->forget(['form_data', 'storedFiles']);
 
-            return redirect()->route('business-requests.index');
-        });
-    }
-
+        return redirect()->route('business-requests.requests')->with('success', '依頼を送信しました。');
+    });
+}
     public function show(BusinessRequest $businessRequest) 
 {
     // 1. Load all necessary relationships
@@ -306,5 +313,21 @@ public function myTasks()
         ->get();
 
     return view('business-requests.my_tasks', compact('tasks'));
+}
+
+public function remove(Request $request)
+{
+    $index = $request->input('index');
+    $files = session('storedFiles', []);
+
+    if (isset($files[$index])) {
+        // Remove file from session
+        unset($files[$index]);
+        // Re-index the array to prevent gaps
+        session(['storedFiles' => array_values($files)]);
+    }
+
+    // Return JSON so the page doesn't refresh
+    return response()->json(['success' => true]);
 }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\BusinessRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class DashboardController extends Controller
 {
@@ -25,15 +26,35 @@ class DashboardController extends Controller
 
    public function index()
 {
-    $user = auth::user();
+    $user = Auth::user();
     
+    // 1. DATA FOR ADMINS & MANAGERS (Power Users)
+    // Both roles now get access to the global $adminStats and $recentRequests
+    if ($user->role === 'admin' || $user->role === 'manager') {
+        $adminStats = [
+            'total_requests' => BusinessRequest::count(),
+            'pending'        => BusinessRequest::where('status', 'PENDING')->count(),
+            'approved'       => BusinessRequest::where('status', 'APPROVED')->count(),
+            'working'        => BusinessRequest::where('status', 'WORKING')->count(),
+            'completed'      => BusinessRequest::where('status', 'COMPLETED')->count(),
+            'rejected'       => BusinessRequest::where('status', 'REJECTED')->count(),
+            'users'          => User::count(),
+            'admins'         => User::where('role', 'admin')->count(),
+            'employees'      => User::where('role', 'employee')->count(),
+            'managers'       => User::where('role', 'manager')->count(),
+        ];
+        
+        // Show all recent requests from everyone
+        $recentRequests = BusinessRequest::with('user')->latest()->take(5)->get();
+    }
 
-    // Get counts for the last 7 days
+    // 2. DATA FOR EVERYONE (Chart & Personal Stats)
+    // Get counts for the last 7 days (personal performance)
     $dailyStats = collect(range(0, 6))->map(function($days) use ($user) {
         $date = now()->subDays($days);
         return [
             'day' => $date->format('m/d'),
-            'count' => \App\Models\BusinessRequest::where('worker_id', $user->id)
+            'count' => BusinessRequest::where('worker_id', $user->id)
                 ->where('status', 'COMPLETED')
                 ->whereDate('updated_at', $date)
                 ->count()
@@ -43,21 +64,23 @@ class DashboardController extends Controller
     $chartLabels = $dailyStats->pluck('day');
     $chartData = $dailyStats->pluck('count');
 
-    // Statistics for the logged-in user
+    // Personal statistics (used by Employee role or as personal overview for Managers)
     $stats = [
-        'my_pending_approvals' => \App\Models\BusinessRequest::where('user_id', $user->id)->where('status', 'PENDING')->count(),
-        'assigned_working'    => \App\Models\BusinessRequest::where('worker_id', $user->id)->where('status', 'WORKING')->count(),
-        'assigned_approved'   => \App\Models\BusinessRequest::where('worker_id', $user->id)->where('status', 'APPROVED')->count(),
-        'my_completed'        => \App\Models\BusinessRequest::where('user_id', $user->id)->where('status', 'COMPLETED')->count(),
+        'my_pending_approvals' => BusinessRequest::where('user_id', $user->id)->where('status', 'PENDING')->count(),
+        'assigned_working'     => BusinessRequest::where('worker_id', $user->id)->where('status', 'WORKING')->count(),
+        'assigned_approved'    => BusinessRequest::where('worker_id', $user->id)->where('status', 'APPROVED')->count(),
+        'my_completed'         => BusinessRequest::where('user_id', $user->id)->where('status', 'COMPLETED')->count(),
     ];
 
-    // Get the 5 most recent tasks assigned to me
-    $recentTasks = \App\Models\BusinessRequest::where('worker_id', $user->id)
+    // Personal recent tasks
+    $recentTasks = BusinessRequest::where('worker_id', $user->id)
         ->latest()
         ->take(5)
         ->get();
 
-   return view('dashboard', compact('stats', 'recentTasks', 'chartLabels', 'chartData'));
+    // 3. SINGLE RETURN STATEMENT
+    // We use get_defined_vars() to pass everything that was created above
+    return view('dashboard', get_defined_vars());
 }
 
     // DashboardController.php

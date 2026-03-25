@@ -1,164 +1,201 @@
 <x-app-layout>
     @section('header_title', 'ダッシュボード')
 
-    <div class="space-y-8">
-        {{-- Welcome Section --}}
-        <div class="flex items-center justify-between">
-            <div>
-                <h1 class="text-2xl font-bold text-slate-800">お疲れ様です、{{ auth()->user()->name }}さん</h1>
-                <p class="text-slate-500 text-sm mt-1">本日の業務状況とリクエストの進捗を確認しましょう。</p>
-            </div>
-            <a href="{{ route('business-requests.create') }}" class="bg-indigo-600 text-white px-4 py-2 rounded-xl shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition flex items-center font-bold text-sm">
-                <i data-lucide="plus" class="w-4 h-4 mr-2"></i> 新規作成
-            </a>
-        </div>
+    @php
+        $user = auth()->user();
+    @endphp
 
-        {{-- Statistics Cards --}}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {{-- Card 1: Working (Tasks for the user) --}}
-            <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm relative overflow-hidden">
-                <div class="absolute top-0 right-0 p-4 opacity-10 text-blue-600">
-                    <i data-lucide="play-circle" class="w-12 h-12"></i>
-                </div>
-                <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">進行中の作業</p>
-                <h3 class="text-3xl font-black text-slate-800 mt-2">{{ $stats['assigned_working'] }}</h3>
-                <p class="text-blue-600 text-[10px] mt-2 font-bold">現在対応中のタスク</p>
-            </div>
+    <div class="space-y-10 pb-10">
 
-            {{-- Card 2: Approved / Waiting Start --}}
-            <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm relative overflow-hidden">
-                <div class="absolute top-0 right-0 p-4 opacity-10 text-amber-600">
-                    <i data-lucide="clock" class="w-12 h-12"></i>
-                </div>
-                <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">未着手の作業</p>
-                <h3 class="text-3xl font-black text-slate-800 mt-2">{{ $stats['assigned_approved'] }}</h3>
-                <p class="text-amber-600 text-[10px] mt-2 font-bold">開始待ちの承認済みタスク</p>
-            </div>
+        {{-- ================= ADMIN DASHBOARD ================= --}}
+        @if($user->role === 'admin' || $user->role === 'manager')
 
-            {{-- Card 3: My Pending Requests --}}
-            <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm relative overflow-hidden">
-                <div class="absolute top-0 right-0 p-4 opacity-10 text-indigo-600">
-                    <i data-lucide="send" class="w-12 h-12"></i>
-                </div>
-                <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">自分の申請（承認待ち）</p>
-                <h3 class="text-3xl font-black text-slate-800 mt-2">{{ $stats['my_pending_approvals'] }}</h3>
-                <p class="text-indigo-600 text-[10px] mt-2 font-bold">マネージャーの確認待ち</p>
-            </div>
-
-            {{-- Card 4: Completed Total --}}
-            <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm relative overflow-hidden">
-                <div class="absolute top-0 right-0 p-4 opacity-10 text-emerald-600">
-                    <i data-lucide="check-check" class="w-12 h-12"></i>
-                </div>
-                <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">完了した依頼</p>
-                <h3 class="text-3xl font-black text-slate-800 mt-2">{{ $stats['my_completed'] }}</h3>
-                <p class="text-emerald-600 text-[10px] mt-2 font-bold">これまでに完了した全件数</p>
-            </div>
-        </div>
-
-        {{-- Weekly Chart Section --}}
-        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-            <h2 class="font-bold text-slate-800 flex items-center mb-4">
-                <i data-lucide="bar-chart-3" class="w-5 h-5 mr-2 text-indigo-500"></i> 直近7日間の完了数 (Weekly Completion)
-            </h2>
-            <div class="h-[250px] w-full relative"> {{-- Added relative positioning for chart.js --}}
-                <canvas id="completionChart"></canvas>
-            </div>
-        </div>
-
-        {{-- Main Content Grid --}}
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {{-- Left Side: Recent Tasks List --}}
-            <div class="lg:col-span-2 space-y-4">
-                <div class="flex items-center justify-between px-2">
-                    <h2 class="font-bold text-slate-800 flex items-center">
-                        <i data-lucide="list" class="w-5 h-5 mr-2 text-indigo-500"></i> 最近の担当作業
-                    </h2>
-                    {{-- FIXED LINK BELOW --}}
-                    <a href="{{ route('business-requests.my_tasks') }}" class="text-xs text-indigo-600 font-bold hover:underline">すべて表示</a>
-                </div>
-                
-                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm divide-y divide-slate-50">
-                    @forelse($recentTasks as $task)
-                        <div class="p-4 flex items-center justify-between hover:bg-slate-50 transition first:rounded-t-2xl last:rounded-b-2xl">
-                            <div class="flex items-center space-x-4">
-                                <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500">
-                                    <span class="text-[10px] font-bold">#{{ substr($task->request_number, -3) }}</span>
-                                </div>
-                                <div>
-                                    <p class="text-sm font-bold text-slate-800">{{ $task->title }}</p>
-                                    <p class="text-[10px] text-slate-400">期限: {{ $task->due_date }}</p>
-                                </div>
-                            </div>
-                            <div>
-                                @if($task->status === 'WORKING')
-                                    <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-lg text-[9px] font-bold uppercase">作業中</span>
-                                @elseif($task->status === 'APPROVED')
-                                    <span class="px-2 py-1 bg-amber-100 text-amber-700 rounded-lg text-[9px] font-bold uppercase">開始待ち</span>
-                                @else
-                                    <span class="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-lg text-[9px] font-bold uppercase">完了</span>
-                                @endif
-                            </div>
-                        </div>
-                    @empty
-                        <div class="p-8 text-center text-slate-400 text-sm">現在、表示できる作業はありません。</div>
-                    @endforelse
-                </div>
-            </div>
-
-            {{-- Right Side: Quick Links --}}
-            <div class="space-y-4">
-                 <h2 class="font-bold text-slate-800 flex items-center px-2">
-                    <i data-lucide="zap" class="w-5 h-5 mr-2 text-amber-500"></i> クイックアクセス
-                </h2>
-                <div class="bg-indigo-900 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden group">
-                    <div class="relative z-10">
-                        <h4 class="font-bold text-sm">困ったときは？</h4>
-                        <p class="text-indigo-200 text-[11px] mt-2 leading-relaxed">システムの操作方法や不明点がある場合は、IT部門までお問い合わせください。</p>
-                        <button class="mt-4 bg-white/10 hover:bg-white/20 border border-white/20 w-full py-2 rounded-xl text-xs font-bold transition">マニュアルを見る</button>
-                    </div>
-                    <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-white/5 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
-                </div>
-            </div>
-        </div>
+           {{-- Header --}}
+    <div class="mb-6">
+        <h1 class="text-3xl font-black text-slate-800 tracking-tight">
+            {{ $user->role === 'admin' ? '管理者ダッシュボード' : 'マネージャーダッシュボード' }}
+        </h1>
+        <p class="text-slate-500 text-sm mt-1 font-medium italic">
+            {{ $user->role === 'admin' ? 'システム全体の状況を確認できます。' : 'チーム全体の業務進捗を確認できます。' }}
+        </p>
     </div>
 
-    @push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const el = document.getElementById('completionChart');
-            if (el) {
-                const ctx = el.getContext('2d');
-                new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: {!! json_encode($chartLabels) !!},
-                        datasets: [{
-                            label: '完了したタスク',
-                            data: {!! json_encode($chartData) !!},
-                            backgroundColor: 'rgba(79, 70, 229, 0.5)', 
-                            borderColor: 'rgb(79, 70, 229)',
-                            borderWidth: 2,
-                            borderRadius: 6
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: { 
-                                beginAtZero: true,
-                                ticks: { stepSize: 1 } // Show whole numbers only
-                            }
-                        },
-                        plugins: {
-                            legend: { display: false }
-                        }
-                    }
-                });
-            }
-        });
-    </script>
-    @endpush
+            {{-- Admin Stats Grid --}}
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6">
+                @php
+                    $requestStats = [
+                        ['label' => '総依頼数', 'value' => $adminStats['total_requests'], 'icon' => 'layers', 'color' => 'slate'],
+                        ['label' => '承認待ち', 'value' => $adminStats['pending'], 'icon' => 'clock', 'color' => 'amber'],
+                        ['label' => '承認済み', 'value' => $adminStats['approved'], 'icon' => 'check-circle', 'color' => 'blue'],
+                        ['label' => '作業中', 'value' => $adminStats['working'], 'icon' => 'play-circle', 'color' => 'indigo'],
+                        ['label' => '完了', 'value' => $adminStats['completed'], 'icon' => 'check-check', 'color' => 'emerald'],
+                        ['label' => '却下', 'value' => $adminStats['rejected'], 'icon' => 'x-octagon', 'color' => 'rose'],
+                    ];
+                @endphp
+
+                @foreach($requestStats as $stat)
+                    <div class="group bg-white p-5 rounded-3xl border border-{{ $stat['color'] }}-100 shadow-sm hover:shadow-xl hover:shadow-{{ $stat['color'] }}-500/10 hover:-translate-y-1 transition-all duration-300 relative overflow-hidden">
+                        <div class="absolute -right-2 -top-2 opacity-5 group-hover:opacity-10 transition-opacity">
+                            <i data-lucide="{{ $stat['icon'] }}" class="w-20 h-20 text-{{ $stat['color'] }}-600"></i>
+                        </div>
+                        <div class="relative z-10">
+                            <div class="w-10 h-10 rounded-xl bg-{{ $stat['color'] }}-50 flex items-center justify-center mb-4">
+                                <i data-lucide="{{ $stat['icon'] }}" class="w-5 h-5 text-{{ $stat['color'] }}-600"></i>
+                            </div>
+                            <p class="text-[11px] text-{{ $stat['color'] }}-600/80 font-black uppercase tracking-widest">{{ $stat['label'] }}</p>
+                            <h3 class="text-3xl font-black text-slate-800 mt-1 tabular-nums">{{ $stat['value'] }}</h3>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+            {{-- User Roles Grid --}}
+            @if($user->role === 'admin')
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-10">
+                @php
+                    $userRoles = [
+                        ['label' => '全ユーザー', 'value' => $adminStats['users'], 'icon' => 'users', 'color' => 'indigo', 'desc' => 'Total registered'],
+                        ['label' => '管理者', 'value' => $adminStats['admins'], 'icon' => 'shield-check', 'color' => 'rose', 'desc' => 'Full access'],
+                        ['label' => '従業員', 'value' => $adminStats['employees'], 'icon' => 'user-plus', 'color' => 'emerald', 'desc' => 'Standard users'],
+                        ['label' => 'マネージャー', 'value' => $adminStats['managers'], 'icon' => 'briefcase', 'color' => 'purple', 'desc' => 'Approval role'],
+                    ];
+                @endphp
+
+                @foreach($userRoles as $role)
+                    <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-5 hover:border-{{ $role['color'] }}-200 transition-colors group">
+                        <div class="w-14 h-14 rounded-2xl bg-{{ $role['color'] }}-50 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                            <i data-lucide="{{ $role['color'] == 'rose' ? 'shield-alert' : $role['icon'] }}" class="w-7 h-7 text-{{ $role['color'] }}-600"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">{{ $role['label'] }}</p>
+                            <div class="flex items-baseline gap-2">
+                                <h3 class="text-2xl font-black text-slate-800">{{ $role['value'] }}</h3>
+                                <span class="text-[10px] text-slate-400 font-medium lowercase italic">{{ $role['desc'] }}</span>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+            @endif
+
+        {{-- ================= EMPLOYEE / MANAGER DASHBOARD ================= --}}
+        @else
+
+            {{-- Employee Header --}}
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                <div>
+                    <h1 class="text-3xl font-black text-slate-800 tracking-tight">ユーザーダッシュボード</h1>
+                    <p class="text-slate-500 text-sm mt-1 font-medium italic">
+                        <i data-lucide="sparkles" class="w-4 h-4 inline-block mr-1 text-amber-400"></i>
+                        本日の業務状況とリクエストの進捗を確認しましょう。
+                    </p>
+                </div>
+
+               
+            </div>
+
+            {{-- Personal Stats Grid (Styled like Admin Stats) --}}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                @php
+
+                
+                    $personalStats = [
+                        ['label' => '作業中', 'value' => $stats['assigned_working'], 'icon' => 'play-circle', 'color' => 'indigo'],
+                        ['label' => '承認済み', 'value' => $stats['assigned_approved'], 'icon' => 'check-circle', 'color' => 'blue'],
+                        ['label' => '承認待ち', 'value' => $stats['my_pending_approvals'], 'icon' => 'clock', 'color' => 'amber'],
+                        ['label' => '完了済み', 'value' => $stats['my_completed'], 'icon' => 'check-check', 'color' => 'emerald'],
+                    ];
+                @endphp
+
+                @foreach($personalStats as $stat)
+                    <div class="group bg-white p-6 rounded-3xl border border-{{ $stat['color'] }}-100 shadow-sm hover:shadow-xl hover:shadow-{{ $stat['color'] }}-500/10 hover:-translate-y-1 transition-all duration-300 relative overflow-hidden">
+                        {{-- Background Pattern --}}
+                        <div class="absolute -right-2 -top-2 opacity-5 group-hover:opacity-10 transition-opacity">
+                            <i data-lucide="{{ $stat['icon'] }}" class="w-20 h-20 text-{{ $stat['color'] }}-600"></i>
+                        </div>
+
+                        <div class="relative z-10">
+                            <div class="w-12 h-12 rounded-2xl bg-{{ $stat['color'] }}-50 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <i data-lucide="{{ $stat['icon'] }}" class="w-6 h-6 text-{{ $stat['color'] }}-600"></i>
+                            </div>
+                            <p class="text-[11px] text-{{ $stat['color'] }}-600/80 font-black uppercase tracking-widest">{{ $stat['label'] }}</p>
+                            <h3 class="text-3xl font-black text-slate-800 mt-1 tabular-nums">{{ $stat['value'] }}</h3>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+        @endif
+
+        {{-- ================= SHARED ACTIVITY FEED (Used by Both) ================= --}}
+        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden mt-8">
+            <div class="px-6 py-5 border-b border-slate-50 flex justify-between items-center bg-slate-50/30">
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-5 bg-indigo-500 rounded-full"></div>
+                    <h2 class="font-black text-slate-800 tracking-tight text-sm">最新のアクティビティ </h2>
+                </div>
+                <a href="{{ $user->role === 'admin' ? route('business-requests.requests') : route('business-requests.my_tasks') }}" 
+                   class="text-[10px] font-bold text-indigo-600 hover:text-indigo-700 uppercase tracking-widest">全て見る</a>
+            </div>
+
+            <div class="divide-y divide-slate-50">
+                @php
+                   $tasksSource = ($user->role === 'admin' || $user->role === 'manager') 
+                           ? $recentRequests 
+                           : $recentTasks;
+                @endphp
+
+                @forelse($tasksSource as $task)
+                    @php
+                        $statusConfig = [
+                            'PENDING'   => ['color' => 'amber',   'icon' => 'clock',        'label' => '承認待ち'],
+                            'APPROVED'  => ['color' => 'blue',    'icon' => 'check-circle',  'label' => '承認済み'],
+                            'WORKING'   => ['color' => 'indigo',  'icon' => 'play-circle',   'label' => '作業中'],
+                            'COMPLETED' => ['color' => 'emerald', 'icon' => 'check-check',   'label' => '完了'],
+                            'REJECTED'  => ['color' => 'rose',    'icon' => 'x-circle',      'label' => '却下'],
+                        ];
+                        $config = $statusConfig[$task->status] ?? ['color' => 'slate', 'icon' => 'help-circle', 'label' => $task->status];
+                    @endphp
+
+                    <div class="px-6 py-4 flex items-center justify-between hover:bg-slate-50/80 transition-colors group">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-{{ $config['color'] }}-50 flex items-center justify-center shrink-0 border border-{{ $config['color'] }}-100/50 group-hover:scale-110 transition-transform">
+                                <i data-lucide="{{ $config['icon'] }}" class="w-5 h-5 text-{{ $config['color'] }}-600"></i>
+                            </div>
+
+                            <div>
+                                <p class="text-sm font-bold text-slate-800 line-clamp-1 group-hover:text-indigo-600 transition-colors">
+                                    {{ $task->title }}
+                                </p>
+                                <div class="flex items-center gap-2 mt-0.5">
+                                    <span class="text-[10px] font-bold text-slate-400 flex items-center">
+                                        <i data-lucide="calendar" class="w-3 h-3 mr-1"></i>
+                                        {{ $task->created_at->format('Y/m/d') }}
+                                    </span>
+                                    <span class="text-slate-200 text-[10px]">•</span>
+                                    <span class="text-[10px] text-slate-400 font-medium">Updated {{ $task->updated_at->diffForHumans() }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-3">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border
+                                bg-{{ $config['color'] }}-50 text-{{ $config['color'] }}-700 border-{{ $config['color'] }}-100 shadow-sm">
+                                {{ $config['label'] }}
+                            </span>
+                            <a href="{{ route('business-requests.show', $task->id) }}" class="p-2 text-slate-300 hover:text-indigo-600 transition-colors">
+                                <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                            </a>
+                        </div>
+                    </div>
+                @empty
+                    <div class="py-16 text-center">
+                        <i data-lucide="inbox" class="w-12 h-12 text-slate-200 mx-auto mb-3"></i>
+                        <p class="text-slate-400 font-bold text-xs uppercase tracking-widest">データがありません</p>
+                    </div>
+                @endforelse
+            </div>
+        </div>
+
+    </div>
 </x-app-layout>

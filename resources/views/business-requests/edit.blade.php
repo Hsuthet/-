@@ -5,7 +5,7 @@
             <div class="bg-white rounded-2xl shadow-lg p-10 border border-gray-200">
 
                 <h1 class="text-2xl font-bold text-center text-gray-800 mb-8">
-                    業務依頼書・連絡書 (編集)
+                    業務依頼書(編集)
                 </h1>
 
                
@@ -159,7 +159,7 @@
                     </div>
 
                     <div class="flex justify-end space-x-4 border-t pt-8">
-                        <a href="{{ route('business-requests.index') }}"
+                        <a href="{{ route('business-requests.requests') }}"
                             class="px-6 py-2 border border-gray-400 bg-white text-gray-700 rounded-md hover:bg-gray-100 transition">
                             キャンセル
                         </a>

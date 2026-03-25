@@ -63,6 +63,7 @@ Route::middleware(['auth'])->group(function () {
         [BusinessRequestController::class, 'complete']
     )->name('business-requests.complete');
 
+    Route::post('/file/remove', [BusinessRequestController::class, 'remove'])->name('file.remove');
     // Business Requests Resource
     Route::resource('business-requests', BusinessRequestController::class);
 

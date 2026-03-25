@@ -14,104 +14,94 @@
 <body class="font-sans antialiased bg-slate-50 text-slate-900">
     <div class="min-h-screen flex">
         
-     <aside class="w-72 bg-[#001a4d] text-white hidden md:flex flex-col sticky top-0 h-screen shadow-2xl">
-    
-    <div class="py-10 px-8">
-        <div class="flex flex-col items-center">
-            <img src="{{ asset('images/logo1.png') }}" class="h-10 w-auto object-contain">
-           <div class="h-[1px] flex-grow bg-white"></div>
-    <span class="text-[10px] font-bold tracking-[0.4em] uppercase text-slate-200">
-        業務依頼システム
-    </span>
-    <div class="h-[1px] flex-grow bg-slate-300"></div>
+    <aside class="w-72 bg-[#001a4d] text-white hidden md:flex flex-col sticky top-0 h-screen shadow-[4px_0_24px_rgba(0,0,0,0.1)] z-20">
+    {{-- Brand Logo Section --}}
+    <div class="py-10 px-8 flex flex-col items-center">
+        <div class="relative group cursor-pointer">
+            <img src="{{ asset('images/RESONANT.png') }}" class="h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105">
+            {{-- Decorative glow behind logo --}}
+            <div class="absolute -inset-1 bg-white/10 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        </div>
+        
+        <div class="mt-4 flex items-center w-full gap-3">
+            <div class="h-[1px] flex-grow bg-gradient-to-r from-transparent via-slate-400 to-transparent"></div>
+            <span class="text-[10px] font-black text-slate-300 uppercase tracking-[0.3em] whitespace-nowrap">
+                業務依頼システム
+            </span>
+            <div class="h-[1px] flex-grow bg-gradient-to-r from-transparent via-slate-400 to-transparent"></div>
         </div>
     </div>
 
-    <nav class="flex-grow px-4 space-y-1 overflow-y-auto">
+    {{-- Navigation Scroll Area --}}
+    <nav class="flex-grow px-4 space-y-1.5 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+        
+        {{-- Menu Section Factory --}}
+        @php
+            $sections = [
+                ['label' => 'Main Menu', 'role' => 'all'],
+                ['label' => 'Admin Panel', 'role' => 'admin'],
+                ['label' => 'Requests', 'role' => 'employee'],
+                ['label' => 'Management', 'role' => 'manager'],
+            ];
+        @endphp
 
-    {{-- Section Header --}}
-   <h3 class="text-[10px] font-bold text-slate-300 uppercase tracking-[0.2em] px-4 pt-6 pb-2">
-    Main Menu
-</h3>
-    <x-nav-link-item :href="route('dashboard')" :active="request()->routeIs('dashboard')" icon="layout-dashboard" label="ダッシュボード" />
-
+        {{-- Main Menu --}}
+        <h3 class="text-[10px] font-bold text-slate-400/80 uppercase tracking-[0.2em] px-4 pt-4 pb-2">Main Menu</h3>
+        <x-nav-link-item :href="route('dashboard')" :active="request()->routeIs('dashboard')" icon="layout-dashboard" label="ダッシュボード" />
 
         {{-- Admin Section --}}
-    @if(auth()->user()->role === 'admin')
-        <h3 class="text-[10px] font-bold text-slate-300 uppercase tracking-[0.2em] px-4 pt-8 pb-2">
-            Admin Panel
-        </h3>
+        @if(auth()->user()->role === 'admin')
+            <h3 class="text-[10px] font-bold text-indigo-300/60 uppercase tracking-[0.2em] px-4 pt-8 pb-2">管理者コントロール</h3>
+            <x-nav-link-item :href="route('users.index')" :active="request()->routeIs('users.*')" icon="users" label="ユーザー管理" />
+            <x-nav-link-item :href="route('business-requests.requests')" :active="request()->routeIs('business-requests.requests')" icon="file-text" label="依頼一覧（全体）" />
+            <x-nav-link-item :href="route('business-requests.my_tasks')" :active="request()->routeIs('business-requests.my_tasks')" icon="clipboard-list" label="タスク一覧" />
+        @endif
 
-        <x-nav-link-item 
-            :href="route('users.index')" 
-            :active="request()->routeIs('users.*')" 
-            icon="users" 
-            label="ユーザー管理" />
+        {{-- Employee Section --}}
+        @if(auth()->user()->role === 'employee')
+            <h3 class="text-[10px] font-bold text-emerald-300/60 uppercase tracking-[0.2em] px-4 pt-8 pb-2">社員業務</h3>
+            <x-nav-link-item :href="route('business-requests.create')" :active="request()->routeIs('business-requests.create')" icon="plus-circle" label="新規依頼作成" />
+            <x-nav-link-item :href="route('business-requests.requests')" :active="request()->routeIs('business-requests.requests')" icon="send" label="依頼履歴" />
+            <x-nav-link-item :href="route('business-requests.my_tasks')" :active="request()->routeIs('business-requests.my_tasks')" icon="check-square" label="担当作業" :badge="$assignedTaskCount ?? null" />
+        @endif
 
-        <x-nav-link-item 
-            :href="route('business-requests.index')" 
-            :active="request()->routeIs('business-requests.index')" 
-            icon="file-text" 
-            label="依頼一覧（全体）" />
+       {{-- Manager Section --}}
+@if(auth()->user()->role === 'manager')
+    <h3 class="text-[10px] font-bold text-amber-300/60 uppercase tracking-[0.2em] px-4 pt-8 pb-2">
+        マネージャーコントロール
+    </h3>
 
-        <x-nav-link-item 
-            :href="route('business-requests.my_tasks')" 
-            :active="request()->routeIs('business-requests.my_tasks')" 
-            icon="clipboard-list" 
-            label="タスク一覧（全体）" />
-    @endif
+    {{-- Change 'business-requests.*' to 'business-requests.index' to avoid overlapping --}}
+    <x-nav-link-item 
+        :href="route('business-requests.index')" 
+        :active="request()->is('business-requests') || request()->routeIs('business-requests.index')" 
+        icon="shield-check" 
+        label="依頼承認・管理" />
 
-    {{-- Employee / Requester Section --}}
-    @if(auth()->user()->role === 'employee')
-        <h3 class="text-[10px] font-bold text-slate-300 uppercase tracking-[0.2em] px-4 pt-8 pb-2">Requests</h3>
+    <x-nav-link-item 
+        :href="route('business-requests.my_tasks')" 
+        :active="request()->routeIs('business-requests.my_tasks')" 
+        icon="check-square" 
+        label="担当作業" />
+@endif
+    </nav>
 
-        <x-nav-link-item 
-            :href="route('business-requests.create')" 
-            :active="request()->routeIs('business-requests.create')" 
-            icon="plus-circle" 
-            label="新規依頼作成" />
-
-        <x-nav-link-item 
-            :href="route('business-requests.requests')" 
-            :active="request()->routeIs('business-requests.requests')" 
-            icon="send" 
-            label="依頼一覧画面" />
-
-        <x-nav-link-item 
-            :href="route('business-requests.my_tasks')" 
-            :active="request()->routeIs('business-requests.my_tasks')" 
-            icon="clipboard-list" 
-            label="担当作業" 
-            :badge="$assignedTaskCount ?? null" />
-    @endif
-
-
-    {{-- Manager Section --}}
-    @if(auth()->user()->role === 'manager')
-        <h3 class="text-[10px] font-bold text-slate-300 uppercase tracking-[0.2em] px-4 pt-8 pb-2">Management</h3>
-
-        <x-nav-link-item 
-            :href="route('business-requests.index')" 
-            :active="request()->routeIs('business-requests.*')" 
-            icon="shield-check" 
-            label="依頼承認・管理" />
-    @endif
-
-</nav>
-
-    <div class="p-4 mt-auto border-t border-white/5 bg-black/20">
-        <div class="flex items-center space-x-3 p-3 rounded-xl hover:bg-white/5 transition cursor-pointer">
-            <div class="w-10 h-10 rounded-lg bg-white/10 border border-white/10 flex items-center justify-center text-sm font-bold shadow-inner">
-                {{ substr(Auth::user()->name, 0, 1) }}
+    {{-- User Profile Footer --}}
+    <div class="p-4 mt-auto">
+        <div class="bg-white/5 border border-white/10 rounded-2xl p-3 flex items-center gap-3 hover:bg-white/10 transition-all duration-300 group">
+            <div class="relative">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-sm font-bold shadow-lg group-hover:rotate-3 transition-transform">
+                    {{ substr(Auth::user()->name, 0, 1) }}
+                </div>
+                <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-emerald-500 border-2 border-[#001a4d] rounded-full"></div>
             </div>
             <div class="flex-grow overflow-hidden">
-                <p class="text-xs font-bold truncate">{{ Auth::user()->name }}</p>
-                <p class="text-[10px] text-white/40 uppercase tracking-widest font-medium">{{ Auth::user()->role }}</p>
+                <p class="text-xs font-bold text-white truncate">{{ Auth::user()->name }}</p>
+                <p class="text-[10px] text-white/40 uppercase tracking-widest font-black">{{ Auth::user()->role }}</p>
             </div>
         </div>
     </div>
 </aside>
-
         <div class="flex-grow flex flex-col min-w-0">
                 <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 sticky top-0 z-10">
                     <div class="flex items-center">
@@ -215,6 +205,30 @@
 
     <script>
       lucide.createIcons();
+    </script>
+    <script>
+        $(document).ready(function() {
+            // Global Table Filter Listener
+            $(document).on('click', '.filter-btn', function(e) {
+                const $btn = $(this);
+                const tableId = $btn.data('table');
+                const searchTerm = $btn.data('search') || '';
+                
+                // Find the DataTable instance
+                const table = $('#' + tableId).DataTable();
+                
+                // 1. Filter the table
+                table.search(searchTerm).draw();
+
+                // 2. Update UI Classes (Remove from others, add to this one)
+                $btn.closest('.inline-flex').find('.filter-btn')
+                    .removeClass('bg-white shadow-sm border border-slate-200 text-blue-600 font-bold')
+                    .addClass('text-slate-500 font-medium');
+
+                $btn.addClass('bg-white shadow-sm border border-slate-200 text-blue-600 font-bold')
+                    .removeClass('text-slate-500 font-medium');
+            });
+        });
     </script>
     @stack('scripts')
 </body>

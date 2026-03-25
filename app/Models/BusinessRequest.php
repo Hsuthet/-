@@ -127,4 +127,34 @@ public function latestRejection()
                 ->where('approval_status', 'REJECTED')
                 ->latestOfMany();
 }
+public function getStatusConfigAttribute()
+{
+    return [
+        'PENDING'   => [
+            'label' => '承認待ち', 
+            'color' => 'bg-amber-50 text-amber-700 border-amber-200'
+        ],
+        'APPROVED'  => [
+            'label' => '承認済み', 
+            'color' => 'bg-indigo-50 text-indigo-700 border-indigo-200'
+        ],
+        'REJECTED'  => [
+            'label' => '却下', 
+            'color' => 'bg-rose-50 text-rose-700 border-rose-200'
+        ],
+        // Blue indicates "In Progress"
+        'WORKING'   => [
+            'label' => '作業中', 
+            'color' => 'bg-blue-50 text-blue-700 border-blue-200'
+        ],
+        // Green indicates "Mission Accomplished"
+        'COMPLETED' => [
+            'label' => '完了', 
+            'color' => 'bg-emerald-50 text-emerald-700 border-emerald-200'
+        ], 
+    ][$this->status] ?? [
+        'label' => $this->status,
+        'color' => 'bg-slate-50 text-slate-600 border-slate-200'
+    ];
+}
 }

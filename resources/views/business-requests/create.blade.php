@@ -1,4 +1,5 @@
 <x-app-layout>
+    @section('header_title', '業務依頼作成')
     <div class="min-h-screen bg-gray-100 py-12">
         <div class="max-w-5xl mx-auto">
             
@@ -6,7 +7,7 @@
 
                 <!-- Title -->
                 <h1 class="text-2xl font-bold text-center text-gray-800 mb-8">
-                    業務依頼書・連絡書
+                    業務依頼書
                 </h1>
 
                 <!-- Step Indicator -->
@@ -133,32 +134,72 @@
         </div>
     </div>
 
-       <div class="mb-12">
-    <h3 class="text-sm font-bold text-gray-700 mb-4 border-b pb-2">【 添付ファイル 】</h3>
-    
-    <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50">
-        <input type="file" name="attachments[]" multiple
-               class="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-indigo-100 file:text-indigo-700 hover:file:bg-indigo-200">
-
-        {{-- show file list --}}
-       @if(session('storedFiles'))
-            <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md text-left">
-                <p class="text-xs font-bold text-blue-800 mb-2">● 現在選択されているファイル:</p>
-                <ul class="text-xs text-blue-700 list-disc ml-5 space-y-1">
-                    @foreach(session('storedFiles') as $file)
-                        <li>{{ $file['name'] }}</li>
-                    @endforeach
-                </ul>
-                <p class="mt-2 text-[10px] text-gray-500 italic">
-                    ※ 新しいファイルを選択すると、以前のファイルは上書きされます。変更がない場合は、そのままにしてください。
-                </p>
-            </div>
-        @endif
+     <div class="mb-12">
+    <div class="flex items-center justify-between mb-4 border-b pb-2">
+        <h3 class="text-sm font-black text-slate-700 tracking-wide flex items-center">
+            <i data-lucide="paperclip" class="w-4 h-4 mr-2 text-indigo-500"></i>
+            添付ファイル / ATTACHMENTS
+        </h3>
+        <span class="text-[10px] text-slate-400 font-medium">MAX 10MB per file</span>
     </div>
+    
+    <div class="relative group">
+        {{-- Hidden Input - Triggered by clicking the div --}}
+        <input type="file" name="attachments[]" id="file-upload" multiple 
+               accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.png,.dat"
+               class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+
+        <div class="border-2 border-dashed border-slate-200 rounded-2xl p-10 text-center bg-slate-50 group-hover:bg-white group-hover:border-indigo-400 group-hover:shadow-xl group-hover:shadow-indigo-50 transition-all duration-300">
+            <div class="bg-white w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm border border-slate-100 group-hover:scale-110 transition-transform">
+                <i data-lucide="upload-cloud" class="w-6 h-6 text-indigo-500"></i>
+            </div>
+            <p class="text-sm font-bold text-slate-700">クリックまたはドラッグ＆ドロップ</p>
+            <p class="text-xs text-slate-400 mt-1">PDF, Word, Excel, Image (Max 5 files)</p>
+        </div>
+    </div>
+
+    {{-- Selected File List --}}
+    @if(session('storedFiles'))
+        <div class="mt-4 animate-in fade-in slide-in-from-top-2">
+            <div class="bg-indigo-50/50 border border-indigo-100 rounded-xl p-4">
+                <div class="flex items-center mb-3">
+                    <span class="flex h-2 w-2 rounded-full bg-indigo-500 mr-2"></span>
+                    <p class="text-xs font-bold text-indigo-900">選択済みファイル ({{ count(session('storedFiles')) }})</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                   @foreach(session('storedFiles') as $index => $file)
+    <div id="file-row-{{ $index }}" class="flex items-center justify-between bg-white p-2.5 rounded-lg border border-indigo-100 shadow-sm">
+        <div class="flex items-center overflow-hidden">
+            <i data-lucide="file-text" class="w-4 h-4 text-slate-400 mr-2 shrink-0"></i>
+            <span class="text-xs font-medium text-slate-600 truncate max-w-[180px]">
+                {{ $file['name'] }}
+            </span>
+        </div>
+
+        {{-- Use a normal button with type="button" to prevent form submission --}}
+        <button type="button" 
+                onclick="removeFile({{ $index }})"
+                class="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-md transition-all">
+            <i data-lucide="x-circle" class="w-4 h-4"></i>
+        </button>
+    </div>
+@endforeach
+                </div>
+
+                <div class="mt-4 pt-3 border-t border-indigo-100 flex items-start gap-2">
+                    <i data-lucide="alert-circle" class="w-3.5 h-3.5 text-indigo-400 shrink-0 mt-0.5"></i>
+                    <p class="text-[10px] text-indigo-400 italic leading-relaxed">
+                        新しいファイルを選択すると既存のリストは更新されます。変更が不要な場合はそのまま進んでください。
+                    </p>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>
 
     <div class="flex justify-end space-x-4 border-t pt-8">
-        <a href="{{ route('business-requests.index') }}"
+        <a href="{{ route('business-requests.requests') }}"
             class="px-6 py-2 border border-gray-400 bg-white text-gray-700 rounded-md hover:bg-gray-100 transition">
             キャンセル
         </a>
@@ -172,4 +213,24 @@
             </div>
         </div>
     </div>
+    <script>
+function removeFile(index) {
+    if (!confirm('このファイルを削除しますか？ (Delete this file?)')) return;
+
+    axios.post("{{ route('file.remove') }}", {
+        index: index,
+        _token: "{{ csrf_token() }}"
+    })
+    .then(response => {
+        // Remove the file element from the UI without refreshing
+        const element = document.getElementById(`file-row-${index}`);
+        element.classList.add('opacity-0', 'scale-95'); // Smooth fade out
+        setTimeout(() => element.remove(), 300);
+    })
+    .catch(error => {
+        alert('エラーが発生しました。 (An error occurred)');
+        console.error(error);
+    });
+}
+</script>
 </x-app-layout>

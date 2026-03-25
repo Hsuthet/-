@@ -1,50 +1,51 @@
 import './bootstrap';
-
 import Alpine from 'alpinejs';
 
 window.Alpine = Alpine;
-
 Alpine.start();
 
-  $(document).ready(function() {
-    // We store filters in an object keyed by table ID so they don't interfere
-    let activeFilters = {};
+$(document).ready(function() {
+    // 1. Handle Status Dropdown (Exact Column Search)
+   $(document).on('change', '.table-filter-select', function() {
+        const $select = $(this);
+        const tableId = $select.data('table');
+        const colIndex = $select.data('column');
+        const searchValue = $select.val();
+        
+        // Use $.fn.dataTable.isDataTable to prevent errors
+        if ($.fn.dataTable.isDataTable(`#${tableId}`)) {
+            const table = $(`#${tableId}`).DataTable();
 
-    function getTableInstance(tableId) {
-        if (!activeFilters[tableId]) {
-            activeFilters[tableId] = { user: "", status: "" };
+            if (!searchValue) {
+                table.column(colIndex).search('').draw();
+            } else {
+                // We use a looser regex that allows for potential surrounding whitespace 
+                // but still ensures the word itself is an exact match.
+                // This handles cases where Blade adds hidden \n or spaces.
+                const regex = `^\\s*${searchValue}\\s*$`;
+                table.column(colIndex).search(regex, true, false).draw();
+            }
+        } else {
+            console.error(`Table with ID #${tableId} is not initialized as a DataTable.`);
         }
-        return $('#' + tableId).DataTable();
-    }
-
-    // Handle Status Dropdown (Dynamic)
-    $(document).on('change', '.table-filter-select', function() {
-        const tableId = $(this).data('table'); // Gets 'requestsTable' or 'tasksTable'
-        const table = getTableInstance(tableId);
-        
-        activeFilters[tableId].status = $(this).val() || "";
-        
-        // Combine filters for this specific table
-        const combinedSearch = activeFilters[tableId].user + " " + activeFilters[tableId].status;
-        table.search(combinedSearch.trim()).draw();
     });
 
-    // Handle All/My Toggle (Dynamic)
+    // 2. Handle All/My Toggle (Global Search)
     $(document).on('click', '.filter-btn', function() {
         const $btn = $(this);
         const tableId = $btn.data('table');
-        const table = getTableInstance(tableId);
+        const searchValue = $btn.data('search-value') || "";
+        const table = $(`#${tableId}`).DataTable();
 
-        activeFilters[tableId].user = $btn.data('search-value') || "";
-
-        // UI Update logic
-        $btn.parent().find('.filter-btn')
+        // UI Update: Active Classes
+        $btn.siblings('.filter-btn')
             .removeClass('active-toggle bg-white shadow-sm text-indigo-600 font-bold')
             .addClass('text-slate-600 font-medium');
+        
         $btn.addClass('active-toggle bg-white shadow-sm text-indigo-600 font-bold')
             .removeClass('text-slate-600 font-medium');
 
-        const combinedSearch = activeFilters[tableId].user + " " + activeFilters[tableId].status;
-        table.search(combinedSearch.trim()).draw();
+        // Global search for the user name
+        table.search(searchValue).draw();
     });
 });

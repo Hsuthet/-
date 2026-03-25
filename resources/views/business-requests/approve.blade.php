@@ -1,179 +1,177 @@
 <x-app-layout>
     <div class="py-12 bg-slate-50 min-h-screen flex justify-center items-start">
-        <div class="max-w-3xl w-full bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
+        <div class="max-w-4xl w-full bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
 
-            {{-- ヘッダー: タイトルと管理番号 --}}
-           {{-- ヘッダー: タイトルと管理番号 --}}
-<div class="bg-slate-800 px-8 py-6 text-white">
-    <div class="flex justify-between items-center">
-        <div>
-            <p class="text-slate-400 text-[10px] font-bold tracking-widest uppercase mb-1">承認ポータル</p>
-            <h2 class="text-xl font-bold tracking-tight">{{ $request->title }}</h2>
-        </div>
-        <div class="flex items-center gap-4">
-            {{-- ステータスの日本語変換ロジック --}}
-            @php
-                $statusLabels = [
-                    'PENDING'   => '承認待ち',
-                    'APPROVED'  => '承認済み',
-                    'REJECTED'  => '却下',
-                    'WORKING'   => '作業中',
-                    'COMPLETED' => '完了',
-                ];
-                $currentStatus = $request->status;
-                $japaneseLabel = $statusLabels[$currentStatus] ?? $currentStatus;
-            @endphp
+            {{-- Header: Refined, Document Style --}}
+             <div class="h-1.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-500"></div>
+            <div class="bg-white border-b border-slate-100 px-10 py-8">
+                
+                <div class="flex justify-between items-start">
+                    <div class="space-y-1.5 min-w-0">
+                        <div class="flex items-center gap-2.5">
+                            <span class="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border border-indigo-100">
+                                REQUEST ID: {{ $request->request_number }}
+                            </span>
+                        </div>
+                        <h2 class="text-2xl font-extrabold text-slate-950 tracking-tight leading-snug truncate">
+                            {{ $request->title }}
+                        </h2>
+                    </div>
 
-            {{-- ステータスバッジ --}}
-            <span class="px-3 py-1 rounded-full text-[10px] font-bold tracking-tighter uppercase border border-white/20 bg-white/10">
-                 {{ $japaneseLabel }}
-            </span>
-            
-            <a href="{{ route('business-requests.index') }}" class="text-slate-400 hover:text-white transition">
-                <i data-lucide="x" class="w-6 h-6"></i>
-            </a>
-        </div>
-    </div>
-</div>
+                    <div class="flex items-center gap-3">
+                        @php
+                            $statusConfig = [
+                                'PENDING'   => ['label' => '承認待ち', 'color' => 'bg-amber-50 text-amber-700 border-amber-100'],
+                                'APPROVED'  => ['label' => '承認済み', 'color' => 'bg-emerald-50 text-emerald-700 border-emerald-100'],
+                                'REJECTED'  => ['label' => '却下', 'color' => 'bg-rose-50 text-rose-700 border-rose-100'],
+                                'WORKING'   => ['label' => '作業中', 'color' => 'bg-sky-50 text-sky-700 border-sky-100'],
+                                'COMPLETED' => ['label' => '完了', 'color' => 'bg-slate-100 text-slate-700 border-slate-200'],
+                            ];
+                            $config = $statusConfig[$request->status] ?? ['label' => $request->status, 'color' => 'bg-slate-100 text-slate-700 border-slate-200'];
+                        @endphp
 
-            <div class="p-8">
-                {{-- 基本情報グリッド --}}
-                <div class="grid grid-cols-2 gap-y-6 gap-x-8 mb-8 pb-8 border-b border-slate-100">
-                    <div>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">依頼者</p>
-                        <p class="text-sm font-semibold text-slate-700 flex items-center">
-                            <i data-lucide="user" class="w-3.5 h-3.5 mr-2 text-slate-400"></i>
-                            {{ $request->user?->name ?? '不明' }} 
-                            <span class="ml-2 text-xs font-normal text-slate-400">({{ $request->user?->department?->name ?? '部署なし' }})</span>
+                        <span class="px-3.5 py-1.5 rounded-full text-[11px] font-bold border {{ $config['color'] }}">
+                             {{ $config['label'] }}
+                        </span>
+                        
+                        <a href="{{ route('business-requests.my_tasks') }}" class="p-2 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors">
+                            <i data-lucide="x" class="w-5 h-5"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-10">
+                {{-- Info Bar: Metadata with Icons --}}
+                <div class="flex items-center gap-12 mb-10 pb-6 border-b border-slate-100">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">依頼者</label>
+                        <p class="text-sm font-semibold text-slate-800 flex items-center gap-2">
+                             {{-- <div class="w-6 h-6 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-[11px] font-bold text-slate-500">
+                                {{ mb_substr($request->user?->name ?? '?', 0, 1) }}
+                            </div> --}}
+                            {{ $request->user?->name ?? '不明' }}
                         </p>
                     </div>
-                    <div>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">管理番号</p>
-                        <p class="text-sm font-mono font-bold text-slate-800">{{ $request->request_number }}</p>
-                    </div>
-                    <div>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">希望納期</p>
-                        <p class="text-sm font-semibold text-rose-600 flex items-center">
-                            <i data-lucide="calendar" class="w-3.5 h-3.5 mr-2"></i>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">希望納期</label>
+                        <p class="text-sm font-bold text-rose-600 flex items-center gap-1.5">
+                            <i data-lucide="calendar-days" class="w-3.5 h-3.5"></i>
                             {{ $request->due_date }}
                         </p>
                     </div>
-                    <div>
-                        <p class="text-[10px] font-bold text-indigo-500 uppercase tracking-widest mb-1">対象部署</p>
-                        <p class="text-sm font-bold text-indigo-700 flex items-center">
-                            <i data-lucide="building-2" class="w-3.5 h-3.5 mr-2"></i>
+                    <div class="space-y-1 ml-auto text-right">
+                        <label class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest">対象部署</label>
+                        <p class="text-sm font-bold text-indigo-700 bg-indigo-50 px-3 py-1 rounded-lg border border-indigo-100">
                             {{ $request->targetDepartment?->name ?? '未設定' }}
                         </p>
                     </div>
-                    <div class="col-span-2">
-                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">業務区分</p>
-                         <div class="flex flex-wrap gap-2 mt-1">
-                            @foreach($request->categories as $category)
-                                <span class="px-2 py-0.5 bg-slate-100 text-slate-600 rounded text-[10px] font-bold border border-slate-200">
-                                    {{ $category->name }}
-                                </span>
-                            @endforeach
-                         </div>
-                    </div>
                 </div>
 
-             <div class="mb-8">
-    <h3 class="text-xs font-bold text-slate-800 uppercase tracking-widest mb-3 flex items-center">
-        <i data-lucide="align-left" class="w-4 h-4 mr-2 text-indigo-500"></i>
-        依頼内容詳細
-    </h3>
-
-    <div class="bg-slate-50 border border-slate-100 rounded-xl p-6 text-slate-700 leading-relaxed text-sm shadow-inner whitespace-pre-line font-medium">
-        {{ trim($request->requestContent?->description ?? $request->content ?? '内容が登録されていません') }}
-    </div>
-</div>
-
-                {{-- 特記事項 (FIXED & ADDED) --}}
-                @php
-                    $note = $request->requestContent?->special_note ?? $request->special_note;
-                @endphp
-
-                @if($note)
-                    <div class="mb-8 bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-lg">
-                        <h3 class="text-xs font-bold text-amber-700 uppercase tracking-widest mb-1 flex items-center">
-                            <i data-lucide="alert-circle" class="w-4 h-4 mr-2"></i>
-                            特記事項
+                {{-- Content Sections --}}
+                <div class="space-y-10">
+                    {{-- 依頼内容 --}}
+                    <section>
+                        <h3 class="flex items-center text-xs font-bold text-slate-800 uppercase tracking-[0.15em] mb-4">
+                            <span class="w-8 h-[1.5px] bg-indigo-400 mr-3"></span>
+                            依頼内容詳細
                         </h3>
-                        <p class="text-amber-800 text-sm font-medium leading-relaxed whitespace-pre-line">{{ $note }}</p>
-                    </div>
-                @endif
+                        <div class="bg-slate-50 border border-slate-100 rounded-3xl p-8 text-slate-800 leading-relaxed text-[15px] whitespace-pre-line shadow-inner ring-1 ring-white/10">
+                            {{ trim($request->requestContent?->description ?? $request->content ?? '内容が登録されていません') }}
+                        </div>
+                    </section>
 
-                {{-- 添付資料 --}}
-                @if($request->attachments && $request->attachments->count() > 0)
-                <div class="mb-8">
-                    <h3 class="text-xs font-bold text-slate-800 uppercase tracking-widest mb-3 flex items-center">
-                        <i data-lucide="paperclip" class="w-4 h-4 mr-2 text-slate-400"></i>
-                        添付資料
-                    </h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        @foreach($request->attachments as $file)
-                            <a href="{{ asset('storage/' . $file->file_path) }}" target="_blank" class="flex items-center p-3 border border-slate-100 rounded-lg hover:bg-slate-50 hover:border-indigo-200 transition group bg-white shadow-sm">
-                                <i data-lucide="file-text" class="w-4 h-4 text-slate-400 group-hover:text-indigo-600 mr-3"></i>
-                                <span class="text-[11px] text-slate-600 group-hover:text-indigo-700 font-bold truncate">{{ $file->original_name }}</span>
-                                <i data-lucide="external-link" class="w-3 h-3 ml-auto text-slate-300"></i>
-                            </a>
-                        @endforeach
+                    {{-- 特記事項 & 添付资料 (Side-by-side if both exist) --}}
+                    <div class="grid grid-cols-2 gap-8 items-start">
+                        {{-- 特記事項 --}}
+                        @php $note = $request->requestContent?->special_note ?? $request->special_note; @endphp
+                        @if($note)
+                        <section class="bg-amber-50/70 border border-amber-100/70 rounded-2xl p-6 h-full">
+                            <h3 class="text-xs font-bold text-amber-700 uppercase tracking-widest mb-2.5 flex items-center">
+                                <i data-lucide="sticky-note" class="w-4 h-4 mr-2"></i>
+                                特記事項
+                            </h3>
+                            <p class="text-amber-900/80 text-sm font-medium leading-relaxed whitespace-pre-line">{{ $note }}</p>
+                        </section>
+                        @endif
+
+                        {{-- 添付資料 --}}
+                        @if($request->attachments && $request->attachments->count() > 0)
+                        <section class="h-full">
+                            <h3 class="flex items-center text-xs font-bold text-slate-800 uppercase tracking-widest mb-3">
+                                <i data-lucide="paperclip" class="w-4 h-4 text-slate-400 mr-2"></i>
+                                添付資料 ({{ $request->attachments->count() }})
+                            </h3>
+                            <div class="space-y-2.5">
+                                @foreach($request->attachments as $file)
+                                    <a href="{{ asset('storage/' . $file->file_path) }}" target="_blank" class="flex items-center justify-between p-3.5 bg-white border border-slate-200 rounded-xl hover:border-indigo-300 hover:shadow-sm transition-all group">
+                                        <div class="flex items-center min-w-0">
+                                            <i data-lucide="file" class="w-4 h-4 text-slate-400 group-hover:text-indigo-600"></i>
+                                            <span class="ml-3 text-xs font-semibold text-slate-600 group-hover:text-indigo-900 truncate">{{ $file->original_name }}</span>
+                                        </div>
+                                        <i data-lucide="external-link" class="w-3.5 h-3.5 text-slate-300 group-hover:text-indigo-400 ml-2"></i>
+                                    </a>
+                                @endforeach
+                            </div>
+                        </section>
+                        @endif
                     </div>
                 </div>
-                @endif
 
-                {{-- 意思決定エリア (Alpine.js) --}}
-                <div x-data="{ selectedAction: '' }" class="space-y-4 pt-8 border-t border-slate-100">
-                    <h3 class="text-center text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">判定を選択してください</h3>
-                    
+                {{-- Unified Decision/Approval Form Section (Beautiful & Small Buttons) --}}
+                <div x-data="{ selectedAction: '' }" class="mt-12 pt-10 border-t border-slate-100 max-w-2xl mx-auto">
                     <form action="{{ route('business-requests.assign', $request->id) }}" method="POST">
                         @csrf
                         <input type="hidden" name="action" :value="selectedAction">
 
-                        <div class="flex gap-3 max-w-md mx-auto">
-                            {{-- 承認ボタン --}}
+                        {{-- Small & Centered Choice Buttons --}}
+                        <div class="flex items-center justify-center gap-3 mb-8">
+                            {{-- Approve --}}
                             <button type="button" @click="selectedAction = 'approve'" 
-                                    :class="selectedAction === 'approve' ? 'bg-emerald-600 ring-4 ring-emerald-100 shadow-md' : 'bg-emerald-500 hover:bg-emerald-600 shadow-sm'"
-                                    class="flex-1 text-white py-2.5 rounded-lg font-bold transition-all flex items-center justify-center">
-                                <i data-lucide="check-circle" class="w-4 h-4 mr-2"></i>
-                                <span class="text-xs tracking-wider">承認</span>
+                                    :class="selectedAction === 'approve' ? 'bg-sky-600 text-white shadow-md' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+                                    class="text-xs px-6 py-2 rounded-full font-bold transition-all flex items-center justify-center tracking-wider">
+                                <i data-lucide="check" class="w-3.5 h-3.5 mr-1.5"></i>
+                                承認
                             </button>
 
-                            {{-- 却下ボタン --}}
+                            {{-- Reject --}}
                             <button type="button" @click="selectedAction = 'reject'" 
-                                    :class="selectedAction === 'reject' ? 'bg-rose-600 ring-4 ring-rose-100 shadow-md' : 'bg-rose-500 hover:bg-rose-600 shadow-sm'"
-                                    class="flex-1 text-white py-2.5 rounded-lg font-bold transition-all flex items-center justify-center">
-                                <i data-lucide="x-circle" class="w-4 h-4 mr-2"></i>
-                                <span class="text-xs tracking-wider">却下</span>
+                                    :class="selectedAction === 'reject' ? 'bg-rose-600 text-white shadow-md' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+                                    class="text-xs px-6 py-2 rounded-full font-bold transition-all flex items-center justify-center tracking-wider">
+                                <i data-lucide="ban" class="w-3.5 h-3.5 mr-1.5"></i>
+                                却下
                             </button>
                         </div>
 
-                        {{-- 動的入力フォーム --}}
-                        <div class="mt-4">
-                            {{-- 承認時：担当者割り当て --}}
-                            <div x-show="selectedAction === 'approve'" x-cloak x-transition class="p-4 bg-emerald-50 border border-emerald-100 rounded-xl shadow-inner">
-                                <label class="block text-[10px] font-bold text-emerald-700 uppercase tracking-widest mb-2">担当者を割り当ててください</label>
-                                <select name="worker_id" class="w-full border-emerald-200 rounded-lg text-xs focus:ring-emerald-500 focus:border-emerald-500 shadow-sm" :required="selectedAction === 'approve'">
-                                    <option value="">-- 担当者を選択 --</option>
-                                    @foreach($employees as $emp)
-                                        <option value="{{ $emp->id }}">{{ $emp->name }}</option>
-                                    @endforeach
-                                </select>
+                        {{-- Soft & Beautiful Dynamic Input Form --}}
+                        <div class="space-y-4">
+                            <div x-show="selectedAction === 'approve'" x-cloak x-transition class="p-6 bg-white border border-slate-100 rounded-3xl shadow-lg shadow-sky-50/50">
+                                <label class="block text-[10px] font-bold text-sky-800 uppercase tracking-widest mb-3 text-center">作業担当者を指定してください</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <i data-lucide="user-plus" class="w-4 h-4 text-slate-400"></i>
+                                    </div>
+                                    <select name="worker_id" class="w-full border-slate-100 bg-slate-50/50 rounded-xl text-xs py-3 pl-11 focus:ring-sky-500 focus:border-sky-500 shadow-inner" :required="selectedAction === 'approve'">
+                                        <option value="">担当者を選択してください...</option>
+                                        @foreach($employees as $emp)
+                                            <option value="{{ $emp->id }}">{{ $emp->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
                             </div>
 
-                            {{-- 却下時：理由入力 --}}
-                            <div x-show="selectedAction === 'reject'" x-cloak x-transition class="p-4 bg-rose-50 border border-rose-100 rounded-xl shadow-inner">
-                                <label class="block text-[10px] font-bold text-rose-700 uppercase tracking-widest mb-2 text-center">却下理由を入力してください</label>
-                                <textarea name="reason" rows="2" class="w-full border-rose-200 rounded-lg text-xs focus:ring-rose-500 focus:border-rose-500 placeholder-rose-300" placeholder="例：予算不足のため、構成図の修正が必要など..." :required="selectedAction === 'reject'"></textarea>
+                            <div x-show="selectedAction === 'reject'" x-cloak x-transition class="p-6 bg-white border border-slate-100 rounded-3xl shadow-lg shadow-rose-50/50">
+                                <label class="block text-[10px] font-bold text-rose-800 uppercase tracking-widest mb-3 text-center">却下理由</label>
+                                <textarea name="reason" rows="3" class="w-full border-slate-100 bg-slate-50/50 rounded-xl text-xs focus:ring-rose-500 focus:border-rose-500 placeholder-rose-300 shadow-inner" placeholder="依頼者への修正指示を入力してください..." :required="selectedAction === 'reject'"></textarea>
                             </div>
                         </div>
 
-                        {{-- 確定ボタン --}}
-                        <div class="mt-6 flex gap-2" x-show="selectedAction !== ''" x-cloak>
-                            <button type="submit" class="flex-[2] bg-slate-800 text-white py-3 rounded-lg text-sm font-bold hover:bg-slate-900 transition-all shadow-md active:scale-[0.98]">
+                        {{-- Confirmation Action --}}
+                        <div class="mt-8 flex items-center justify-center gap-3" x-show="selectedAction !== ''" x-cloak>
+                             <button type="submit" class="bg-indigo-600 text-white text-[11px] px-8 py-2.5 rounded-full font-bold hover:bg-indigo-700 transition-all shadow-lg active:transform active:scale-95 tracking-wide">
                                 <span x-text="selectedAction === 'approve' ? '承認を確定する' : '却下を確定する'"></span>
                             </button>
-                            <button type="button" @click="selectedAction = ''" class="flex-1 bg-white border border-slate-200 text-slate-500 py-3 rounded-lg text-xs font-bold hover:bg-slate-50 transition">
+                            <button type="button" @click="selectedAction = ''" class="text-slate-400 text-[10px] font-bold hover:text-rose-600 transition">
                                 キャンセル
                             </button>
                         </div>

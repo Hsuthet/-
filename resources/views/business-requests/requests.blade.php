@@ -47,6 +47,7 @@
                 <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">絞り込み:</span>
                 <x-table-status-filter 
                     tableId="requestsTable" 
+                    columnIndex="5"
                     placeholder="全てのステータス"
                     :options="[
                         '承認待ち' => '承認待ち',
@@ -131,7 +132,7 @@
                         <td class="px-4 py-5 text-center">
                             <div class="flex items-center justify-center gap-1.5">
                                 <a href="{{ route('business-requests.show', $req->id) }}" class="p-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-indigo-600 hover:text-white transition-all shadow-sm">
-                                    <i data-lucide="eye" class="w-4 h-4"></i>
+                                    <i data-lucide="file-text" class="w-4 h-4"></i>
                                 </a>
                                 @if($req->status === 'PENDING' && $req->user_id === auth()->id())
                                     <a href="{{ route('business-requests.edit', $req->id) }}" class="p-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-amber-500 hover:text-white transition-all shadow-sm">

@@ -164,11 +164,7 @@
                         </button>
                     </div>
 
-                    <div class="text-center mt-6">
-                        <a href="{{ route('login') }}" class="text-xs text-blue-600 hover:text-blue-800 hover:underline">
-                            既にアカウントをお持ちの方はこちら（ログイン）
-                        </a>
-                    </div>
+                    
                 </form>
             </div>
         </div>

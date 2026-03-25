@@ -9,19 +9,17 @@
             </div>
 
             <div class="flex items-center gap-3">
-                <form action="{{ route('users.index') }}" method="GET" class="flex items-center gap-2">
-                    <select name="role" onchange="this.form.submit()" 
-                            class="bg-white border-slate-200 text-slate-600 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block p-2.5 shadow-sm transition-all">
-                        <option value="">全ての権限 (All Roles)</option>
-                        <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>管理者 (Admin)</option>
-                        <option value="manager" {{ request('role') == 'manager' ? 'selected' : '' }}>マネージャー (Manager)</option>
-                        <option value="employee" {{ request('role') == 'employee' ? 'selected' : '' }}>従業員 (Employee)</option>
-                    </select>
-                    
-                    @if(request('role'))
-                        <a href="{{ route('users.index') }}" class="text-xs text-slate-400 hover:text-red-500 font-medium">Clear</a>
-                    @endif
-                </form>
+                <x-filter-role
+    name="role" 
+    placeholder="全ての権限"
+    :selected="request('role')"
+    :options="[
+        'admin' => '管理者 (Admin)',
+        'manager' => 'マネージャー (Manager)',
+        'employee' => '従業員 (Employee)'
+    ]" 
+/>
+
 
                 <a href="{{ route('register') }}" 
                    class="bg-[#1a365d] hover:bg-blue-900 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-blue-900/20 transition-all flex items-center">
