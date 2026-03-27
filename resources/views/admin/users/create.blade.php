@@ -76,10 +76,12 @@
                     <p class="text-xs text-gray-500 mt-2">アカウントを作成するために、以下の情報を入力してください。</p>
                 </div>
 
-                <form method="POST" action="{{ route('register') }}" class="space-y-5">
-                    @csrf
+                
+                {{-- Wrap the form or the main div with x-data --}}
+<form method="POST" action="{{ route('users.store') }}" x-data="{ role: '{{ old('role', '') }}' }">
+    @csrf
 
-                    <div>
+    <div>
                         <label class="flex justify-between text-xs font-bold text-gray-600 mb-2">
                             <span>氏名</span>
                             <span class="text-red-500 bg-red-50 px-2 py-0.5 rounded text-[10px]">必須</span>
@@ -101,49 +103,67 @@
                         <x-input-error :messages="$errors->get('email')" class="mt-1" />
                     </div>
 
-                    <div>
-                        <label class="flex justify-between text-xs font-bold text-gray-600 mb-2">
-                            <span>所属部署</span>
-                            <span class="text-red-500 bg-red-50 px-2 py-0.5 rounded text-[10px]">必須</span>
-                        </label>
-                        <div class="relative">
-                             <select id="department_id" name="department_id" 
-                                 class="w-full bg-gray-50 border border-gray-300 rounded px-4 py-2.5 text-sm focus:ring-1 focus:ring-blue-500 focus:bg-white transition outline-none"> 
-                                required>
-                                <option value="" disabled selected>部署を選択してください</option>
+    {{-- 役割（ロール）: Move this ABOVE Department for better UX --}}
+    <div>
+        <label class="flex justify-between text-xs font-bold text-gray-600 mb-2">
+            <span>役割（ロール）</span>
+            <span class="text-red-500 bg-red-50 px-2 py-0.5 rounded text-[10px]">必須</span>
+        </label>
 
-                                @foreach($departments as $department)
-                                    <option value="{{ $department->id }}" 
-                                        {{ old('department_id') == $department->id ? 'selected' : '' }}>
-                                        {{ $department->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"></path></svg>
-                            </div>
-                        </div>
-                        <x-input-error :messages="$errors->get('department_id')" class="mt-1" />
-                    </div>
+        <select name="role" 
+                x-model="role" {{-- Alpine.js binding --}}
+                required
+                class="w-full bg-gray-50 border border-gray-300 rounded px-4 py-2.5 text-sm focus:ring-1 focus:ring-blue-500 focus:bg-white transition outline-none">
+            <option value="">ロールを選択してください</option>
+            <option value="admin">管理者</option>
+            <option value="manager">マネージャー</option>
+            <option value="employee">従業員</option>
+        </select>
+        <x-input-error :messages="$errors->get('role')" class="mt-1" />
+    </div>
 
-                    <div>
-    <label class="flex justify-between text-xs font-bold text-gray-600 mb-2">
-        <span>役割（ロール）</span>
-        <span class="text-red-500 bg-red-50 px-2 py-0.5 rounded text-[10px]">必須</span>
-    </label>
+    {{-- 所属部署: Only show if role is NOT admin --}}
+    <div x-show="role !== 'admin' && role !== ''" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 -translate-y-2"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         class="space-y-2">
+        
+        <label class="flex justify-between text-xs font-bold text-gray-600">
+            <span>所属部署</span>
+            <span class="text-red-500 bg-red-50 px-2 py-0.5 rounded text-[10px]">必須</span>
+        </label>
+        
+        <div class="relative">
+            <select id="department_id" 
+                    name="department_id" 
+                    {{-- Disable when hidden so it's not sent in the request if Admin is chosen --}}
+                    :disabled="role === 'admin'"
+                    :required="role !== 'admin' && role !== ''"
+                    class="w-full bg-gray-50 border border-gray-300 rounded px-4 py-2.5 text-sm focus:ring-1 focus:ring-blue-500 focus:bg-white transition outline-none"> 
+                <option value="" disabled selected>部署を選択してください</option>
+                @foreach($departments as $department)
+                    <option value="{{ $department->id }}" {{ old('department_id') == $department->id ? 'selected' : '' }}>
+                        {{ $department->name }}
+                    </option>
+                @endforeach
+            </select>
+            <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"></path></svg>
+            </div>
+        </div>
+        <x-input-error :messages="$errors->get('department_id')" class="mt-1" />
+    </div>
 
-    <select name="role" required
-        class="w-full bg-gray-50 border border-gray-300 rounded px-4 py-2.5 text-sm focus:ring-1 focus:ring-blue-500 focus:bg-white transition outline-none">
+    {{-- Info Message for Admins --}}
+    <template x-if="role === 'admin'">
+        <div class="p-3 bg-blue-50 border border-blue-100 rounded-xl flex items-center gap-3 animate-pulse">
+            <i data-lucide="info" class="w-4 h-4 text-blue-500"></i>
+            <p class="text-[11px] text-blue-700 font-medium">管理者は全部署の管理権限を持つため、部署選択は不要です。</p>
+        </div>
+    </template>
 
-        <option value="">ロールを選択してください</option>
-        <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>管理者</option>
-        <option value="employee" {{ old('role') == 'employee' ? 'selected' : '' }}>従業員</option>
-        <option value="manager" {{ old('role') == 'manager' ? 'selected' : '' }}>マネージャー</option>
-    </select>
-
-    <x-input-error :messages="$errors->get('role')" class="mt-1" />
-</div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-gray-600 mb-2">パスワード</label>
                             <input type="password" name="password" required
@@ -157,19 +177,26 @@
                     </div>
                     <x-input-error :messages="$errors->get('password')" class="mt-1 text-xs" />
 
-                    <div class="pt-6">
-                        <button type="submit"
-                            class="w-full bg-[#1a365d] text-white rounded py-3 text-sm font-bold hover:bg-[#2a4a7d] shadow-md transition-all duration-200 tracking-widest">
-                            登録を実行する
-                        </button>
-                    </div>
+                   <div class="pt-6">
+    <button type="submit" 
+            x-data="{ loading: false }" 
+            x-on:click="loading = true"
+            class="w-full bg-[#1a365d] text-white rounded py-3 text-sm font-bold hover:bg-[#2a4a7d] shadow-md transition-all duration-200 tracking-widest flex justify-center items-center gap-2">
+        
+        <span x-show="!loading">登録を実行する</span>
 
-                    <div class="text-center mt-6">
-                        <a href="{{ route('login') }}" class="text-xs text-blue-600 hover:text-blue-800 hover:underline">
-                            既にアカウントをお持ちの方はこちら（ログイン）
-                        </a>
-                    </div>
-                </form>
+        <template x-if="loading">
+            <div class="flex items-center">
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>処理中...</span>
+            </div>
+        </template>
+    </button>
+</div>
+</form>
             </div>
         </div>
     </div>

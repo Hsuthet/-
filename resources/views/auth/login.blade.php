@@ -73,7 +73,7 @@
 
             <div class="w-full lg:w-2/3 p-12 bg-white flex flex-col justify-center">
                 <div class="mb-10">
-                    <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">おかえりなさい <span class="text-blue-600">!</span></h1>
+                    <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">ようこそ <span class="text-blue-600">!</span></h1>
                     <p class="text-sm text-slate-500 mt-2 font-medium">登録済みのメールアドレスでログインしてください。</p>
                 </div>
 

@@ -5,106 +5,123 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Department;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-   public function index(Request $request)
-{
-    $query = User::with('department');
+    public function index(Request $request)
+    {
+        $query = User::with('department');
 
-    // Apply filter if 'role' is present in the URL
-    if ($request->filled('role')) {
-        $query->where('role', $request->role);
+        if ($request->filled('role')) {
+            $query->where('role', $request->role);
+        }
+
+        $users = $query->latest()->get();
+        return view('admin.users.index', compact('users'));
     }
 
-    $users = $query->latest()->get();
-
-    return view('admin.users.index', compact('users'));
-}
-
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
-{
-    $departments = Department::all();
-    return view('admin.users.create', compact('departments'));
-}
+    {
+        $departments = Department::all();
+        return view('admin.users.create', compact('departments'));
+    }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+//     public function store(Request $request)
+//     {
+//         $request->validate([
+//     'name' => ['required', 'string', 'max:255'],
+//     'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+//     'role' => ['required', 'string', 'in:admin,manager,employee'],
+//     'department_id' => [
+//     'exclude_if:role,admin',
+//     'nullable',
+//     'exists:departments,id'
+// ],
+//     'password' => ['required', 'confirmed', Rules\Password::defaults()],
+// ]);
+
+//         User::create([
+//             'name' => $request->name,
+//             'email' => $request->email,
+//             'password' => Hash::make($request->password),
+//             // Ensure we save NULL if they are an admin
+//             'department_id' => $request->role === 'admin' ? null : $request->department_id,
+//             'role' => $request->role,
+//         ]);
+
+//         return redirect()->route('users.index')->with('success');
+//     }
+
+public function store(Request $request)
 {
     $request->validate([
-        'name' => 'required',
-        'email' => 'required|email|unique:users',
-        'password' => 'required|min:8',
-        'department_id' => 'required',
-        'role' => 'required|in:admin,manager,employee',
+        'name' => ['required', 'string', 'max:255'],
+        'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+        'role' => ['required', 'in:admin,manager,employee'],
+        'password' => ['required', 'confirmed', 'min:8'],
+        // Department is required UNLESS the role is admin
+        'department_id' => [
+            'nullable', 
+            'required_unless:role,admin', 
+            'exists:departments,id'
+        ],
     ]);
 
     User::create([
         'name' => $request->name,
         'email' => $request->email,
-        'password' => Hash::make($request->password),
-        'department_id' => $request->department_id,
         'role' => $request->role,
+        'password' => Hash::make($request->password),
+        // Force null if admin, even if data was somehow sent
+        'department_id' => $request->role === 'admin' ? null : $request->department_id,
     ]);
 
-    return redirect()->route('users.index')->with('success', 'User created');
+    return redirect()->route('users.index')->with('success', '新規ユーザーを登録しました。');
 }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function edit(User $user)
     {
-        //
+        $departments = Department::all();
+        return view('admin.users.edit', compact('user', 'departments'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-   public function edit(User $user)
-{
-    $departments = Department::all();
-    return view('admin.users.edit', compact('user', 'departments'));
-}
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, User $user)
+   public function update(Request $request, User $user)
 {
     $request->validate([
-        'name' => 'required',
-        'email' => 'required|email|unique:users,email,' . $user->id,
-        'department_id' => 'required',
-        'role' => 'required|in:admin,manager,employee',
+        'name' => ['required', 'string', 'max:255'],
+        'email' => ['required', 'email', 'unique:users,email,' . $user->id],
+        'role' => ['required', 'in:admin,manager,employee'],
+        'department_id' => [
+            'nullable',
+            'exclude_if:role,admin',
+            'exists:departments,id'
+        ],
+        // Only validate password if the field is not empty
+        'password' => ['nullable', 'confirmed', 'min:8'], 
     ]);
 
-    $user->update([
+    $data = [
         'name' => $request->name,
         'email' => $request->email,
-        'department_id' => $request->department_id,
         'role' => $request->role,
-    ]);
+        'department_id' => $request->role === 'admin' ? null : $request->department_id,
+    ];
 
-    return redirect()->route('users.index')->with('success', 'User updated');
+    // Only update password if user actually typed one in
+    if ($request->filled('password')) {
+        $data['password'] = Hash::make($request->password);
+    }
+
+    $user->update($data);
+
+    return redirect()->route('users.index')->with('success', 'ユーザー情報を更新しました。');
 }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-  public function destroy(User $user)
-{
-    $user->delete();
-    return back()->with('success', 'User deleted');
-}
+    public function destroy(User $user)
+    {
+        $user->delete();
+       return back()->with('success', 'ユーザーを削除しました。');
+    }
 }

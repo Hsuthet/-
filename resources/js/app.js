@@ -4,29 +4,25 @@ import Alpine from 'alpinejs';
 window.Alpine = Alpine;
 Alpine.start();
 
+// --- DataTable Helpers ---
 $(document).ready(function() {
     // 1. Handle Status Dropdown (Exact Column Search)
-   $(document).on('change', '.table-filter-select', function() {
+    $(document).on('change', '.table-filter-select', function() {
         const $select = $(this);
         const tableId = $select.data('table');
         const colIndex = $select.data('column');
         const searchValue = $select.val();
         
-        // Use $.fn.dataTable.isDataTable to prevent errors
         if ($.fn.dataTable.isDataTable(`#${tableId}`)) {
             const table = $(`#${tableId}`).DataTable();
 
             if (!searchValue) {
                 table.column(colIndex).search('').draw();
             } else {
-                // We use a looser regex that allows for potential surrounding whitespace 
-                // but still ensures the word itself is an exact match.
-                // This handles cases where Blade adds hidden \n or spaces.
+                // regex handles potential surrounding whitespace from Blade templates
                 const regex = `^\\s*${searchValue}\\s*$`;
                 table.column(colIndex).search(regex, true, false).draw();
             }
-        } else {
-            console.error(`Table with ID #${tableId} is not initialized as a DataTable.`);
         }
     });
 
@@ -45,7 +41,28 @@ $(document).ready(function() {
         $btn.addClass('active-toggle bg-white shadow-sm text-indigo-600 font-bold')
             .removeClass('text-slate-600 font-medium');
 
-        // Global search for the user name
         table.search(searchValue).draw();
     });
+});
+
+// --- Smart Flash Message Handler ---
+document.addEventListener('DOMContentLoaded', function() {
+    const flashMessage = document.getElementById('flash-message');
+    
+    if (flashMessage) {
+        // Function to dismiss the message
+        const dismissMessage = () => {
+            flashMessage.classList.add('opacity-0', '-translate-y-4');
+            setTimeout(() => flashMessage.remove(), 500);
+        };
+
+        // Auto-hide after 4 seconds (extended slightly for better readability)
+        const autoHideTimer = setTimeout(dismissMessage, 4000);
+
+        // Manual-hide if user clicks the message (or a close button)
+        flashMessage.addEventListener('click', () => {
+            clearTimeout(autoHideTimer); // Stop the auto-hide timer
+            dismissMessage();
+        });
+    }
 });
