@@ -50,9 +50,9 @@
                     tableId="tasksTable" 
                     columnIndex="{{ $isManager ? 5 : 4 }}"
                     :options="[
-                        '承認済み' => '承認済み (Approved)',
-                        '作業中'   => '作業中 (Working)',
-                        '完了'     => '完了 (Completed)',
+                        '承認済み' => '承認済み ',
+                        '作業中'   => '作業中',
+                        '完了'     => '完了',
                     ]" 
                 />
             </div>

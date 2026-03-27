@@ -61,7 +61,8 @@
         </div>
 
         {{-- Table Section --}}
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden border-t-4 border-t-indigo-500">
+   
             @php 
                 $headers = ['管理番号', '案件詳細', '区分', '期限', '添付', 'ステータス', 'アクション']; 
                 $statusMap = [

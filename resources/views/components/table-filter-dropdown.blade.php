@@ -12,15 +12,15 @@
         <option value="">{{ $placeholder }}</option>
         
         @if(strtoupper($role) === 'EMPLOYEE')
-            <option value="{{ Auth::user()->name }}">自分の依頼 (My Requests)</option>
-            <option value="承認待ち">承認待ち (Pending)</option>
-            <option value="作業中">作業中 (Working)</option>
-            <option value="完了">完了 (Completed)</option>
+            <option value="{{ Auth::user()->name }}">自分の依頼</option>
+            <option value="承認待ち">承認待ち </option>
+            <option value="作業中">作業中 </option>
+            <option value="完了">完了</option>
         
         @elseif(strtoupper($role) === 'MANAGER')
-            <option value="承認待ち" selected>承認待ち (Needs Approval)</option>
-            <option value="承認済み">承認済み (Approved)</option>
-            <option value="完了">完了 (Completed)</option>
+            <option value="承認待ち" selected>承認待ち </option>
+            <option value="承認済み">承認済み </option>
+            <option value="完了">完了 </option>
         @endif
     </select>
 
