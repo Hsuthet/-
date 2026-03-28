@@ -6,12 +6,12 @@
         @php
             // Centralized Status Design for Managers
             $statusMap = [
-                'PENDING'   => ['label' => '承認待ち', 'class' => 'bg-amber-100 text-amber-700 border-amber-200'],
-                'APPROVED'  => ['label' => '承認済み', 'class' => 'bg-emerald-100 text-emerald-700 border-emerald-200'],
-                'REJECTED'  => ['label' => '却下',     'class' => 'bg-rose-100 text-rose-700 border-rose-200'],
-                'WORKING'   => ['label' => '作業中',   'class' => 'bg-blue-100 text-blue-700 border-blue-200'],
-                'COMPLETED' => ['label' => '完了',     'class' => 'bg-slate-100 text-slate-700 border-slate-200'],
-            ];
+    'PENDING'   => ['label' => '承認待ち', 'class' => 'bg-amber-50 text-amber-700 border-amber-100'],
+    'APPROVED'  => ['label' => '承認済み', 'class' => 'bg-teal-50 text-teal-700 border-teal-200'],
+    'REJECTED'  => ['label' => '却下',     'class' => 'bg-rose-50 text-rose-700 border-rose-100'],
+    'WORKING'   => ['label' => '作業中',   'class' => 'bg-blue-50 text-blue-700 border-blue-100'],
+    'COMPLETED' => ['label' => '完了',     'class' => 'bg-emerald-100 text-emerald-800 border-emerald-200'], 
+];
 
             $headers = ['管理番号', '案件詳細', '依頼者/部署', '対象部署', '期限', 'ステータス', '操作'];
         @endphp

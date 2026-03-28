@@ -3,7 +3,6 @@
         $user = auth()->user();
         $isManager = $user->role === 'manager' || $user->role === 'admin';
         
-        // Define headers - add "Worker" column if Manager
         $headers = ['依頼番号', '件名・内容', '依頼者'];
         if ($isManager) { $headers[] = '担当者'; }
         $headers = array_merge($headers, ['期限', 'ステータス', '操作']);
@@ -49,17 +48,13 @@
                 <x-table-status-filter 
                     tableId="tasksTable" 
                     columnIndex="{{ $isManager ? 5 : 4 }}"
-                    :options="[
-                        '承認済み' => '承認済み ',
-                        '作業中'   => '作業中',
-                        '完了'     => '完了',
-                    ]" 
+                    :options="['承認済み' => '承認済み', '作業中' => '作業中', '完了' => '完了']" 
                 />
             </div>
         </div>
 
         {{-- Table Section --}}
- <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden border-t-4 border-t-indigo-500">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden border-t-4 border-t-indigo-500">
             <x-data-table id="tasksTable" :headers="$headers" role="employee" :showFilters="false">
                 @foreach($tasks as $task)
                     @php 
@@ -68,14 +63,14 @@
                     @endphp
 
                     <tr class="hover:bg-slate-50/80 transition-colors border-b border-slate-100">
-                        {{-- 1. Request Number --}}
-                        <td class="px-4 py-5 text-center">
+                        {{-- 1. Request Number - Left Aligned --}}
+                        <td class="px-6 py-5">
                             <span class="font-mono text-[11px] font-bold bg-slate-100 px-2 py-1 rounded text-slate-600 uppercase tracking-tighter">
                                 {{ $task->request_number }}
                             </span>
                         </td>
                         
-                        {{-- 2. Title --}}
+                        {{-- 2. Title - Left Aligned --}}
                         <td class="px-4 py-5">
                             <div class="group">
                                 <p class="text-sm font-bold text-slate-800 group-hover:text-indigo-600 transition-colors">{{ $task->title }}</p>
@@ -87,47 +82,45 @@
                             </div>
                         </td>
                         
-                        {{-- 3. Requester --}}
+                        {{-- 3. Requester - Left Aligned --}}
                         <td class="px-4 py-5">
-                            <div class="flex flex-col">
+                            <div class="flex flex-col text-left">
                                 <span class="text-sm font-bold text-slate-700">{{ $task->user?->name }}</span>
                                 <span class="text-[10px] text-slate-400 uppercase font-bold tracking-tight">{{ $task->user?->department?->name }}</span>
                             </div>
                         </td>
 
-                        {{-- 4. Worker (Manager Only) --}}
+                        {{-- 4. Worker (Manager Only) - Left Aligned --}}
                         @if($isManager)
                         <td class="px-4 py-5">
-                            <div class="flex items-center gap-2">
-                                
+                            <div class="flex items-center gap-2 text-left">
                                 <span class="text-xs font-medium text-slate-600">{{ $task->worker?->name ?? '未割り当て' }}</span>
                             </div>
                         </td>
                         @endif
                         
-                        {{-- 5. Due Date --}}
-                        <td class="px-4 py-5 text-center">
+                        {{-- 5. Due Date - Left Aligned --}}
+                        <td class="px-4 py-5">
                             <span class="text-[11px] font-bold {{ $isOverdue ? 'text-rose-600 bg-rose-50 px-2 py-1 rounded-lg border border-rose-100' : 'text-slate-600' }}">
                                 {{ $task->due_date }}
                             </span>
                         </td>
 
-                        {{-- 6. Status --}}
-                        <td class="px-4 py-5 text-center">
-                            <span class="px-3 py-1 rounded-full text-[10px] font-bold border shadow-sm {{ $status['class'] }}">
+                        {{-- 6. Status - Left Aligned --}}
+                        <td class="px-4 py-5">
+                            <span class="inline-block px-3 py-1 rounded-full text-[10px] font-bold border shadow-sm {{ $status['class'] }}">
                                 {{ $status['label'] }}
                             </span>
                         </td>
                         
-                        {{-- 7. Actions --}}
-                        <td class="px-4 py-5 text-center">
-                            <div class="flex items-center justify-center gap-2">
+                        {{-- 7. Actions - Left Aligned --}}
+                        <td class="px-4 py-5">
+                            <div class="flex items-center justify-start gap-2"> {{-- Changed justify-center to justify-start --}}
                                 <a href="{{ route('business-requests.show', $task->id) }}" 
                                    class="p-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-indigo-600 hover:text-white transition-all shadow-sm">
                                     <i data-lucide="file-text" class="w-4 h-4"></i>
                                 </a>
 
-                                {{-- Only show buttons if current user is the actual worker --}}
                                 @if($task->worker_id === $user->id)
                                     @if($task->status === 'APPROVED')
                                         <form action="{{ route('tasks.update-status', $task->id) }}" method="POST">

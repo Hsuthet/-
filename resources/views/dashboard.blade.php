@@ -84,7 +84,7 @@
             {{-- Employee Header --}}
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                 <div>
-                    <h1 class="text-3xl font-black text-slate-800 tracking-tight">ユーザーダッシュボード</h1>
+                    <h1 class="text-3xl font-black text-slate-800 tracking-tight">社員ーダッシュボード</h1>
                     <p class="text-slate-500 text-sm mt-1 font-medium italic">
                         <i data-lucide="sparkles" class="w-4 h-4 inline-block mr-1 text-amber-400"></i>
                         本日の業務状況とリクエストの進捗を確認しましょう。

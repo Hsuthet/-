@@ -53,131 +53,125 @@
         @if(auth()->user()->role === 'admin')
             <h3 class="text-[10px] font-bold text-indigo-300/60 uppercase tracking-[0.2em] px-4 pt-8 pb-2">管理者コントロール</h3>
             <x-nav-link-item :href="route('users.index')" :active="request()->routeIs('users.*')" icon="users" label="ユーザー管理" />
-            <x-nav-link-item :href="route('business-requests.requests')" :active="request()->routeIs('business-requests.requests')" icon="file-text" label="依頼一覧（全体）" />
-            <x-nav-link-item :href="route('business-requests.my_tasks')" :active="request()->routeIs('business-requests.my_tasks')" icon="clipboard-list" label="タスク一覧" />
+            <x-nav-link-item :href="route('business-requests.requests')" :active="request()->routeIs('business-requests.requests')" icon="file-text" label="依頼一覧" />
+            <x-nav-link-item :href="route('business-requests.my_tasks')" :active="request()->routeIs('business-requests.my_tasks')" icon="clipboard-list" label="担当作業一覧" />
         @endif
 
         {{-- Employee Section --}}
         @if(auth()->user()->role === 'employee')
             <h3 class="text-[10px] font-bold text-emerald-300/60 uppercase tracking-[0.2em] px-4 pt-8 pb-2">社員業務</h3>
             <x-nav-link-item :href="route('business-requests.create')" :active="request()->routeIs('business-requests.create')" icon="plus-circle" label="新規依頼作成" />
-            <x-nav-link-item :href="route('business-requests.requests')" :active="request()->routeIs('business-requests.requests')" icon="send" label="依頼履歴" />
-            <x-nav-link-item :href="route('business-requests.my_tasks')" :active="request()->routeIs('business-requests.my_tasks')" icon="check-square" label="担当作業" :badge="$assignedTaskCount ?? null" />
+            <x-nav-link-item :href="route('business-requests.requests')" :active="request()->routeIs('business-requests.requests')" icon="send" label="依頼一覧" />
+            <x-nav-link-item :href="route('business-requests.my_tasks')" :active="request()->routeIs('business-requests.my_tasks')" icon="check-square" label="担当作業一覧" :badge="$assignedTaskCount ?? null" />
         @endif
 
        {{-- Manager Section --}}
-@if(auth()->user()->role === 'manager')
-    <h3 class="text-[10px] font-bold text-amber-300/60 uppercase tracking-[0.2em] px-4 pt-8 pb-2">
-        マネージャーコントロール
-    </h3>
+        @if(auth()->user()->role === 'manager')
+            <h3 class="text-[10px] font-bold text-amber-300/60 uppercase tracking-[0.2em] px-4 pt-8 pb-2">
+                マネージャーコントロール
+            </h3>
 
-    {{-- Change 'business-requests.*' to 'business-requests.index' to avoid overlapping --}}
-    <x-nav-link-item 
-        :href="route('business-requests.index')" 
-        :active="request()->is('business-requests') || request()->routeIs('business-requests.index')" 
-        icon="shield-check" 
-        label="依頼承認・管理" />
+            {{-- Change 'business-requests.*' to 'business-requests.index' to avoid overlapping --}}
+            <x-nav-link-item 
+                :href="route('business-requests.index')" 
+                :active="request()->is('business-requests') || request()->routeIs('business-requests.index')" 
+                icon="shield-check" 
+                label="依頼承認・管理" />
 
-    <x-nav-link-item 
-        :href="route('business-requests.my_tasks')" 
-        :active="request()->routeIs('business-requests.my_tasks')" 
-        icon="check-square" 
-        label="担当作業" />
-@endif
+            <x-nav-link-item 
+                :href="route('business-requests.my_tasks')" 
+                :active="request()->routeIs('business-requests.my_tasks')" 
+                icon="check-square" 
+                label="担当作業一覧" />
+        @endif
     </nav>
 
     {{-- User Profile Footer --}}
-    <div class="p-4 mt-auto">
-        <div class="bg-white/5 border border-white/10 rounded-2xl p-3 flex items-center gap-3 hover:bg-white/10 transition-all duration-300 group">
+   <div class="p-4 mt-auto">
+    {{-- Check if user exists before rendering to avoid 'Property on null' errors --}}
+    @if(Auth::check())
+        <div class="bg-white/5 border border-white/10 rounded-2xl p-3 flex items-center gap-3 hover:bg-white/10 transition-all duration-300 group cursor-default">
             <div class="relative">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-sm font-bold shadow-lg group-hover:rotate-3 transition-transform">
-                    {{ substr(Auth::user()->name, 0, 1) }}
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-sm font-bold shadow-lg group-hover:rotate-3 transition-transform text-white">
+                    {{-- Use mb_substr for Japanese character compatibility --}}
+                    {{ mb_substr(Auth::user()->name, 0, 1) }}
                 </div>
+                {{-- Status Indicator --}}
                 <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-emerald-500 border-2 border-[#001a4d] rounded-full"></div>
             </div>
+            
             <div class="flex-grow overflow-hidden">
-                <p class="text-xs font-bold text-white truncate">{{ Auth::user()->name }}</p>
-                <p class="text-[10px] text-white/40 uppercase tracking-widest font-black">{{ Auth::user()->role }}</p>
+                <p class="text-xs font-bold text-white truncate" title="{{ Auth::user()->name }}">
+                    {{ Auth::user()->name }}
+                </p>
+                <p class="text-[10px] text-white/40 uppercase tracking-widest font-black">
+                    {{-- Standardize role display --}}
+                    @if(Auth::user()->role === 'admin') 管理者 
+                    @elseif(Auth::user()->role === 'manager') マネージャー 
+                    @else 従業員 @endif
+                </p>
             </div>
         </div>
-    </div>
+    @else
+        {{-- Fallback if session expires --}}
+        <a href="{{ route('login') }}" class="block text-center p-3 text-xs text-slate-400 hover:text-white transition">
+            ログインしてください
+        </a>
+    @endif
+</div>
 </aside>
         <div class="flex-grow flex flex-col min-w-0">
-                <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 sticky top-0 z-10">
-                    <div class="flex items-center">
-                        <h2 class="text-lg font-bold text-slate-800">
-                            @yield('header_title', 'Dashboard')
-                        </h2>
-                    </div>
-                    
-                    <div class="flex items-center space-x-6">
-                       <div class="relative ml-3" x-data="{ open: false }">
-    {{-- Bell Icon Button --}}
-    <button @click="open = !open" class="relative p-2 text-slate-400 hover:text-indigo-600 transition-colors focus:outline-none">
-        <i data-lucide="bell" class="w-6 h-6"></i>
-        
-        {{-- Red Badge: Only shows if there are unread notifications --}}
-        @if(auth()->user()->unreadNotifications->count() > 0)
-            <span class="absolute top-1 right-1 flex h-4 w-4">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                <span class="relative inline-flex rounded-full h-4 w-4 bg-red-500 text-[10px] text-white items-center justify-center font-bold">
-                    {{ auth()->user()->unreadNotifications->count() }}
-                </span>
-            </span>
-        @endif
-    </button>
-
-    {{-- Dropdown Menu --}}
-    <div x-show="open" 
-         @click.away="open = false"
-         x-transition:enter="transition ease-out duration-200"
-         x-transition:enter-start="opacity-0 scale-95"
-         x-transition:enter-end="opacity-100 scale-100"
-         class="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden">
-        
-        <div class="p-4 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
-            <h3 class="font-bold text-slate-800 text-sm">通知 (Notifications)</h3>
-            @if(auth()->user()->unreadNotifications->count() > 0)
-                <a href="{{ route('notifications.markAsRead') }}" class="text-[10px] text-indigo-600 font-bold hover:underline">すべて既読にする</a>
-            @endif
-        </div>
-
-        <div class="max-h-96 overflow-y-auto">
-            @forelse(auth()->user()->unreadNotifications as $notification)
-                <div class="p-4 border-b border-slate-50 hover:bg-slate-50 transition relative">
-                    <p class="text-xs text-slate-800 font-medium">
-                        {{ $notification->data['message'] }}
-                    </p>
-                    <p class="text-[10px] text-slate-400 mt-1">
-                        {{ $notification->created_at->diffForHumans() }}
-                    </p>
-                </div>
-            @empty
-                <div class="p-8 text-center">
-                    <i data-lucide="bell-off" class="w-8 h-8 text-slate-200 mx-auto mb-2"></i>
-                    <p class="text-xs text-slate-400">新しい通知はありません</p>
-                </div>
-            @endforelse
+              <header class="h-20 bg-white border-b border-slate-100 flex items-center justify-between px-10 sticky z-50 top-0">
+    {{-- 左側：タイトルとブランド --}}
+    <div class="flex items-center space-x-6">
+        <div class="flex flex-col border-l-2 border-indigo-600 pl-4">
+            <h2 class="text-lg font-black text-slate-800 tracking-tighter flex items-center">
+                @yield('header_title')
+            </h2>
+            <p class="text-[9px] text-slate-400 font-bold uppercase tracking-[0.3em] mt-0.5">
+                RESONANT / 業務管理システム
+            </p>
         </div>
     </div>
-</div>
+    
+    {{-- 右側：日付とユーザー情報 --}}
+    <div class="flex items-center space-x-8">
+        {{-- 日付表示（和暦ではなくモダンな形式） --}}
+        <div class="hidden md:block text-right pr-6 border-r border-slate-100">
+            <p class="text-[10px] font-bold text-slate-300 uppercase tracking-widest">本日</p>
+            <p class="text-xs font-bold text-slate-600 tabular-nums">
+                {{ now()->format('Y.m.d') }} <span class="text-slate-400 ml-1">({{ now()->isoFormat('ddd') }})</span>
+            </p>
+        </div>
 
-                        <div class="relative flex items-center space-x-3 border-l pl-6 border-slate-200">
-                            <div class="text-right">
-                                <p class="text-sm font-bold text-slate-700 leading-none">{{ Auth::user()->name }}</p>
-                                <p class="text-[10px] text-slate-500 font-medium uppercase mt-1">{{ Auth::user()->role }}</p>
-                            </div>
-                            
-                            {{-- Logout form --}}
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <button type="submit" class="p-2 bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-100 transition shadow-sm" title="ログアウト">
-                                    <i data-lucide="log-out" class="w-4 h-4"></i>
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </header>
+        {{-- ユーザーカプセル：よりシンプルで清潔なデザイン --}}
+        <div class="flex items-center bg-slate-50 border border-slate-200/60 p-1.5 rounded-xl pl-4 pr-2 hover:bg-white hover:border-indigo-200 transition-all duration-300">
+            <div class="mr-3 text-right">
+                <p class="text-[11px] font-black text-slate-800 leading-tight">{{ Auth::user()->name }}</p>
+                <p class="text-[9px] text-indigo-500 font-bold uppercase tracking-tighter">
+                    @switch(Auth::user()->role)
+                        @case('admin') 管理者 @break
+                        @case('manager') マネージャー @break
+                        @case('employee') 従業員 @break
+                    @endswitch
+                </p>
+            </div>
+            
+            {{-- ユーザーアイコン（枠線のみのミニマルスタイル） --}}
+            <div class="h-8 w-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-400 shadow-sm">
+                <i data-lucide="user" class="w-4 h-4"></i>
+            </div>
+
+            {{-- ログアウト：シンプルに統合 --}}
+            <form method="POST" action="{{ route('logout') }}" class="ml-2 border-l border-slate-200 pl-2">
+                @csrf
+                <button type="submit" class="p-2 text-slate-400 hover:text-rose-500 transition-colors" title="ログアウト">
+                    <i data-lucide="power" class="w-4 h-4"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</header>
 
             <main class="p-8">
                 @if(session('success'))
@@ -230,6 +224,20 @@
             });
         });
     </script>
+    <script>
+    // Initial load
+    document.addEventListener('DOMContentLoaded', () => {
+        lucide.createIcons();
+    });
+
+    // Refresh icons when Alpine toggles the dropdown
+    document.addEventListener('alpine:initialized', () => {
+        Alpine.effect(() => {
+            // This runs every time any Alpine variable (like 'open') changes
+            lucide.createIcons();
+        });
+    });
+</script>
     @stack('scripts')
 </body>
 </html>

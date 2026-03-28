@@ -13,19 +13,24 @@ public function index()
 {
     $user = Auth::user();
 
-    // 1. Logic for Admin and Manager (Power Users)
+    // 1. Safety Check: If not logged in, redirect to login
+    if (!$user) {
+        return redirect()->route('login');
+    }
+
+    // 2. Logic for Admin and Manager (Power Users)
     if ($user->role === 'admin' || $user->role === 'manager') {
         $tasks = BusinessRequest::with(['user.department', 'worker', 'requestContent'])
             ->whereIn('status', ['APPROVED', 'WORKING', 'COMPLETED'])
             ->latest()
             ->get();
     } 
-    // 2. Logic for Employees (Personal Tasks)
+    // 3. Logic for Employees (Personal Tasks)
     else {
         $tasks = BusinessRequest::with(['user.department', 'requestContent'])
             ->where('worker_id', $user->id) 
             ->whereIn('status', ['APPROVED', 'WORKING', 'COMPLETED'])
-            ->orderByRaw("FIELD(status, 'WORKING', 'APPROVED', 'COMPLETED')") // Priority to active work
+            ->orderByRaw("FIELD(status, 'WORKING', 'APPROVED', 'COMPLETED')")
             ->get();
     }
 

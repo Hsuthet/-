@@ -56,11 +56,14 @@
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden border-t-4 border-t-indigo-500">
             <x-data-table 
                 id="usersTable" 
-                :headers="['氏名', 'メールアドレス', '部署', '権限', 'アクション']"
+                :headers="['社員番号','氏名', 'メールアドレス', '部署', '権限', 'アクション']"
                 role="admin"
             >
                 @foreach($users as $user)
 <tr class="hover:bg-slate-50/50 transition-colors border-b border-slate-100 last:border-0 group">
+    <td class="px-6 py-4 text-left font-bold text-slate-700 text-xs tabular-nums">
+    {{ $user->employee_number }}
+</td>
     {{-- 氏名 (Name) --}}
     <td class="px-6 py-4 text-left">
         <div class="flex items-center">
