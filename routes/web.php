@@ -65,28 +65,22 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/file/remove', [BusinessRequestController::class, 'remove'])->name('file.remove');
     // Business Requests Resource
+   // Business Requests Resource (This already creates 'business-requests.show')
     Route::resource('business-requests', BusinessRequestController::class);
 
-});
+}); // End of auth middleware group
 
 Route::get('/business-requests/{request}/approve', [RequestApprovalController::class, 'approveForm'])->name('business-requests.approve');
-Route::post('/business-requests/{businessRequest}/assign', [RequestApprovalController::class, 'assign'])
-    ->name('business-requests.assign');
+Route::post('/business-requests/{businessRequest}/assign', [RequestApprovalController::class, 'assign'])->name('business-requests.assign');
 
-Route::get('/business-requests/{id}', [BusinessRequestController::class, 'showUser'])->name('business-requests.show');
+// FIX 1: Renamed 'business-requests.show' to 'business-requests.display' to avoid conflict with the resource above
+Route::get('/business-requests/user/{id}', [BusinessRequestController::class, 'showUser'])->name('business-requests.display');
 
-Route::get('/requests', [BusinessRequestController::class, 'myRequests'])
-        ->name('business-requests.requests');
+Route::get('/requests', [BusinessRequestController::class, 'myRequests'])->name('business-requests.requests');
 
-    // Tasks assigned to me to work on
-    // Route::get('/my-tasks', [BusinessRequestController::class, 'myTasks'])
-    //     ->name('business-requests.my_tasks');
-     Route::get('/my-tasks', [WorkerTaskController::class, 'index'])
-        ->name('business-requests.my_tasks');
+Route::get('/my-tasks', [WorkerTaskController::class, 'index'])->name('business-requests.my_tasks');
 
-        Route::patch('/tasks/{businessRequest}/status', [WorkerTaskController::class, 'updateStatus'])
-    ->name('tasks.update-status');
+// FIX 2: Removed the duplicate 'tasks.update-status' route (kept only one)
+Route::patch('/tasks/{businessRequest}/status', [WorkerTaskController::class, 'updateStatus'])->name('tasks.update-status');
 
-    // web.php
-Route::patch('/tasks/{id}/status', [WorkerTaskController::class, 'updateStatus'])->name('tasks.update-status');
 require __DIR__.'/auth.php';

@@ -21,13 +21,10 @@ class DatabaseSeeder extends Seeder
         DepartmentSeeder::class,
         CategorySeeder::class,
         UserSeeder::class,
-        AdminUserSeeder::class
+       
     ]);
     
 
-        User::firstOrCreate([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        
     }
 }

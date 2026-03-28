@@ -72,72 +72,81 @@
 </div>
 
             <div class="w-full lg:w-2/3 p-12 bg-white flex flex-col justify-center">
-                <div class="mb-10">
-                    <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">ようこそ <span class="text-blue-600">!</span></h1>
-                    <p class="text-sm text-slate-500 mt-2 font-medium">登録済みのメールアドレスでログインしてください。</p>
+    <div class="mb-10">
+        <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">ようこそ <span class="text-blue-600">!</span></h1>
+        <p class="text-sm text-slate-500 mt-2 font-medium">登録済みのメールアドレスでログインしてください。</p>
+    </div>
+
+    {{-- 1. General Error Alert at the top --}}
+    @if ($errors->any())
+        <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-xl">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                    </svg>
                 </div>
+                <div class="ml-3">
+                    <p class="text-xs font-bold text-red-800 uppercase tracking-wider">ログインエラー</p>
+                    <p class="text-[11px] text-red-700 mt-1 font-medium">入力内容を確認してください。</p>
+                </div>
+            </div>
+        </div>
+    @endif
 
-                <x-auth-session-status class="mb-4 text-xs font-semibold text-emerald-600 bg-emerald-50 p-3 rounded-lg" :status="session('status')" />
+    {{-- Added 'novalidate' to trigger Laravel errors instead of browser tooltips --}}
+    <form method="POST" action="{{ route('login') }}" class="space-y-5" novalidate>
+        @csrf
 
-                <form method="POST" action="{{ route('login') }}" class="space-y-5">
-                    @csrf
+        {{-- Email Field --}}
+        <div class="group">
+            <label class="block text-[11px] uppercase tracking-widest font-bold text-slate-400 mb-2 ml-1" for="email">
+                メールアドレス
+            </label>
+            <div class="relative">
+                <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus
+                    class="w-full bg-slate-50 border {{ $errors->has('email') ? 'border-red-500' : 'border-slate-200' }} rounded-xl px-4 py-3.5 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all duration-200 outline-none"
+                    placeholder="name@resonant.jp">
+            </div>
+            @if ($errors->has('email'))
+                <p class="mt-2 text-[11px] font-bold text-red-600 flex items-center ml-1">
+                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+                    {{ $errors->first('email') }}
+                </p>
+            @endif
+        </div>
 
-                    <div class="group">
-                        <label class="block text-[11px] uppercase tracking-widest font-bold text-slate-400 mb-2 ml-1" for="email">
-                            メールアドレス
-                        </label>
-                        <div class="relative">
-                            <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus
-                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all duration-200 outline-none"
-                                placeholder="name@resonant.jp">
-                        </div>
-                        <x-input-error :messages="$errors->get('email')" class="mt-2 text-[11px] font-medium" />
-                    </div>
-
-                    <div>
-                        <div class="flex justify-between mb-2 ml-1">
-                            <label class="block text-[11px] uppercase tracking-widest font-bold text-slate-400" for="password">
-                                パスワード
-                            </label>
-                            {{-- @if (Route::has('password.request'))
+        {{-- Password Field --}}
+        <div>
+            <div class="flex justify-between mb-2 ml-1">
+                <label class="block text-[11px] uppercase tracking-widest font-bold text-slate-400" for="password">
+                    パスワード
+                </label>
+                 @if (Route::has('password.request'))
                                 <a href="{{ route('password.request') }}" class="text-[10px] text-blue-600 font-bold hover:text-blue-800 transition-colors">
                                     パスワードをお忘れですか？
                                 </a>
-                            @endif --}}
-                        </div>
-                        <input id="password" type="password" name="password" required autocomplete="current-password"
-                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all duration-200 outline-none">
-                        <x-input-error :messages="$errors->get('password')" class="mt-2 text-[11px] font-medium" />
-                    </div>
-
-                    {{-- <div class="flex items-center ml-1">
-                        <input id="remember_me" type="checkbox" name="remember" 
-                            class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 transition-all cursor-pointer">
-                        <label for="remember_me" class="ms-2 text-xs text-slate-500 font-medium cursor-pointer select-none">
-                            次回から自動的にログインする
-                        </label>
-                    </div> --}}
-
-                    <div class="pt-4">
-                        <button type="submit"
-                            class="w-full bg-[#1a365d] text-white rounded-xl py-4 text-sm font-bold hover:bg-blue-900 shadow-lg shadow-blue-900/20 transition-all duration-300 tracking-[0.2em] transform active:scale-[0.98]">
-                            ログイン
-                        </button>
-                    </div>
-
-                    <div class="text-center mt-10">
-                        {{-- <div class="flex items-center justify-center space-x-4 mb-6">
-                            <div class="h-px w-12 bg-slate-100"></div>
-                            <p class="text-xs text-slate-400 font-medium">アカウントをお持ちでない方</p>
-                            <div class="h-px w-12 bg-slate-100"></div>
-                        </div> --}}
-                        {{-- <a href="{{ route('register') }}" 
-                           class="inline-block w-full py-3.5 border-2 border-slate-100 text-slate-600 text-xs font-bold rounded-xl hover:bg-slate-50 hover:border-slate-200 transition-all duration-200">
-                            新規ユーザー登録
-                        </a> --}}
-                    </div>
-                </form>
+                            @endif
             </div>
+            <input id="password" type="password" name="password" required autocomplete="current-password"
+                class="w-full bg-slate-50 border {{ $errors->has('password') ? 'border-red-500' : 'border-slate-200' }} rounded-xl px-4 py-3.5 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all duration-200 outline-none">
+            
+            @if ($errors->has('password'))
+                <p class="mt-2 text-[11px] font-bold text-red-600 flex items-center ml-1">
+                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+                    {{ $errors->first('password') }}
+                </p>
+            @endif
+        </div>
+
+        <div class="pt-4">
+            <button type="submit"
+                class="w-full bg-[#1a365d] text-white rounded-xl py-4 text-sm font-bold hover:bg-blue-900 shadow-lg shadow-blue-900/20 transition-all duration-300 tracking-[0.2em] transform active:scale-[0.98]">
+                ログイン
+            </button>
+        </div>
+    </form>
+</div>
         </div>
     </div>
 </x-guest-layout>

@@ -26,6 +26,7 @@ class UserController extends Controller
     public function create()
     {
         $departments = Department::all();
+        
         return view('admin.users.create', compact('departments'));
     }
 
@@ -58,6 +59,7 @@ class UserController extends Controller
 public function store(Request $request)
 {
     $request->validate([
+        'employee_number' => ['required', 'string', 'max:20', 'unique:users'],
         'name' => ['required', 'string', 'max:255'],
         'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
         'role' => ['required', 'in:admin,manager,employee'],
@@ -69,14 +71,22 @@ public function store(Request $request)
             'exists:departments,id'
         ],
     ]);
+    $lastUser = User::latest('id')->first();
+    $nextId = $lastUser ? $lastUser->id + 1 : 1;
+    
+    // ၃။ Format သတ်မှတ်ခြင်း (ဥပမာ: EMP-2026-001)
+    // str_pad က 001, 002 စသဖြင့် ဂဏန်း ၃ လုံးပြည့်အောင် ရှေ့က ၀ ဖြည့်ပေးတာပါ
+    $employeeNumber = 'EMP-' . date('Y') . '-' . str_pad($nextId, 3, '0', STR_PAD_LEFT);
 
     User::create([
+        'employee_number' => $request->employee_number,
         'name' => $request->name,
         'email' => $request->email,
         'role' => $request->role,
         'password' => Hash::make($request->password),
         // Force null if admin, even if data was somehow sent
         'department_id' => $request->role === 'admin' ? null : $request->department_id,
+        
     ]);
 
     return redirect()->route('users.index')->with('success', '新規ユーザーを登録しました。');

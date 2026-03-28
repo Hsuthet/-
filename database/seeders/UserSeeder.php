@@ -10,34 +10,45 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Create Managers for each department (1-6)
-        $managerNames = ['佐藤', '鈴木', '高橋', '田中', '伊藤', '渡辺'];
-        foreach ($managerNames as $index => $name) {
+        $surnames = ['佐藤', '鈴木', '高橋', '田中', '伊藤', '渡辺'];
+        $givenNames = ['太郎', '次郎', '花子', '一郎', '和子'];
+        
+        $globalCounter = 1; // Start at 1
+
+        // 1. CREATE SUPER ADMIN
+        User::create([
+            'name' => 'システム管理者', 
+            'email' => 'admin@example.com',
+            'password' => Hash::make('password123'),
+            'role' => 'admin',
+            'employee_number' => 'EMP-' . str_pad($globalCounter++, 3, '0', STR_PAD_LEFT),
+            'department_id' => null,
+        ]);
+
+        // 2. Loop through 6 departments
+        for ($deptId = 1; $deptId <= 6; $deptId++) {
+            
+            // --- CREATE 1 MANAGER ---
             User::create([
-                'name' => $name . " (管理者)",
-                'email' => "manager" . ($index + 1) . "@gmail.com",
+                'name' => $surnames[$deptId - 1] . '（課長）',
+                'email' => "manager" . $deptId . "@example.com",
                 'password' => Hash::make('password123'),
                 'role' => 'manager',
-                'department_id' => $index + 1,
+                'employee_number' => 'EMP-' . str_pad($globalCounter++, 3, '0', STR_PAD_LEFT),
+                'department_id' => $deptId,
             ]);
-        }
 
-        // 2. Kanji Name Pools
-        $surnames = ['佐藤', '鈴木', '高橋', '田中', '渡辺', '伊藤', '中村', '小林', '加藤', '吉田', '山田', '佐々木'];
-        $givenNames = ['太郎', '健一', '浩', '和也', '陽子', '美智子', '大輔', '直樹', '恵', '健太'];
-
-        // 3. Create 100 Employees
-        for ($i = 1; $i <= 100; $i++) {
-            $fName = $surnames[array_rand($surnames)];
-            $lName = $givenNames[array_rand($givenNames)];
-            
-            User::create([
-                'name' => $fName . ' ' . $lName, // Example: 田中 太郎
-                'email' => "employee$i@test.com",
-                'password' => Hash::make('password123'),
-                'role' => 'employee',
-                'department_id' => rand(1, 6),
-            ]);
+            // --- CREATE 3 EMPLOYEES PER DEPT ---
+            for ($i = 1; $i <= 3; $i++) {
+                User::create([
+                    'name' => $surnames[array_rand($surnames)] . ' ' . $givenNames[array_rand($givenNames)],
+                    'email' => "user" . $globalCounter . "@example.com", 
+                    'password' => Hash::make('password123'),
+                    'role' => 'employee',
+                    'employee_number' => 'EMP-' . str_pad($globalCounter++, 3, '0', STR_PAD_LEFT),
+                    'department_id' => $deptId,
+                ]);
+            }
         }
     }
 }

@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId('department_id')->nullable()->constrained('departments')->nullOnDelete();
             $table->string('password');
             $table->timestamps();
+            $table->rememberToken();
         });
     }
 
