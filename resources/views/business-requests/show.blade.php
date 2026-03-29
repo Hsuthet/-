@@ -108,32 +108,27 @@
                 </section>
 
                 <div class="flex justify-end pt-4">
-    @php
-        // Define the translations
-        $statusMap = [
-            'PENDING'     => '承認待ち',
-            'APPROVED'    => '承認済み',
-            'REJECTED'    => '却下',
-            'WORKING'     => '作業中',
-            'COMPLETED'   => '完了済み',
-        ];
+   @php
+    // Map status to label and color classes
+    $statusMap = [
+        'PENDING'   => ['label' => '承認待ち', 'bg' => 'bg-yellow-50', 'border' => 'border-yellow-400', 'text' => 'text-yellow-700'],
+        'APPROVED'  => ['label' => '承認済み', 'bg' => 'bg-green-50', 'border' => 'border-green-400', 'text' => 'text-green-700'],
+        'REJECTED'  => ['label' => '却下',     'bg' => 'bg-red-50', 'border' => 'border-red-400', 'text' => 'text-red-700'],
+        'WORKING'   => ['label' => '作業中',   'bg' => 'bg-blue-50', 'border' => 'border-blue-400', 'text' => 'text-blue-700'],
+        'COMPLETED' => ['label' => '完了済み', 'bg' => 'bg-emerald-50', 'border' => 'border-emerald-400', 'text' => 'text-emerald-700'],
+    ];
 
-        $currentStatus = $request->status;
-        $label = $statusMap[$currentStatus] ?? $currentStatus; // Fallback to original if not found
-    @endphp
+    $currentStatus = $request->status;
+    $statusData = $statusMap[$currentStatus] ?? ['label' => $currentStatus, 'bg' => 'bg-gray-50', 'border' => 'border-gray-300', 'text' => 'text-gray-600'];
+@endphp
 
-    <div class="inline-flex items-center px-4 py-1 rounded border 
-        {{ $currentStatus === 'PENDING' ? 'bg-yellow-50 border-yellow-400 text-yellow-700' : '' }}
-        {{ $currentStatus === 'APPROVED' ? 'bg-green-50 border-green-400 text-green-700' : '' }}
-        {{ $currentStatus === 'REJECTED' ? 'bg-red-50 border-red-400 text-red-700' : '' }}
-        {{ !in_array($currentStatus, ['PENDING', 'APPROVED', 'REJECTED']) ? 'bg-gray-50 border-gray-300 text-gray-600' : '' }}
-        text-xs font-bold">
-        ステータス：{{ $label }}
-    </div>
+<div class="inline-flex items-center px-4 py-1 rounded border {{ $statusData['bg'] }} {{ $statusData['border'] }} {{ $statusData['text'] }} text-xs font-bold">
+    ステータス：{{ $statusData['label'] }}
+</div>
 </div>
 
                 <div class="flex justify-center space-x-4 border-t pt-10">
-                    <a href="{{ route('business-requests.index') }}" class="px-10 py-2 border border-gray-300 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm transition">
+                    <a href="{{ route('business-requests.requests') }}" class="px-10 py-2 border border-gray-300 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm transition">
                         戻る
                     </a>
                     

@@ -170,7 +170,7 @@
 
                             <button type="submit" 
                                     class="w-full md:w-auto inline-flex items-center justify-center bg-blue-600 text-white px-10 py-3.5 rounded-xl font-bold text-sm shadow-lg shadow-blue-100 hover:bg-blue-700 transition-all active:scale-95">
-                                依頼を確定し、送信する
+                                確認
                                 <svg class="w-5 h-5 ml-2 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
                                 </svg>

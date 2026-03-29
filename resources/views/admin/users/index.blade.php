@@ -45,7 +45,7 @@
                 </div>
 
                 {{-- ユーザー作成ボタン --}}
-                <a href="{{ route('users.create') }}" 
+                <a href="{{ route('admin.users.create') }}" 
                    class="inline-flex items-center justify-center px-6 py-2.5 bg-indigo-600 rounded-xl font-bold text-white text-sm shadow-xl shadow-indigo-100 hover:bg-indigo-700 hover:-translate-y-0.5 transition-all duration-200">
                     <i data-lucide="user-plus" class="w-4 h-4 mr-2"></i>
                     ユーザー作成
@@ -114,7 +114,7 @@
     <td class="px-6 py-4 text-left">
     <div class="flex items-center gap-2">
         {{-- Edit Button --}}
-        <a href="{{ route('users.edit', $user) }}" 
+        <a href="{{ route('admin.users.edit', $user) }}" 
            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-indigo-100 bg-indigo-50/50 text-indigo-600 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 hover:shadow-lg hover:shadow-indigo-200/50 transition-all duration-300 group/btn"
            title="編集">
             <i data-lucide="pencil" class="w-3.5 h-3.5 group-hover/btn:rotate-12 transition-transform"></i>
@@ -122,7 +122,7 @@
         </a>
 
         {{-- Delete Button --}}
-        <form action="{{ route('users.destroy', $user) }}" method="POST" class="inline">
+        <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="inline">
             @csrf @method('DELETE')
             <button type="submit" 
                     class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-rose-100 bg-rose-50/50 text-rose-600 hover:bg-rose-600 hover:text-white hover:border-rose-600 hover:shadow-lg hover:shadow-rose-200/50 transition-all duration-300 group/btn"

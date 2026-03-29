@@ -25,9 +25,13 @@ Route::get('/', function () {
 */
 
 // Admin Only
-Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
-    Route::resource('users', UserController::class);
-});
+// Admin Only
+Route::middleware(['auth', 'admin'])
+    ->prefix('admin')
+    ->name('admin.') 
+    ->group(function () {
+        Route::resource('users', UserController::class);
+    });
 
 // All Logged-in Users
 Route::middleware(['auth'])->group(function () {

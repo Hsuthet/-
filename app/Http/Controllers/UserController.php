@@ -56,42 +56,43 @@ class UserController extends Controller
 //         return redirect()->route('users.index')->with('success');
 //     }
 
+
 public function store(Request $request)
 {
+    // 1. Validation
     $request->validate([
-        'employee_number' => ['required', 'string', 'max:20', 'unique:users'],
         'name' => ['required', 'string', 'max:255'],
         'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
         'role' => ['required', 'in:admin,manager,employee'],
         'password' => ['required', 'confirmed', 'min:8'],
-        // Department is required UNLESS the role is admin
         'department_id' => [
             'nullable', 
             'required_unless:role,admin', 
             'exists:departments,id'
         ],
     ]);
-    $lastUser = User::latest('id')->first();
-    $nextId = $lastUser ? $lastUser->id + 1 : 1;
-    
-    // ၃။ Format သတ်မှတ်ခြင်း (ဥပမာ: EMP-2026-001)
-    // str_pad က 001, 002 စသဖြင့် ဂဏန်း ၃ လုံးပြည့်အောင် ရှေ့က ၀ ဖြည့်ပေးတာပါ
-    $employeeNumber = 'EMP-' . date('Y') . '-' . str_pad($nextId, 3, '0', STR_PAD_LEFT);
 
+    // 2. Generate Employee Number "EMPXXX"
+    $lastUser = User::orderBy('id', 'desc')->first();
+    $nextId = $lastUser ? $lastUser->id + 1 : 1;
+    $employeeNumber = 'EMP' . str_pad($nextId, 3, '0', STR_PAD_LEFT);
+
+    // 3. Create User
     User::create([
-        'employee_number' => $request->employee_number,
+        'employee_number' => $employeeNumber,
         'name' => $request->name,
         'email' => $request->email,
         'role' => $request->role,
         'password' => Hash::make($request->password),
-        // Force null if admin, even if data was somehow sent
         'department_id' => $request->role === 'admin' ? null : $request->department_id,
-        
     ]);
 
-    return redirect()->route('users.index')->with('success', '新規ユーザーを登録しました。');
+    // 4. Redirect to user list with success message
+   return redirect()->route('admin.users.index')
+                 ->with('success', "ユーザー {$employeeNumber} を登録しました。");
 }
-    public function edit(User $user)
+
+public function edit(User $user)
     {
         $departments = Department::all();
         return view('admin.users.edit', compact('user', 'departments'));
@@ -125,8 +126,8 @@ public function store(Request $request)
     }
 
     $user->update($data);
-
-    return redirect()->route('users.index')->with('success', 'ユーザー情報を更新しました。');
+// In UserController.php
+return redirect()->route('admin.users.index')->with('success', '新規ユーザーを登録しました。');
 }
 
     public function destroy(User $user)

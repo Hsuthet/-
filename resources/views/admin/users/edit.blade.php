@@ -43,13 +43,13 @@
                         <h1 class="text-2xl font-bold text-gray-800 tracking-tight">ユーザー情報の編集</h1>
                         <p class="text-xs text-gray-500 mt-2">対象ユーザー：<span class="font-bold text-indigo-600">{{ $user->name }}</span></p>
                     </div>
-                    <a href="{{ route('users.index') }}" class="text-xs font-bold text-gray-400 hover:text-gray-600 flex items-center">
+                    <a href="{{ route('admin.users.index') }}" class="text-xs font-bold text-gray-400 hover:text-gray-600 flex items-center">
                         <i data-lucide="arrow-left" class="w-3 h-3 mr-1"></i> 一覧に戻る
                     </a>
                 </div>
 
                 {{-- Unified Alpine.js State --}}
-                <form method="POST" action="{{ route('users.update', $user) }}" 
+                <form method="POST" action="{{ route('admin.users.update', $user) }}" 
                       x-data="{ 
                         role: '{{ old('role', $user->role) }}', 
                         showPassword: false, 

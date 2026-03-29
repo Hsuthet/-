@@ -52,7 +52,7 @@
         {{-- Admin Section --}}
         @if(auth()->user()->role === 'admin')
             <h3 class="text-[10px] font-bold text-indigo-300/60 uppercase tracking-[0.2em] px-4 pt-8 pb-2">管理者コントロール</h3>
-            <x-nav-link-item :href="route('users.index')" :active="request()->routeIs('users.*')" icon="users" label="ユーザー管理" />
+            <x-nav-link-item :href="route('admin.users.index')" :active="request()->routeIs('users.*')" icon="users" label="ユーザー管理" />
             <x-nav-link-item :href="route('business-requests.requests')" :active="request()->routeIs('business-requests.requests')" icon="file-text" label="依頼一覧" />
             <x-nav-link-item :href="route('business-requests.my_tasks')" :active="request()->routeIs('business-requests.my_tasks')" icon="clipboard-list" label="担当作業一覧" />
         @endif

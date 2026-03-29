@@ -11,7 +11,7 @@
                 </div>
                 <div>
                     <h1 class="text-2xl font-extrabold text-slate-800 tracking-tight">送信済みの依頼一覧</h1>
-                    <p class="text-sm text-slate-500">システム全体の依頼状況を確認・管理できます。</p>
+                    
                 </div>
             </div>
             
@@ -37,10 +37,10 @@
 
             <div class="flex items-center gap-3">
                 <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">絞り込み:</span>
-                <x-table-status-filter tableId="requestsTable" columnIndex="5" placeholder="全てのステータス"
+                <x-table-status-filter tableId="requestsTable" columnIndex="6" placeholder="全てのステータス"
                     :options="['承認待ち' => '承認待ち', '承認済み' => '承認済み', '作業中' => '作業中', '完了' => '完了', '却下' => '却下']" 
                 />
-                <x-filter-date />
+                {{-- <x-filter-date fromName="start_date" toName="end_date" /> --}}
             </div>
         </div>
 
@@ -49,7 +49,7 @@
    
             @php 
                 // Removed 'text-center' from headers internally if your x-data-table component supports it
-                $headers = ['管理番号', '案件詳細', '区分', '期限', '添付', 'ステータス', 'アクション']; 
+                $headers = ['管理番号', '案件詳細', '区分', '作成日','期限', '添付', 'ステータス', 'アクション']; 
                $statusMap = [
     'PENDING'   => ['label' => '承認待ち', 'class' => 'bg-amber-50 text-amber-700 border-amber-100'],
     
@@ -65,110 +65,119 @@
 ];
             @endphp
 
-            <x-data-table id="requestsTable" :headers="$headers" :showFilters="false">
-                @foreach($requests as $req)
-                    @php 
-                        $status = $statusMap[$req->status] ?? ['label' => $req->status, 'class' => 'bg-slate-100 text-slate-700 border-slate-200']; 
-                        $isOverdue = \Carbon\Carbon::parse($req->due_date)->isPast() && !in_array($req->status, ['APPROVED', 'WORKING', 'COMPLETED']);
-                    @endphp
-                    <tr class="hover:bg-slate-50/80 transition-colors border-b border-slate-100">
-                        {{-- ID - Left Aligned --}}
-                        <td class="px-6 py-5">
-                            <span class="font-mono text-[11px] font-bold bg-slate-100 px-2 py-1 rounded text-slate-600 uppercase tracking-tighter">
-                                {{ $req->request_number }}
-                            </span>
-                        </td>
+            @php 
+    $headers = ['管理番号', '案件詳細', '区分', '期限', '所属部署', '添付', 'ステータス', 'アクション']; 
 
-                        {{-- Title & Info - Left Aligned --}}
-                        <td class="px-4 py-5">
-                            <div class="group">
-                                <p class="text-sm font-bold text-slate-800 group-hover:text-indigo-600 transition-colors">{{ $req->title }}</p>
-                                <div class="flex items-center gap-2 mt-1.5">
-                                    <span class="inline-flex items-center text-[10px] text-slate-400 font-medium">
-                                        <i data-lucide="user" class="w-3 h-3 mr-1"></i> {{ $req->user?->name }}
-                                    </span>
-                                    <span class="text-slate-200">|</span>
-                                    <span class="text-[10px] text-slate-400">{{ $req->created_at->format('Y/m/d') }}</span>
-                                </div>
+    $statusMap = [
+        'PENDING'   => ['label' => '承認待ち', 'class' => 'bg-amber-50 text-amber-700 border-amber-100'],
+        'APPROVED'  => ['label' => '承認済み', 'class' => 'bg-teal-50 text-teal-700 border-teal-200'],
+        'REJECTED'  => ['label' => '却下',     'class' => 'bg-rose-50 text-rose-700 border-rose-100'],
+        'WORKING'   => ['label' => '作業中',   'class' => 'bg-blue-50 text-blue-700 border-blue-100'],
+        'COMPLETED' => ['label' => '完了',     'class' => 'bg-emerald-100 text-emerald-800 border-emerald-200'], 
+    ];
+@endphp
+
+<x-data-table id="requestsTable" :headers="$headers" :showFilters="false">
+    @foreach($requests as $req)
+        @php 
+            $status = $statusMap[$req->status] ?? ['label' => $req->status, 'class' => 'bg-slate-100 text-slate-700 border-slate-200']; 
+            $isOverdue = \Carbon\Carbon::parse($req->due_date)->isPast() && !in_array($req->status, ['APPROVED', 'WORKING', 'COMPLETED']);
+        @endphp
+
+        <tr class="hover:bg-slate-50/80 transition-colors border-b border-slate-100">
+            {{-- ID --}}
+            <td class="px-6 py-5">
+                <span class="font-mono text-[11px] font-bold bg-slate-100 px-2 py-1 rounded text-slate-600 uppercase tracking-tighter">
+                    {{ $req->request_number }}
+                </span>
+            </td>
+
+            {{-- Title & Info --}}
+            <td class="px-4 py-5">
+                <div class="group">
+                    <p class="text-sm font-bold text-slate-800 group-hover:text-indigo-600 transition-colors">
+                        {{ $req->title }}
+                    </p>
+                    <div class="flex items-center gap-2 mt-1.5">
+                        <span class="inline-flex items-center text-[10px] text-slate-400 font-medium">
+                            <i data-lucide="user" class="w-3 h-3 mr-1"></i> {{ $req->user?->name }}
+                        </span>
+                    </div>
+                </div>
+            </td>
+
+            {{-- Categories --}}
+            <td class="px-4 py-5">
+                <div class="flex flex-wrap gap-1 justify-start">
+                    @foreach($req->categories as $category)
+                        <span class="px-2 py-0.5 bg-slate-100 text-slate-500 rounded text-[10px] font-bold border border-slate-200/50 whitespace-nowrap">
+                            {{ $category->name }}
+                        </span>
+                    @endforeach
+                </div>
+            </td>
+
+            {{-- Due Date --}}
+            <td class="px-4 py-5">
+                <span class="text-[11px] font-bold {{ $isOverdue ? 'text-rose-600 bg-rose-50 px-2 py-1 rounded-lg border border-rose-100' : 'text-slate-600' }}">
+                    {{ $req->due_date }}
+                </span>
+            </td>
+
+            {{-- Target Department --}}
+            <td class="px-4 py-5">
+                <span class="text-[11px] text-slate-600 font-medium">
+                    {{ $req->department?->name ?? '－' }}
+                </span>
+            </td>
+
+            {{-- Attachments --}}
+            <td class="px-4 py-5">
+                @if($req->attachments->isNotEmpty())
+                    <div class="flex justify-start -space-x-1.5">
+                        @foreach($req->attachments->take(3) as $file)
+                            <div class="h-7 w-7 rounded-full border-2 border-white bg-indigo-50 flex items-center justify-center text-indigo-500 shadow-sm" title="{{ $file->file_name }}">
+                                <i data-lucide="paperclip" class="w-3 h-3"></i>
                             </div>
-                        </td>
+                        @endforeach
+                    </div>
+                @else
+                    <span class="text-slate-300">－</span>
+                @endif
+            </td>
 
-                        {{-- Categories - Left Aligned --}}
-                        <td class="px-4 py-5">
-                            <div class="flex flex-wrap gap-1 justify-start"> {{-- Changed justify-center to justify-start --}}
-                                @foreach($req->categories as $category)
-                                    <span class="px-2 py-0.5 bg-slate-100 text-slate-500 rounded text-[10px] font-bold border border-slate-200/50 whitespace-nowrap">
-                                        {{ $category->name }}
-                                    </span>
-                                @endforeach
-                            </div>
-                        </td>
+            {{-- Status --}}
+            <td class="px-4 py-5">
+                <span class="inline-block px-3 py-1 rounded-full text-[10px] font-bold border shadow-sm {{ $status['class'] }}">
+                    {{ $status['label'] }}
+                </span>
+            </td>
 
-                        {{-- Due Date - Left Aligned --}}
-                        <td class="px-4 py-5">
-                            <span class="text-[11px] font-bold {{ $isOverdue ? 'text-rose-600 bg-rose-50 px-2 py-1 rounded-lg border border-rose-100' : 'text-slate-600' }}">
-                                {{ $req->due_date }}
-                            </span>
-                        </td>
+            {{-- Actions --}}
+            <td class="px-4 py-5">
+                <div class="flex items-center justify-start gap-1.5">
+                    <a href="{{ route('business-requests.show', $req->id) }}" class="p-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-indigo-600 hover:text-white transition-all shadow-sm" title="詳細">
+                        <i data-lucide="file-text" class="w-4 h-4"></i>
+                    </a>
 
-                        {{-- Attachments - Left Aligned --}}
-                        <td class="px-4 py-5">
-                           @if($req->attachments->isNotEmpty())
-                                <div class="flex justify-start -space-x-1.5"> {{-- Changed justify-center to justify-start --}}
-                                    @foreach($req->attachments->take(3) as $file)
-                                        <div class="h-7 w-7 rounded-full border-2 border-white bg-indigo-50 flex items-center justify-center text-indigo-500 shadow-sm" title="{{ $file->file_name }}">
-                                            <i data-lucide="paperclip" class="w-3 h-3"></i>
-                                        </div>
-                                    @endforeach
-                                </div>
-                           @else
-                                <span class="text-slate-300">－</span>
-                           @endif
-                        </td>
+                    @if($req->status === 'PENDING' && $req->user_id === auth()->id())
+                        <a href="{{ route('business-requests.edit', $req->id) }}" class="p-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-amber-500 hover:text-white transition-all shadow-sm" title="編集">
+                            <i data-lucide="edit-3" class="w-4 h-4"></i>
+                        </a>
 
-                        {{-- Status - Left Aligned --}}
-                        <td class="px-4 py-5">
-                            <span class="inline-block px-3 py-1 rounded-full text-[10px] font-bold border shadow-sm {{ $status['class'] }}">
-                                {{ $status['label'] }}
-                            </span>
-                        </td>
-
-                        {{-- Actions - Left Aligned --}}
-                       <td class="px-4 py-5">
-    <div class="flex items-center justify-start gap-1.5">
-        {{-- View Details --}}
-        <a href="{{ route('business-requests.show', $req->id) }}" 
-           class="p-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-indigo-600 hover:text-white transition-all shadow-sm"
-           title="詳細">
-            <i data-lucide="file-text" class="w-4 h-4"></i>
-        </a>
-
-        {{-- Only show Edit/Delete if it is the User's OWN request AND Status is PENDING --}}
-        @if($req->status === 'PENDING' && $req->user_id === auth()->id())
-            {{-- Edit --}}
-            <a href="{{ route('business-requests.edit', $req->id) }}" 
-               class="p-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-amber-500 hover:text-white transition-all shadow-sm"
-               title="編集">
-                <i data-lucide="edit-3" class="w-4 h-4"></i>
-            </a>
-
-            {{-- Delete --}}
-            <form action="{{ route('business-requests.destroy', $req->id) }}" method="POST" 
-                  onsubmit="return confirm('この依頼を削除してもよろしいですか？');" class="inline">
-                @csrf
-                @method('DELETE')
-                <button type="submit" 
-                        class="p-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-rose-600 hover:text-white transition-all shadow-sm"
-                        title="削除">
-                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                </button>
-            </form>
-        @endif
-    </div>
-</td>
-                    </tr>
-                @endforeach
-            </x-data-table>
+                        <form action="{{ route('business-requests.destroy', $req->id) }}" method="POST" onsubmit="return confirm('この依頼を削除してもよろしいですか？');" class="inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="p-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-rose-600 hover:text-white transition-all shadow-sm" title="削除">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </form>
+                    @endif
+                </div>
+            </td>
+        </tr>
+    @endforeach
+</x-data-table>
         </div>
     </div>
 </x-app-layout>

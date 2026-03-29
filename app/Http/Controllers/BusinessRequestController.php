@@ -18,7 +18,9 @@ class BusinessRequestController extends Controller
     /**
      * 1. LIST: View requests based on role
      */
-   public function index()
+
+
+public function index(Request $request)
 {
     $user = Auth::user();
 
@@ -31,34 +33,44 @@ class BusinessRequestController extends Controller
         'requestContent'
     ];
 
+    // 1. Create a Base Query to handle the Date Filtering logic
+    $baseQuery = BusinessRequest::with($relations);
+
+    // Filter by Created Date (Start)
+  if ($request->filled('start_date')) {
+    $baseQuery->whereDate('created_at', '>=', $request->start_date);
+}
+
+if ($request->filled('end_date')) {
+    $baseQuery->whereDate('created_at', '<=', $request->end_date);
+}
+
     $requests = collect();
     $workerTasks = collect();
     $managerRequests = collect();
 
     if ($user->role === 'admin') {
-        // ✅ Admin sees EVERYTHING
-        $requests = BusinessRequest::with($relations)->latest()->get();
-        $workerTasks = BusinessRequest::with($relations)
+        // Clone the base query so filters apply to all admin views
+        $requests = (clone $baseQuery)->latest()->get();
+        $workerTasks = (clone $baseQuery)
             ->where('status', 'APPROVED')
             ->latest()
             ->get();
-    }
-
+    } 
     elseif ($user->role === 'employee' || $user->role === 'REQUESTER') {
-        $requests = BusinessRequest::with($relations)
+        $requests = (clone $baseQuery)
             ->where('user_id', $user->id)
             ->latest()
             ->get();
 
-        $workerTasks = BusinessRequest::with($relations)
+        $workerTasks = (clone $baseQuery)
             ->where('worker_id', $user->id)
             ->where('status', 'APPROVED')
             ->latest()
             ->get();
-    }
-
+    } 
     elseif ($user->role === 'manager' || $user->role === 'APPROVER') {
-        $managerRequests = BusinessRequest::with($relations)
+        $managerRequests = (clone $baseQuery)
             ->latest()
             ->get();
     }

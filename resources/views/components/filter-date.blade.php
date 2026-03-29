@@ -1,34 +1,33 @@
 @props([
     'fromName' => 'from',
     'toName' => 'to',
-    'fromValue' => request('from'),
-    'toValue' => request('to')
+    'fromValue' => null,
+    'toValue' => null
 ])
 
-<form method="GET" class="flex items-center gap-2">
-    
-    {{-- From Date --}}
-    <input 
-        type="date" 
-        name="{{ $fromName }}" 
-        value="{{ $fromValue }}"
-        class="border border-slate-300 rounded-lg px-3 py-1.5 text-xs focus:ring-1 focus:ring-indigo-500 outline-none"
-    >
+@php
+    $fromValue = $fromValue ?? request($fromName);
+    $toValue = $toValue ?? request($toName);
+@endphp
 
-    <span class="text-xs text-slate-400">〜</span>
+<form method="GET" action="{{ url()->current() }}" class="flex items-center gap-2">
 
-    {{-- To Date --}}
-    <input 
-        type="date" 
-        name="{{ $toName }}" 
-        value="{{ $toValue }}"
-        class="border border-slate-300 rounded-lg px-3 py-1.5 text-xs focus:ring-1 focus:ring-indigo-500 outline-none"
-    >
+    @foreach(request()->except([$fromName, $toName]) as $key => $value)
+        <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+    @endforeach
 
-    {{-- Submit --}}
-    <button type="submit"
-        class="px-3 py-1.5 bg-indigo-600 text-white text-xs rounded-lg hover:bg-indigo-700 transition">
-        適用
-    </button>
+    <input type="date" name="{{ $fromName }}" value="{{ $fromValue }}">
+    <span>〜</span>
+    <input type="date" name="{{ $toName }}" value="{{ $toValue }}">
+
+    <button type="submit">適用</button>
 
 </form>
+
+{{-- Example usage:
+  <x-filter-date 
+    fromName="start_date" 
+    toName="end_date" 
+    fromValue="{{ request('start_date') }}" 
+    toValue="{{ request('end_date') }}" 
+  />
