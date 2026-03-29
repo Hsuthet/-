@@ -40,6 +40,7 @@
                 <x-table-status-filter tableId="requestsTable" columnIndex="5" placeholder="全てのステータス"
                     :options="['承認待ち' => '承認待ち', '承認済み' => '承認済み', '作業中' => '作業中', '完了' => '完了', '却下' => '却下']" 
                 />
+                <x-filter-date />
             </div>
         </div>
 
@@ -133,18 +134,38 @@
                         </td>
 
                         {{-- Actions - Left Aligned --}}
-                        <td class="px-4 py-5">
-                            <div class="flex items-center justify-start gap-1.5"> {{-- Changed justify-center to justify-start --}}
-                                <a href="{{ route('business-requests.show', $req->id) }}" class="p-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-indigo-600 hover:text-white transition-all shadow-sm">
-                                    <i data-lucide="file-text" class="w-4 h-4"></i>
-                                </a>
-                                @if($req->status === 'PENDING' && $req->user_id === auth()->id())
-                                    <a href="{{ route('business-requests.edit', $req->id) }}" class="p-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-amber-500 hover:text-white transition-all shadow-sm">
-                                        <i data-lucide="edit-3" class="w-4 h-4"></i>
-                                    </a>
-                                @endif
-                            </div>
-                        </td>
+                       <td class="px-4 py-5">
+    <div class="flex items-center justify-start gap-1.5">
+        {{-- View Details --}}
+        <a href="{{ route('business-requests.show', $req->id) }}" 
+           class="p-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-indigo-600 hover:text-white transition-all shadow-sm"
+           title="詳細">
+            <i data-lucide="file-text" class="w-4 h-4"></i>
+        </a>
+
+        {{-- Only show Edit/Delete if it is the User's OWN request AND Status is PENDING --}}
+        @if($req->status === 'PENDING' && $req->user_id === auth()->id())
+            {{-- Edit --}}
+            <a href="{{ route('business-requests.edit', $req->id) }}" 
+               class="p-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-amber-500 hover:text-white transition-all shadow-sm"
+               title="編集">
+                <i data-lucide="edit-3" class="w-4 h-4"></i>
+            </a>
+
+            {{-- Delete --}}
+            <form action="{{ route('business-requests.destroy', $req->id) }}" method="POST" 
+                  onsubmit="return confirm('この依頼を削除してもよろしいですか？');" class="inline">
+                @csrf
+                @method('DELETE')
+                <button type="submit" 
+                        class="p-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-rose-600 hover:text-white transition-all shadow-sm"
+                        title="削除">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+            </form>
+        @endif
+    </div>
+</td>
                     </tr>
                 @endforeach
             </x-data-table>

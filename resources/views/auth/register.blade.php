@@ -1,284 +1,226 @@
-<x-guest-layout>
-    <div class="min-h-screen flex items-center justify-center bg-[#f8fafc] py-12 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-5xl w-full flex bg-white rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] overflow-hidden border border-slate-100">
-       
-            <div class="hidden lg:flex lg:w-1/3 bg-gradient-to-b from-[#1a365d] via-[#1e293b] to-[#0f172a] p-10 flex-col justify-between text-white relative overflow-hidden">
-    
-    <div class="absolute -top-24 -left-24 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl"></div>
-    <div class="absolute -bottom-24 -right-24 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl"></div>
+<x-app-layout>
+    @section('header_title', '業務依頼作成')
 
-    <div class="space-y-10 relative z-10">
-        
-        <div class="flex justify-center">
-            <div class="p-3 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-2xl">
-                <img src="{{ asset('images/RESONANT.png') }}" 
-                     alt="Resonant Systems Logo" 
-                     class="h-12 w-auto object-contain brightness-110">
-            </div>
-        </div>
+    <div class="min-h-screen bg-gray-100 py-12">
+        <div class="max-w-5xl mx-auto">
+            <div class="bg-white rounded-2xl shadow-lg p-10 border border-gray-200">
 
-        <div class="text-center">
-            <h2 class="text-3xl font-black tracking-tight leading-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-blue-100 to-blue-300">
-                業務依頼<br>管理システム
-            </h2>
-            <p class="text-[10px] uppercase tracking-[0.3em] text-blue-400 mt-3 font-bold">Business Request Management</p>
-            <div class="h-1 w-16 bg-gradient-to-r from-blue-600 to-indigo-400 mt-6 mx-auto rounded-full shadow-lg shadow-blue-500/50"></div>
-        </div>
+                <!-- Title -->
+                <h1 class="text-2xl font-bold text-center text-gray-800 mb-8">
+                    業務依頼書
+                </h1>
 
-        <div class="space-y-6 mt-12">
-            <div class="p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md shadow-inner">
-                <p class="text-sm text-blue-100 leading-relaxed font-medium">
-                    本システムは、社内の業務依頼、承認、および進捗管理を一元化する次世代プラットフォームです。
-                </p>
-            </div>
-
-            <ul class="space-y-4 px-2">
-                <li class="flex items-center text-xs text-blue-200/80 group">
-                    <span class="w-6 h-6 rounded-lg bg-blue-500/20 flex items-center justify-center mr-3 group-hover:bg-blue-500/40 transition-colors">
-                        <i data-lucide="zap" class="w-3.5 h-3.5 text-blue-400"></i>
-                    </span>
-                    迅速な承認フローの実現
-                </li>
-                <li class="flex items-center text-xs text-blue-200/80 group">
-                    <span class="w-6 h-6 rounded-lg bg-indigo-500/20 flex items-center justify-center mr-3 group-hover:bg-indigo-500/40 transition-colors">
-                        <i data-lucide="eye" class="w-3.5 h-3.5 text-indigo-400"></i>
-                    </span>
-                    依頼状況のリアルタイム可視化
-                </li>
-                <li class="flex items-center text-xs text-blue-200/80 group">
-                    <span class="w-6 h-6 rounded-lg bg-cyan-500/20 flex items-center justify-center mr-3 group-hover:bg-cyan-500/40 transition-colors">
-                        <i data-lucide="search" class="w-3.5 h-3.5 text-cyan-400"></i>
-                    </span>
-                    過去案件のアーカイブ検索
-                </li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="relative z-10 pt-8">
-        <div class="flex flex-col items-center space-y-4">
-            <div class="flex space-x-2">
-                <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                <span class="text-[9px] text-emerald-400/80 font-bold uppercase tracking-widest">System Operational</span>
-            </div>
-            <div class="w-full h-px bg-gradient-to-r from-transparent via-blue-400/20 to-transparent"></div>
-            <p class="text-[10px] text-blue-400/60 font-medium tracking-tighter italic">
-                &copy; 2026 RESONANT SYSTEMS. All Rights Reserved.
-            </p>
-        </div>
-    </div>
-
-</div>
-
-            <div class="w-full lg:w-2/3 p-10 bg-white">
-                <div class="mb-8 border-b border-gray-100 pb-6">
-                    <h1 class="text-2xl font-bold text-gray-800 tracking-tight">新規ユーザー登録</h1>
-                    <p class="text-xs text-gray-500 mt-2">アカウントを作成するために、以下の情報を入力してください。</p>
+                <!-- Step Indicator -->
+                <div class="flex justify-center items-center mb-10 text-sm">
+                    <div class="flex items-center space-x-4">
+                        <span class="text-indigo-600 font-bold border-b-2 border-indigo-600 pb-1">
+                            Step 1: 入力
+                        </span>
+                        <span class="text-gray-400">→</span>
+                        <span class="text-gray-400">Step 2: 確認</span>
+                        <span class="text-gray-400">→</span>
+                        <span class="text-gray-400">Step 3: 完了</span>
+                    </div>
                 </div>
 
-                {{-- <form method="POST" action="{{ route('register') }}" class="space-y-5">
+                <form action="{{ route('business-requests.confirm') }}" method="POST" enctype="multipart/form-data">
                     @csrf
 
-                    <div>
-                        <label class="flex justify-between text-xs font-bold text-gray-600 mb-2">
-                            <span>氏名</span>
-                            <span class="text-red-500 bg-red-50 px-2 py-0.5 rounded text-[10px]">必須</span>
-                        </label>
-                        <input type="text" name="name" value="{{ old('name') }}" required autofocus
-                            class="w-full bg-gray-50 border border-gray-300 rounded px-4 py-2.5 text-sm focus:ring-1 focus:ring-blue-500 focus:bg-white transition outline-none"
-                            placeholder="例：山田 太郎">
-                        <x-input-error :messages="$errors->get('name')" class="mt-1" />
+                    <!-- Request Number & Date -->
+                    <div class="grid md:grid-cols-2 gap-6 mb-12">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 mb-1">依頼番号（自動）</label>
+                            <input type="text" name="request_number" value="{{ $nextNumber }}"
+                                class="w-full bg-gray-100 border border-gray-300 rounded-md px-4 py-2 text-sm" readonly>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 mb-1">作成日</label>
+                            <input type="text" value="{{ date('Y/m/d') }}"
+                                class="w-full bg-gray-100 border border-gray-300 rounded-md px-4 py-2 text-sm" readonly>
+                        </div>
                     </div>
 
-                    <div>
-                        <label class="flex justify-between text-xs font-bold text-gray-600 mb-2">
-                            <span>メールアドレス</span>
-                            <span class="text-red-500 bg-red-50 px-2 py-0.5 rounded text-[10px]">必須</span>
-                        </label>
-                        <input type="email" name="email" value="{{ old('email') }}" required
-                            class="w-full bg-gray-50 border border-gray-300 rounded px-4 py-2.5 text-sm focus:ring-1 focus:ring-blue-500 focus:bg-white transition outline-none"
-                            placeholder="shain@company.co.jp">
-                        <x-input-error :messages="$errors->get('email')" class="mt-1" />
-                    </div>
+                    <!-- Requester Info -->
+                    <div class="mb-12">
+                        <h3 class="text-sm font-bold text-gray-700 mb-4 border-b pb-2">【 依頼者情報 】</h3>
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-sm mb-2">件名 <span class="text-red-500">*</span></label>
+                                <input type="text" name="title"
+                                    value="{{ old('title', session('form_data.title')) }}"
+                                    class="w-full border rounded-md px-4 py-2 text-sm @error('title') border-red-500 @enderror"
+                                    placeholder="依頼内容の要約を入力" required>
+                                @error('title')
+                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
 
-                    <div>
-                        <label class="flex justify-between text-xs font-bold text-gray-600 mb-2">
-                            <span>所属部署</span>
-                            <span class="text-red-500 bg-red-50 px-2 py-0.5 rounded text-[10px]">必須</span>
-                        </label>
-                        <div class="relative">
-                             <select id="department_id" name="department_id" 
-                                 class="w-full bg-gray-50 border border-gray-300 rounded px-4 py-2.5 text-sm focus:ring-1 focus:ring-blue-500 focus:bg-white transition outline-none"> 
-                                required>
-                                <option value="" disabled selected>部署を選択してください</option>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm mb-2">依頼者名</label>
+                                    <input type="text" value="{{ auth()->user()?->name }}"
+                                        class="w-full bg-gray-100 border border-gray-300 rounded-md text-sm" readonly>
+                                </div>
 
-                                @foreach($departments as $department)
-                                    <option value="{{ $department->id }}" 
-                                        {{ old('department_id') == $department->id ? 'selected' : '' }}>
-                                        {{ $department->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"></path></svg>
+                                <div>
+                                    <label class="block text-sm mb-2">部署</label>
+                                    <input type="text" value="{{ Auth::user()->department?->name ?? '所属部署' }}" 
+                                        class="w-full bg-gray-100 border border-gray-300 rounded-md text-sm" readonly>
+                                </div>
                             </div>
                         </div>
-                        <x-input-error :messages="$errors->get('department_id')" class="mt-1" />
                     </div>
 
-                    <div>
-                        <label class="flex justify-between text-xs font-bold text-gray-600 mb-2">
-                            <span>役割（ロール）</span>
-                            <span class="text-red-500 bg-red-50 px-2 py-0.5 rounded text-[10px]">必須</span>
-                        </label>
+                    <!-- Department & Due Date -->
+                    <div class="mb-12">
+                        <h3 class="text-sm font-bold text-gray-700 mb-4 border-b pb-2">【 依頼先情報 】</h3>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm mb-2">対象部署 <span class="text-red-500">*</span></label>
+                                <select name="department_id"
+                                    class="w-full border rounded-md text-sm @error('department_id') border-red-500 @enderror"
+                                    required>
+                                    <option value="" disabled {{ old('department_id', session('form_data.department_id')) ? '' : 'selected' }}>部署を選択してください</option>
+                                    @foreach($departments as $department)
+                                        <option value="{{ $department->id }}" 
+                                            {{ old('department_id', session('form_data.department_id')) == $department->id ? 'selected' : '' }}>
+                                            {{ $department->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('department_id')
+                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
 
-                        <select name="role" required
-                            class="w-full bg-gray-50 border border-gray-300 rounded px-4 py-2.5 text-sm focus:ring-1 focus:ring-blue-500 focus:bg-white transition outline-none">
-
-                            <option value="">ロールを選択してください</option>
-                            <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>管理者</option>
-                            <option value="employee" {{ old('role') == 'employee' ? 'selected' : '' }}>従業員</option>
-                            <option value="manager" {{ old('role') == 'manager' ? 'selected' : '' }}>マネージャー</option>
-                        </select>
-
-                        <x-input-error :messages="$errors->get('role')" class="mt-1" />
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-600 mb-2">パスワード</label>
-                            <input type="password" name="password" required
-                                class="w-full bg-gray-50 border border-gray-300 rounded px-4 py-2.5 text-sm focus:ring-1 focus:ring-blue-500 focus:bg-white outline-none">
+                            <div>
+                                <label class="block text-sm mb-2">期日 <span class="text-red-500">*</span></label>
+                                <input type="date" name="due_date"
+                                    min="{{ date('Y-m-d') }}"
+                                    value="{{ old('due_date', session('form_data.due_date')) }}"
+                                    class="w-full border rounded-md text-sm @error('due_date') border-red-500 @enderror" required>
+                                @error('due_date')
+                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
                         </div>
+                    </div>
+
+                    <!-- Categories & Content -->
+                    <div class="mb-12">
+                        <h3 class="text-sm font-bold text-gray-700 mb-4 border-b pb-2">【 業務内容 】</h3>
+
+                        <div class="mb-6">
+                            <label class="block text-sm mb-3">業務区分 <span class="text-red-500">*</span></label>
+                            <div class="grid md:grid-cols-4 gap-4 @error('categories') border border-red-500 rounded-md p-2 @enderror">
+                                @php $selectedCats = old('categories', session('form_data.categories', [])); @endphp
+                                @foreach($categories as $cat)
+                                    <label class="flex items-center space-x-2 bg-gray-50 px-3 py-2 rounded-md border cursor-pointer hover:border-indigo-400">
+                                        <input type="checkbox" name="categories[]" value="{{ $cat->id }}"
+                                            {{ in_array($cat->id, (array)$selectedCats) ? 'checked' : '' }}
+                                            class="rounded text-indigo-600 border-gray-300">
+                                        <span class="text-sm">{{ $cat->name }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+                            @error('categories')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="mb-6">
+                            <label class="block text-sm mb-2">詳細内容 <span class="text-red-500">*</span></label>
+                            <textarea name="content" rows="5"
+                                class="w-full border rounded-md px-4 py-2 text-sm @error('content') border-red-500 @enderror"
+                                placeholder="詳細な手順や要件を入力してください" required>{{ old('content', session('form_data.content')) }}</textarea>
+                            @error('content')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
                         <div>
-                        <label class="block text-xs font-bold text-gray-600 mb-2">確認用</label>
-                            <input type="password" name="password_confirmation" required
-                                class="w-full bg-gray-50 border border-gray-300 rounded px-4 py-2.5 text-sm focus:ring-1 focus:ring-blue-500 focus:bg-white outline-none">
+                            <label class="block text-sm mb-2">特記事項</label>
+                            <input type="text" name="notes"
+                                value="{{ old('notes', session('form_data.notes')) }}"
+                                class="w-full border rounded-md px-4 py-2 text-sm"
+                                placeholder="備考があれば入力">
                         </div>
                     </div>
-                    <x-input-error :messages="$errors->get('password')" class="mt-1 text-xs" />
 
-                    <div class="pt-6">
-                        <button type="submit"
-                            class="w-full bg-[#1a365d] text-white rounded py-3 text-sm font-bold hover:bg-[#2a4a7d] shadow-md transition-all duration-200 tracking-widest">
-                            登録を実行する
-                        </button>
+                    <!-- Attachments (optional) -->
+                    <div class="mb-12">
+                        <div class="flex items-center justify-between mb-4 border-b pb-2">
+                            <h3 class="text-sm font-black text-slate-700 tracking-wide flex items-center">
+                                <i data-lucide="paperclip" class="w-4 h-4 mr-2 text-indigo-500"></i>
+                                添付ファイル / ATTACHMENTS
+                            </h3>
+                            <span class="text-[10px] text-slate-400 font-medium">MAX 10MB per file</span>
+                        </div>
+
+                        <div class="relative group">
+                            <input type="file" id="file-upload" name="attachments[]" multiple
+                                accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.png,.dat"
+                                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                            <div class="border-2 border-dashed border-slate-200 rounded-2xl p-10 text-center bg-slate-50 group-hover:bg-white group-hover:border-indigo-400 group-hover:shadow-xl group-hover:shadow-indigo-50 transition-all duration-300">
+                                <div class="bg-white w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm border border-slate-100 group-hover:scale-110 transition-transform">
+                                    <i data-lucide="upload-cloud" class="w-6 h-6 text-indigo-500"></i>
+                                </div>
+                                <p class="text-sm font-bold text-slate-700">クリックまたはドラッグ＆ドロップ</p>
+                                <p class="text-xs text-slate-400 mt-1">PDF, Word, Excel, Image (Max 5 files)</p>
+                            </div>
+                        </div>
+
+                        <div id="file-list" class="mt-4 space-y-2"></div>
                     </div>
 
-                    <div class="text-center mt-6">
-                        <a href="{{ route('login') }}" class="text-xs text-blue-600 hover:text-blue-800 hover:underline">
-                            既にアカウントをお持ちの方はこちら（ログイン）
+                    <!-- Submit -->
+                    <div class="flex justify-end space-x-4 border-t pt-8">
+                        <a href="{{ route('business-requests.requests') }}"
+                            class="px-6 py-2 border border-gray-400 bg-white text-gray-700 rounded-md hover:bg-gray-100 transition">
+                            キャンセル
                         </a>
-                    </div>
-                </form> --}}
 
-                {{-- Wrap the form or the main div with x-data --}}
-<form method="POST" action="{{ route('register') }}" class="space-y-5" x-data="{ role: '{{ old('role', '') }}' }">
-    @csrf
-
-    <div>
-                        <label class="flex justify-between text-xs font-bold text-gray-600 mb-2">
-                            <span>氏名</span>
-                            <span class="text-red-500 bg-red-50 px-2 py-0.5 rounded text-[10px]">必須</span>
-                        </label>
-                        <input type="text" name="name" value="{{ old('name') }}" required autofocus
-                            class="w-full bg-gray-50 border border-gray-300 rounded px-4 py-2.5 text-sm focus:ring-1 focus:ring-blue-500 focus:bg-white transition outline-none"
-                            placeholder="例：山田 太郎">
-                        <x-input-error :messages="$errors->get('name')" class="mt-1" />
-                    </div>
-
-                    <div>
-                        <label class="flex justify-between text-xs font-bold text-gray-600 mb-2">
-                            <span>メールアドレス</span>
-                            <span class="text-red-500 bg-red-50 px-2 py-0.5 rounded text-[10px]">必須</span>
-                        </label>
-                        <input type="email" name="email" value="{{ old('email') }}" required
-                            class="w-full bg-gray-50 border border-gray-300 rounded px-4 py-2.5 text-sm focus:ring-1 focus:ring-blue-500 focus:bg-white transition outline-none"
-                            placeholder="shain@company.co.jp">
-                        <x-input-error :messages="$errors->get('email')" class="mt-1" />
-                    </div>
-
-    {{-- 役割（ロール）: Move this ABOVE Department for better UX --}}
-    <div>
-        <label class="flex justify-between text-xs font-bold text-gray-600 mb-2">
-            <span>役割（ロール）</span>
-            <span class="text-red-500 bg-red-50 px-2 py-0.5 rounded text-[10px]">必須</span>
-        </label>
-
-        <select name="role" 
-                x-model="role" {{-- Alpine.js binding --}}
-                required
-                class="w-full bg-gray-50 border border-gray-300 rounded px-4 py-2.5 text-sm focus:ring-1 focus:ring-blue-500 focus:bg-white transition outline-none">
-            <option value="">ロールを選択してください</option>
-            <option value="admin">管理者</option>
-            <option value="manager">マネージャー</option>
-            <option value="employee">従業員</option>
-        </select>
-        <x-input-error :messages="$errors->get('role')" class="mt-1" />
-    </div>
-
-    {{-- 所属部署: Only show if role is NOT admin --}}
-    <div x-show="role !== 'admin' && role !== ''" 
-         x-transition:enter="transition ease-out duration-300"
-         x-transition:enter-start="opacity-0 -translate-y-2"
-         x-transition:enter-end="opacity-100 translate-y-0"
-         class="space-y-2">
-        
-        <label class="flex justify-between text-xs font-bold text-gray-600">
-            <span>所属部署</span>
-            <span class="text-red-500 bg-red-50 px-2 py-0.5 rounded text-[10px]">必須</span>
-        </label>
-        
-        <div class="relative">
-            <select id="department_id" 
-                    name="department_id" 
-                    {{-- Disable when hidden so it's not sent in the request if Admin is chosen --}}
-                    :disabled="role === 'admin'"
-                    :required="role !== 'admin' && role !== ''"
-                    class="w-full bg-gray-50 border border-gray-300 rounded px-4 py-2.5 text-sm focus:ring-1 focus:ring-blue-500 focus:bg-white transition outline-none"> 
-                <option value="" disabled selected>部署を選択してください</option>
-                @foreach($departments as $department)
-                    <option value="{{ $department->id }}" {{ old('department_id') == $department->id ? 'selected' : '' }}>
-                        {{ $department->name }}
-                    </option>
-                @endforeach
-            </select>
-            <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"></path></svg>
-            </div>
-        </div>
-        <x-input-error :messages="$errors->get('department_id')" class="mt-1" />
-    </div>
-
-    {{-- Info Message for Admins --}}
-    <template x-if="role === 'admin'">
-        <div class="p-3 bg-blue-50 border border-blue-100 rounded-xl flex items-center gap-3 animate-pulse">
-            <i data-lucide="info" class="w-4 h-4 text-blue-500"></i>
-            <p class="text-[11px] text-blue-700 font-medium">管理者は全部署の管理権限を持つため、部署選択は不要です。</p>
-        </div>
-    </template>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-600 mb-2">パスワード</label>
-                            <input type="password" name="password" required
-                                class="w-full bg-gray-50 border border-gray-300 rounded px-4 py-2.5 text-sm focus:ring-1 focus:ring-blue-500 focus:bg-white outline-none">
-                        </div>
-                        <div>
-                        <label class="block text-xs font-bold text-gray-600 mb-2">確認用</label>
-                            <input type="password" name="password_confirmation" required
-                                class="w-full bg-gray-50 border border-gray-300 rounded px-4 py-2.5 text-sm focus:ring-1 focus:ring-blue-500 focus:bg-white outline-none">
-                        </div>
-                    </div>
-                    <x-input-error :messages="$errors->get('password')" class="mt-1 text-xs" />
-
-                    <div class="pt-6">
                         <button type="submit"
-                            class="w-full bg-[#1a365d] text-white rounded py-3 text-sm font-bold hover:bg-[#2a4a7d] shadow-md transition-all duration-200 tracking-widest">
-                            登録を実行する
+                            class="px-8 py-2 bg-indigo-600 text-white rounded-md font-semibold shadow hover:bg-indigo-700 transition">
+                            確認画面へ進む
                         </button>
                     </div>
-</form>
+                </form>
             </div>
         </div>
     </div>
-</x-guest-layout>
+
+    <!-- File preview JS -->
+    <script>
+        const fileInput = document.getElementById('file-upload');
+        const fileList = document.getElementById('file-list');
+
+        fileInput.addEventListener('change', function() {
+            fileList.innerHTML = '';
+            Array.from(this.files).forEach((file, index) => {
+                const row = document.createElement('div');
+                row.id = `file-row-${index}`;
+                row.className = 'flex items-center justify-between bg-white p-2.5 rounded-lg border border-indigo-100 shadow-sm';
+                row.innerHTML = `
+                    <div class="flex items-center overflow-hidden">
+                        <i data-lucide="file-text" class="w-4 h-4 text-slate-400 mr-2 shrink-0"></i>
+                        <span class="text-xs font-medium text-slate-600 truncate max-w-[180px]">${file.name}</span>
+                    </div>
+                    <button type="button" class="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-md transition-all">
+                        <i data-lucide="x-circle" class="w-4 h-4"></i>
+                    </button>
+                `;
+                const removeBtn = row.querySelector('button');
+                removeBtn.addEventListener('click', () => {
+                    const dt = new DataTransfer();
+                    Array.from(fileInput.files).filter((f,i) => i!==index).forEach(f => dt.items.add(f));
+                    fileInput.files = dt.files;
+                    row.remove();
+                });
+                fileList.appendChild(row);
+            });
+            if(window.lucide) lucide.createIcons();
+        });
+    </script>
+</x-app-layout>

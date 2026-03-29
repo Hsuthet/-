@@ -117,28 +117,66 @@
         </div>
 
         {{-- Password Field --}}
-        <div>
-            <div class="flex justify-between mb-2 ml-1">
-                <label class="block text-[11px] uppercase tracking-widest font-bold text-slate-400" for="password">
-                    パスワード
-                </label>
-                 @if (Route::has('password.request'))
-                                <a href="{{ route('password.request') }}" class="text-[10px] text-blue-600 font-bold hover:text-blue-800 transition-colors">
-                                    パスワードをお忘れですか？
-                                </a>
-                            @endif
-            </div>
-            <input id="password" type="password" name="password" required autocomplete="current-password"
-                class="w-full bg-slate-50 border {{ $errors->has('password') ? 'border-red-500' : 'border-slate-200' }} rounded-xl px-4 py-3.5 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all duration-200 outline-none">
-            
-            @if ($errors->has('password'))
-                <p class="mt-2 text-[11px] font-bold text-red-600 flex items-center ml-1">
-                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
-                    {{ $errors->first('password') }}
-                </p>
-            @endif
-        </div>
+      <div>
+    <div class="flex justify-between mb-2 ml-1">
+        <label class="block text-[11px] uppercase tracking-widest font-bold text-slate-400" for="password">
+            パスワード
+        </label>
+        @if (Route::has('password.request'))
+            <a href="{{ route('password.request') }}" class="text-[10px] text-blue-600 font-bold hover:text-blue-800 transition-colors">
+                パスワードをお忘れですか？
+            </a>
+        @endif
+    </div>
 
+    <!-- Password Input with Eye Icon -->
+    <div class="relative">
+        <input id="password" type="password" name="password" required autocomplete="current-password"
+            class="w-full bg-slate-50 border {{ $errors->has('password') ? 'border-red-500' : 'border-slate-200' }} rounded-xl px-4 py-3.5 pr-10 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all duration-200 outline-none">
+
+        <!-- Eye Icon -->
+        <button type="button" onclick="togglePassword()" 
+    class="absolute inset-y-0 right-3 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none">
+    
+    <svg id="eyeOpen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+    </svg>
+
+    <svg id="eyeClosed" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88L4.5 4.5m15 15l-5.62-5.62m-1.42-1.42L12 12m9.542 0a9.997 9.997 0 00-1.563-3.029l-1.42-1.42" />
+    </svg>
+</button>
+    </div>
+
+    @if ($errors->has('password'))
+        <p class="mt-2 text-[11px] font-bold text-red-600 flex items-center ml-1">
+            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+            </svg>
+            {{ $errors->first('password') }}
+        </p>
+    @endif
+</div>
+
+<!-- Script -->
+<script>
+    function togglePassword() {
+        const passwordInput = document.getElementById('password');
+        const eyeOpen = document.getElementById('eyeOpen');
+        const eyeClosed = document.getElementById('eyeClosed');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            eyeOpen.classList.add('hidden');
+            eyeClosed.classList.remove('hidden');
+        } else {
+            passwordInput.type = 'password';
+            eyeOpen.classList.remove('hidden');
+            eyeClosed.classList.add('hidden');
+        }
+    }
+</script>
         <div class="pt-4">
             <button type="submit"
                 class="w-full bg-[#1a365d] text-white rounded-xl py-4 text-sm font-bold hover:bg-blue-900 shadow-lg shadow-blue-900/20 transition-all duration-300 tracking-[0.2em] transform active:scale-[0.98]">

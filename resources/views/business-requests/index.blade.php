@@ -13,7 +13,7 @@
     'COMPLETED' => ['label' => '完了',     'class' => 'bg-emerald-100 text-emerald-800 border-emerald-200'], 
 ];
 
-            $headers = ['管理番号', '案件詳細', '依頼者/部署', '対象部署', '期限', 'ステータス', '操作'];
+            $headers = ['管理番号', '案件詳細', '依頼者/部署', '対象部署', '期限','添付', 'ステータス', '操作'];
         @endphp
 
         {{-- 1. HEADER SECTION --}}
@@ -38,7 +38,7 @@
                 <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">ステータス:</span>
         <x-table-status-filter 
             tableId="managerTable" 
-            columnIndex="5"
+            columnIndex="6"
             placeholder="全てのステータス"
             :options="[
                 '承認待ち' => '承認待ち',
@@ -108,6 +108,21 @@
                             </span>
                         </td>
 
+                         <td class="px-3 py-4 text-center">
+                            <div class="flex flex-col gap-1 items-center">
+                                @forelse($req->attachments as $file)
+                                    <a href="{{ asset('storage/' . $file->file_path) }}" 
+                                       target="_blank"
+                                       class="text-indigo-600 hover:text-indigo-800 flex items-center gap-1 text-[10px]"
+                                       title="{{ $file->file_name }}">
+                                        <i data-lucide="paperclip" class="w-3 h-3"></i>
+                                        <span class="truncate max-w-[60px]">{{ $file->file_name }}</span>
+                                    </a>
+                                @empty
+                                    <span class="text-slate-300 text-xs">－</span>
+                                @endforelse
+                            </div>
+                        </td>
                         {{-- Col 6: Status Pill --}}
                         <td class="px-4 py-5 text-center">
     <span class="px-3 py-1 rounded-full text-[10px] font-black border shadow-sm {{ $req->status_config['color'] }}">
@@ -119,7 +134,7 @@
                         <td class="px-4 py-5 text-center">
                             <div class="flex items-center justify-center gap-2">
                                 {{-- View Details --}}
-                                <a href="{{ route('business-requests.show', $req->id) }}" 
+                                <a href="{{ route('business-requests.display', $req->id) }}" 
                                    class="flex items-center justify-center w-9 h-9 rounded-xl bg-slate-100 text-slate-500 hover:bg-indigo-600 hover:text-white transition-all duration-200 shadow-sm" 
                                    title="詳細表示">
                                     <i data-lucide="file-text" class="w-4 h-4"></i>

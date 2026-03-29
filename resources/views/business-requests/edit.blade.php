@@ -1,4 +1,19 @@
 <x-app-layout>
+    <form id="delete-file-form" action="{{ route('business-requests.file.remove') }}" method="POST" style="display:none;">
+    @csrf
+    <input type="hidden" name="file_id" id="delete-file-id">
+</form>
+
+<script>
+function deleteFile(fileId) {
+    if (confirm('削除しますか？')) {
+        const form = document.getElementById('delete-file-form');
+        const input = document.getElementById('delete-file-id');
+        input.value = fileId;
+        form.submit();
+    }
+}
+</script>
     <div class="min-h-screen bg-gray-100 py-12">
         <div class="max-w-5xl mx-auto">
             
@@ -9,7 +24,7 @@
                 </h1>
 
                
-                <form action="{{ route('business-requests.update', $businessRequest->id) }}" method="POST" enctype="multipart/form-data">
+                     <form action="{{ route('business-requests.update', ['business_request' => $businessRequest->id]) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT') 
 
@@ -123,40 +138,43 @@
                         </div>
                     </div>
 
-                    <div class="mb-12">
-                        <h3 class="text-sm font-bold text-gray-700 mb-4 border-b pb-2">【 添付ファイル 】</h3>
-                        
-                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50">
-                            <input type="file" name="attachments[]" multiple
-                                   class="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-indigo-100 file:text-indigo-700 hover:file:bg-indigo-200">
+                    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
-                          
-                           @if($businessRequest->attachments && $businessRequest->attachments->count() > 0)
-    <div class="mt-6 p-4 bg-white border border-slate-200 rounded-xl shadow-sm">
-        <div class="flex items-center mb-3">
-            <i data-lucide="paperclip" class="w-4 h-4 text-slate-400 mr-2"></i>
-            <p class="text-xs font-bold text-slate-700 uppercase tracking-wider">アップロード済みファイル</p>
-        </div>
-        
-        <ul class="space-y-2">
-            @foreach($businessRequest->attachments as $file)
-                <li class="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100 group hover:border-indigo-200 transition">
-                    <div class="flex items-center overflow-hidden">
-                        <i data-lucide="file-text" class="w-4 h-4 text-indigo-500 mr-2 flex-shrink-0"></i>
-                        <span class="text-xs text-slate-600 truncate">{{ $file->original_name }}</span>
-                    </div>
-                    
-                    {{-- Optional: Add a Delete button for OJT functionality --}}
-                    <button type="button" class="text-slate-400 hover:text-rose-500 transition">
-                        <i data-lucide="x-circle" class="w-4 h-4"></i>
-                    </button>
-                </li>
-            @endforeach
-        </ul>
+<div class="mb-12">
+    <h3 class="text-sm font-bold text-gray-700 mb-4 border-b pb-2">【 添付ファイル 】</h3>
+    
+    <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50">
+        <input type="file" name="attachments[]" multiple id="file-input"
+               class="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-indigo-100 file:text-indigo-700 hover:file:bg-indigo-200">
+
+        <div id="new-files-preview" class="mt-4 text-left space-y-2"></div>
     </div>
-@endif
-                        </div>
-                    </div>
+</div>
+
+<script>
+function removeExistingFile(fileId) {
+    if (!confirm('このファイルを完全に削除しますか？')) return;
+
+    // Use Axios to delete the file in the background
+    axios.post("{{ route('business-requests.file.remove') }}", {
+        file_id: fileId,
+        _token: "{{ csrf_token() }}"
+    })
+    .then(response => {
+        // Find the element and animate it out
+        const row = document.getElementById(`file-row-${fileId}`);
+        if (row) {
+            row.style.opacity = '0';
+            row.style.transform = 'translateX(20px)';
+            setTimeout(() => row.remove(), 300);
+        }
+    })
+    .catch(error => {
+        console.error(error);
+        alert('削除に失敗しました。');
+    });
+}
+</script>
 
                     <div class="flex justify-end space-x-4 border-t pt-8">
                         <a href="{{ route('business-requests.requests') }}"

@@ -137,7 +137,7 @@
                         戻る
                     </a>
                     
-                    @if($request->status === 'PENDING' && Auth::user()->role === 'manager')
+                    {{-- @if($request->status === 'PENDING' && Auth::user()->role === 'manager')
                         <form action="{{ route('business-requests.updateStatus', $request->id) }}" method="POST">
                             @csrf @method('PATCH')
                             <input type="hidden" name="status" value="in_progress">
@@ -145,7 +145,7 @@
                                 依頼を承認する
                             </button>
                         </form>
-                    @endif
+                    @endif --}}
                 </div>
             </div>
         </div>

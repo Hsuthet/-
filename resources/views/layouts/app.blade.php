@@ -174,7 +174,7 @@
 </header>
 
             <main class="p-8">
-                @if(session('success'))
+                {{-- @if(session('success'))
                     <div class="mb-6 flex items-center bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-xl shadow-sm">
                         <i data-lucide="check-circle" class="w-5 h-5 mr-3"></i>
                         <span class="text-sm font-medium">{{ session('success') }}</span>
@@ -186,7 +186,7 @@
                         <i data-lucide="alert-circle" class="w-5 h-5 mr-3"></i>
                         <span class="text-sm font-medium">{{ session('error') }}</span>
                     </div>
-                @endif
+                @endif --}}
 
                 {{ $slot }}
             </main>
@@ -238,6 +238,39 @@
         });
     });
 </script>
+{{-- Notification Toast --}}
+@if(session('success'))
+    <div id="success-toast" 
+         class="fixed top-5 right-5 z-[100] transform transition-all duration-500 ease-in-out">
+        <div class="bg-slate-900 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border border-slate-700">
+            <div class="bg-emerald-500 p-1.5 rounded-lg">
+                <i data-lucide="check" class="w-4 h-4 text-white"></i>
+            </div>
+            <span class="font-bold text-sm">{{ session('success') }}</span>
+            {{-- Manual Close Button --}}
+            <button onclick="dismissToast()" class="ml-2 text-slate-400 hover:text-white">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </div>
+@endif
     @stack('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const toast = document.getElementById('success-toast');
+            if (toast) {
+                setTimeout(() => { dismissToast(); }, 3000);
+            }
+        });
+
+        function dismissToast() {
+            const toast = document.getElementById('success-toast');
+            if (toast) {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100px)';
+                setTimeout(() => { toast.remove(); }, 500);
+            }
+        }
+    </script>
 </body>
 </html>

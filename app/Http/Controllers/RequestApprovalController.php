@@ -65,8 +65,8 @@ public function assign(Request $request, BusinessRequest $businessRequest)
             'status' => 'APPROVED',
             'worker_id' => $request->worker_id,
         ]);
-        
-        return redirect()->back()->with('success', '依頼を承認し、担当者を割り当てました。');
+        return redirect()->route('business-requests.index')->with('success', '依頼を承認し、担当者を割り当てました。');
+    
     } 
 
     if ($request->action === 'reject') {

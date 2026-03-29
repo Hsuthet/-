@@ -145,37 +145,37 @@
                             修正する 
                         </a>
 
-                        <form method="POST" action="{{ route('business-requests.complete') }}" class="w-full md:w-auto">
-    @csrf
-    {{-- Core Data --}}
-    <input type="hidden" name="request_number" value="{{ $nextNumber }}">
-    <input type="hidden" name="target_department_id" value="{{ $data['department_id'] }}">
-    <input type="hidden" name="title" value="{{ $data['title'] }}">
-    <input type="hidden" name="due_date" value="{{ $data['due_date'] }}">
-    <input type="hidden" name="content" value="{{ $data['content'] }}">
-    <input type="hidden" name="notes" value="{{ $data['notes'] ?? '' }}">
+                       <form method="POST" action="{{ route('business-requests.complete') }}" class="w-full md:w-auto">
+                            @csrf
+                            {{-- Core Data --}}
+                            <input type="hidden" name="request_number" value="{{ $nextNumber }}">
+                            <input type="hidden" name="target_department_id" value="{{ $data['department_id'] }}">
+                            <input type="hidden" name="title" value="{{ $data['title'] }}">
+                            <input type="hidden" name="due_date" value="{{ $data['due_date'] }}">
+                            <input type="hidden" name="content" value="{{ $data['content'] }}">
+                            <input type="hidden" name="notes" value="{{ $data['notes'] ?? '' }}">
 
-    {{-- Arrays: Categories --}}
-    @if(isset($data['categories']))
-        @foreach($data['categories'] as $catId)
-            <input type="hidden" name="categories[]" value="{{ $catId }}">
-        @endforeach
-    @endif
+                            {{-- Arrays: Categories --}}
+                            @if(isset($data['categories']))
+                                @foreach($data['categories'] as $catId)
+                                    <input type="hidden" name="categories[]" value="{{ $catId }}">
+                                @endforeach
+                            @endif
 
-    {{-- Arrays: Files --}}
-    @foreach($storedFiles as $file)
-        <input type="hidden" name="attachment_paths[]" value="{{ $file['path'] }}">
-        <input type="hidden" name="attachment_names[]" value="{{ $file['name'] }}">
-    @endforeach
+                            {{-- Arrays: Files --}}
+                            @foreach($storedFiles as $file)
+                                <input type="hidden" name="attachment_paths[]" value="{{ $file['path'] }}">
+                                <input type="hidden" name="attachment_names[]" value="{{ $file['name'] }}">
+                            @endforeach
 
-    <button type="submit" 
-            class="w-full md:w-auto inline-flex items-center justify-center bg-blue-600 text-white px-10 py-3.5 rounded-xl font-bold text-sm shadow-lg shadow-blue-100 hover:bg-blue-700 transition-all active:scale-95">
-        依頼を確定し、送信する
-        <svg class="w-5 h-5 ml-2 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
-        </svg>
-    </button>
-</form>
+                            <button type="submit" 
+                                    class="w-full md:w-auto inline-flex items-center justify-center bg-blue-600 text-white px-10 py-3.5 rounded-xl font-bold text-sm shadow-lg shadow-blue-100 hover:bg-blue-700 transition-all active:scale-95">
+                                依頼を確定し、送信する
+                                <svg class="w-5 h-5 ml-2 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
+                                </svg>
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>

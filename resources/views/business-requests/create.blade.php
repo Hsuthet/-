@@ -86,13 +86,24 @@
                         </option>
                     @endforeach
                 </select>
+                 @error('department_id') 
+        <p class="text-red-500 text-xs mt-1">{{ $message }}</p> 
+    @enderror
             </div>
 
-            <div>
+           <div>
                 <label class="block text-sm mb-2">期日 <span class="text-red-500">*</span></label>
-                <input type="date" name="due_date"
+                <input type="date" 
+                    name="due_date"
+                    id="due_date"
+                    {{-- Set min to today's date so past dates are disabled --}}
+                    min="{{ date('Y-m-d') }}"
                     value="{{ old('due_date', session('form_data.due_date')) }}"
-                    class="w-full border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500" required>
+                    class="w-full border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500" 
+                    required>
+                     @error('due_date') 
+        <p class="text-red-500 text-xs mt-1">{{ $message }}</p> 
+    @enderror
             </div>
         </div>
     </div>
@@ -116,6 +127,9 @@
                     </label>
                 @endforeach
             </div>
+            @error('categories') 
+        <p class="text-red-500 text-xs mt-1">{{ $message }}</p> 
+    @enderror
         </div>
 
         <div class="mb-6">
@@ -142,13 +156,12 @@
         </h3>
         <span class="text-[10px] text-slate-400 font-medium">MAX 10MB per file</span>
     </div>
-    
+
+    {{-- File Input --}}
     <div class="relative group">
-        {{-- Hidden Input - Triggered by clicking the div --}}
-        <input type="file" name="attachments[]" id="file-upload" multiple 
+        <input type="file" id="file-upload" name="attachments[]" multiple
                accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.png,.dat"
                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
-
         <div class="border-2 border-dashed border-slate-200 rounded-2xl p-10 text-center bg-slate-50 group-hover:bg-white group-hover:border-indigo-400 group-hover:shadow-xl group-hover:shadow-indigo-50 transition-all duration-300">
             <div class="bg-white w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm border border-slate-100 group-hover:scale-110 transition-transform">
                 <i data-lucide="upload-cloud" class="w-6 h-6 text-indigo-500"></i>
@@ -158,46 +171,84 @@
         </div>
     </div>
 
-    {{-- Selected File List --}}
+   {{-- Selected File List --}}
+{{-- Selected File List --}}
+<div id="file-list" class="mt-4 space-y-2">
+    {{-- Display files already saved in the Session --}}
     @if(session('storedFiles'))
-        <div class="mt-4 animate-in fade-in slide-in-from-top-2">
-            <div class="bg-indigo-50/50 border border-indigo-100 rounded-xl p-4">
-                <div class="flex items-center mb-3">
-                    <span class="flex h-2 w-2 rounded-full bg-indigo-500 mr-2"></span>
-                    <p class="text-xs font-bold text-indigo-900">選択済みファイル ({{ count(session('storedFiles')) }})</p>
+        @foreach(session('storedFiles') as $index => $file)
+            <div id="file-row-{{ $index }}" class="flex items-center justify-between bg-indigo-50/50 p-2.5 rounded-lg border border-indigo-100 shadow-sm">
+                <div class="flex items-center overflow-hidden">
+                    <i data-lucide="file-text" class="w-4 h-4 text-indigo-400 mr-2 shrink-0"></i>
+                    <span class="text-xs font-medium text-slate-600 truncate max-w-[180px]">{{ $file['name'] }}</span>
+                    <span class="ml-2 text-[10px] bg-indigo-100 text-indigo-600 px-1.5 py-0.5 rounded">選択済み</span>
                 </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                   @foreach(session('storedFiles') as $index => $file)
-    <div id="file-row-{{ $index }}" class="flex items-center justify-between bg-white p-2.5 rounded-lg border border-indigo-100 shadow-sm">
-        <div class="flex items-center overflow-hidden">
-            <i data-lucide="file-text" class="w-4 h-4 text-slate-400 mr-2 shrink-0"></i>
-            <span class="text-xs font-medium text-slate-600 truncate max-w-[180px]">
-                {{ $file['name'] }}
-            </span>
-        </div>
-
-        {{-- Use a normal button with type="button" to prevent form submission --}}
-        <button type="button" 
-                onclick="removeFile({{ $index }})"
-                class="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-md transition-all">
-            <i data-lucide="x-circle" class="w-4 h-4"></i>
-        </button>
-    </div>
-@endforeach
-                </div>
-
-                <div class="mt-4 pt-3 border-t border-indigo-100 flex items-start gap-2">
-                    <i data-lucide="alert-circle" class="w-3.5 h-3.5 text-indigo-400 shrink-0 mt-0.5"></i>
-                    <p class="text-[10px] text-indigo-400 italic leading-relaxed">
-                        新しいファイルを選択すると既存のリストは更新されます。変更が不要な場合はそのまま進んでください。
-                    </p>
-                </div>
+                {{-- This calls the AJAX remove function you already have --}}
+                <button type="button" onclick="removeFile('{{ $index }}')" class="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-md transition-all">
+                    <i data-lucide="x-circle" class="w-4 h-4"></i>
+                </button>
             </div>
-        </div>
+        @endforeach
     @endif
 </div>
 
+<script>
+const fileInput = document.getElementById('file-upload');
+const fileList = document.getElementById('file-list');
+
+// Handle NEW file selections
+fileInput.addEventListener('change', function() {
+    Array.from(this.files).forEach((file, index) => {
+        const row = document.createElement('div');
+        const uniqueId = 'new-' + Date.now() + '-' + index;
+        row.id = uniqueId;
+        row.className = 'flex items-center justify-between bg-white p-2.5 rounded-lg border border-slate-200 shadow-sm mt-2';
+
+        row.innerHTML = `
+            <div class="flex items-center overflow-hidden">
+                <i data-lucide="file-plus" class="w-4 h-4 text-emerald-400 mr-2 shrink-0"></i>
+                <span class="text-xs font-medium text-slate-600 truncate max-w-[180px]">${file.name}</span>
+            </div>
+            <button type="button" class="p-1.5 text-slate-400 hover:text-rose-500 rounded-md">
+                <i data-lucide="x-circle" class="w-4 h-4"></i>
+            </button>
+        `;
+
+        row.querySelector('button').addEventListener('click', () => {
+            const dt = new DataTransfer();
+            Array.from(fileInput.files).filter((f) => f.name !== file.name).forEach(f => dt.items.add(f));
+            fileInput.files = dt.files;
+            row.remove();
+        });
+
+        fileList.appendChild(row);
+    });
+    if(window.lucide) lucide.createIcons();
+});
+
+// Handle REMOVING files already in Session (via AJAX)
+function removeFile(index) {
+    if (!confirm('このファイルを削除しますか？')) return;
+
+    // Use the route helper to ensure the URL is perfect
+    axios.post("{{ route('business-requests.file.remove') }}", {
+        index: index, // The key your controller looks for
+        _token: "{{ csrf_token() }}"
+    })
+    .then(response => {
+        const element = document.getElementById(`file-row-${index}`);
+        if(element) {
+            element.classList.add('opacity-0', 'scale-95');
+            setTimeout(() => element.remove(), 300);
+        }
+    })
+    .catch(error => {
+        // If it fails, check the browser console (F12) to see the exact error
+        console.error(error.response.data);
+        alert('削除に失敗しました。');
+    });
+}
+</script>
     <div class="flex justify-end space-x-4 border-t pt-8">
         <a href="{{ route('business-requests.requests') }}"
             class="px-6 py-2 border border-gray-400 bg-white text-gray-700 rounded-md hover:bg-gray-100 transition">
@@ -217,7 +268,7 @@
 function removeFile(index) {
     if (!confirm('このファイルを削除しますか？ (Delete this file?)')) return;
 
-    axios.post("{{ route('file.remove') }}", {
+    axios.post("{{ route('business-requests.file.remove') }}", {
         index: index,
         _token: "{{ csrf_token() }}"
     })
