@@ -21,21 +21,37 @@
     <div class="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {{-- Page Header --}}
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div class="flex items-center space-x-3">
-                <div class="bg-indigo-600 p-2.5 rounded-xl shadow-lg shadow-indigo-200">
-                    <i data-lucide="briefcase" class="w-6 h-6 text-white"></i>
-                </div>
-                <div>
-                    <h1 class="text-2xl font-extrabold text-slate-800 tracking-tight">
-                        {{ $isManager ? '全従業員の担当作業一覧' : '割り当てられた作業' }}
-                    </h1>
-                    <p class="text-sm text-slate-500">
-                        {{ $isManager ? 'チーム全体のタスク進捗状況をリアルタイムで監視しています。' : '担当者として対応が必要な依頼の一覧です。' }}
-                    </p>
-                </div>
-            </div>
+       {{-- Page Header --}}
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+
+    {{-- Left Side --}}
+    <div class="flex items-center space-x-3">
+        <div class="bg-indigo-600 p-2.5 rounded-xl shadow-lg shadow-indigo-200">
+            <i data-lucide="briefcase" class="w-6 h-6 text-white"></i>
         </div>
+
+        <div>
+            <h1 class="text-2xl font-extrabold text-slate-800 tracking-tight">
+                {{ $isManager ? '全従業員の担当作業一覧' : '割り当てられた作業' }}
+            </h1>
+
+            <p class="text-sm text-slate-500">
+                {{ $isManager ? 'チーム全体のタスク進捗状況をリアルタイムで監視しています。' : '担当者として対応が必要な依頼の一覧です。' }}
+            </p>
+        </div>
+    </div>
+
+    {{-- Right Side : CSV Download --}}
+    <div>
+       <a href="{{ route('tasks.export.excel') }}"
+   class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-sm transition-all">
+
+    <i data-lucide="download" class="w-4 h-4"></i>
+    Excel出力
+</a>
+    </div>
+
+</div>
 
         {{-- Filter Control Bar --}}
         <div class="bg-slate-50 p-2 rounded-2xl border border-slate-200 flex flex-wrap items-center justify-between gap-4">

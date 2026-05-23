@@ -2,7 +2,6 @@
     <div class="min-h-screen flex items-center justify-center bg-[#f8fafc] py-12 px-4 sm:px-6 lg:px-8">
         <div class="max-w-5xl w-full flex bg-white rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] overflow-hidden border border-slate-100">
 
-            <!-- Left Panel -->
             <div class="hidden lg:flex lg:w-1/3 bg-gradient-to-b from-[#1a365d] via-[#1e293b] to-[#0f172a] p-10 flex-col justify-between text-white relative overflow-hidden">
                 <div class="absolute -top-24 -left-24 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl"></div>
                 <div class="absolute -bottom-24 -right-24 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl"></div>
@@ -66,7 +65,6 @@
                 </div>
             </div>
 
-            <!-- Right Panel / Form -->
             <div class="w-full lg:w-2/3 p-10 bg-white">
                 <div class="mb-8 border-b border-gray-100 pb-6">
                     <h1 class="text-2xl font-bold text-gray-800 tracking-tight">新規ユーザー登録</h1>
@@ -74,21 +72,23 @@
                 </div>
 
                 <form method="POST" action="{{ route('admin.users.store') }}"
-      x-data="{
-          role: '{{ old('role', '') }}',
-          showPassword: false,
-          loading: false,
-          errors: {name:'', email:'', role:'', password:''}
-      }">
+                    autocomplete="off"
+                    x-data="{
+                        role: '{{ old('role', '') }}',
+                        showPassword: false,
+                         showConfirmPassword: false,
+                        loading: false,
+                        errors: {name:'', email:'', role:'', password:''}
+                    }">
                     @csrf
 
-                    <!-- Name -->
                     <div class="space-y-1">
                         <label class="flex justify-between text-xs font-bold text-gray-600">
                             <span>氏名</span>
                             <span class="text-red-500 bg-red-50 px-2 py-0.5 rounded text-[10px]">必須</span>
                         </label>
                         <input type="text" name="name" value="{{ old('name') }}" required autofocus
+                               autocomplete="new-name"
                                @blur="errors.name = ($el.value === '') ? '氏名を入力してください' : ''"
                                class="w-full bg-gray-50 border rounded px-4 py-2.5 text-sm transition outline-none"
                                :class="errors.name ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500 focus:bg-white'"
@@ -97,13 +97,13 @@
                         <x-input-error :messages="$errors->get('name')" class="mt-1" />
                     </div>
 
-                    <!-- Email -->
                     <div class="space-y-1 mt-4">
                         <label class="flex justify-between text-xs font-bold text-gray-600">
                             <span>メールアドレス</span>
                             <span class="text-red-500 bg-red-50 px-2 py-0.5 rounded text-[10px]">必須</span>
                         </label>
                         <input type="email" name="email" value="{{ old('email') }}" required
+                               autocomplete="off"
                                @blur="errors.email = !String($el.value).toLowerCase().match(/^(([^<>()[\]\\.,;:\s@']+(\.[^<>()[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/) ? '有効なメール形式で入力してください' : ''"
                                class="w-full bg-gray-50 border rounded px-4 py-2.5 text-sm transition outline-none"
                                :class="errors.email ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-500 focus:bg-white'"
@@ -112,7 +112,6 @@
                         <x-input-error :messages="$errors->get('email')" class="mt-1" />
                     </div>
 
-                    <!-- Role -->
                     <div class="mt-4">
                         <label class="flex justify-between text-xs font-bold text-gray-600 mb-2">
                             <span>役割（ロール）</span>
@@ -131,13 +130,12 @@
                         <x-input-error :messages="$errors->get('role')" class="mt-1" />
                     </div>
 
-                    <!-- Department (conditional) -->
-                    <div x-show="role !== 'admin' && role !== ''" x-transition class="mt-4 space-y-2">
+                    <div x-show="role !== 'admin' && role !== ''" x-transition x-cloak class="mt-4 space-y-2">
                         <label class="flex justify-between text-xs font-bold text-gray-600">
                             <span>所属部署</span>
                             <span class="text-red-500 bg-red-50 px-2 py-0.5 rounded text-[10px]">必須</span>
                         </label>
-                        <select id="department_id" name="department_id" :required="role !== 'admin'"
+                        <select id="department_id" name="department_id" :required="role !== 'admin' && role !== ''"
                                 class="w-full bg-gray-50 border border-gray-300 rounded px-4 py-2.5 text-sm focus:ring-1 focus:ring-blue-500 outline-none">
                             <option value="" disabled selected>部署を選択してください</option>
                             @foreach($departments as $department)
@@ -148,36 +146,73 @@
                         </select>
                     </div>
 
-                    <!-- Password & Confirmation -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                        <div class="space-y-1">
-                            <label class="block text-xs font-bold text-gray-600 mb-2">パスワード</label>
-                            <div class="relative group">
-                                <input :type="showPassword ? 'text' : 'password'"
-                                       name="password"
-                                       required
-                                       @blur="errors.password = ($el.value.length < 8) ? '8文字以上で入力してください' : ''"
-                                       class="w-full bg-gray-50 border rounded px-4 py-2.5 pr-10 text-sm outline-none transition"
-                                       :class="errors.password ? 'border-red-500' : 'border-gray-300 focus:ring-blue-500'"
-                                       placeholder="8文字以上">
-                                <button type="button" @click="showPassword = !showPassword"
-                                        class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-indigo-600 transition-colors">
-                                    <i :data-lucide="showPassword ? 'eye-off' : 'eye'" class="w-4 h-4"></i>
-                                </button>
-                            </div>
-                            <p x-show="errors.password" x-text="errors.password" class="text-[10px] text-red-500 mt-1 font-medium"></p>
-                        </div>
+    <div class="space-y-1">
+        <label class="block text-xs font-bold text-gray-600 mb-2">パスワード</label>
+        <div class="relative group">
+            <input :type="showPassword ? 'text' : 'password'"
+                   name="password"
+                   required
+                   autocomplete="new-password"
+                   @blur="errors.password = ($el.value.length < 8) ? '8文字以上で入力してください' : ''"
+                   class="w-full bg-gray-50 border rounded px-4 py-2.5 pr-10 text-sm outline-none transition"
+                   :class="errors.password ? 'border-red-500' : 'border-gray-300 focus:ring-blue-500'"
+                   placeholder="8文字以上">
+            
+         <button type="button" @click="showPassword = !showPassword"
+        class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-indigo-600">
 
-                        <div class="space-y-1">
-                            <label class="block text-xs font-bold text-gray-600 mb-2">確認用</label>
-                            <input :type="showPassword ? 'text' : 'password'"
-                                   name="password_confirmation"
-                                   required
-                                   class="w-full bg-gray-50 border border-gray-300 rounded px-4 py-2.5 text-sm outline-none focus:ring-blue-500 focus:bg-white transition">
-                        </div>
-                    </div>
+    <!-- Eye -->
+    <svg x-show="!showPassword" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+    </svg>
 
-                    <!-- Submit -->
+    <!-- Eye Off -->
+    <svg x-show="showPassword" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.956 9.956 0 012.042-3.362M6.223 6.223A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a9.96 9.96 0 01-4.043 5.225M15 12a3 3 0 00-3-3m0 0L3 3m6 6l6 6"/>
+    </svg>
+
+</button>
+        </div>
+        <p x-show="errors.password" x-text="errors.password" class="text-[10px] text-red-500 mt-1 font-medium"></p>
+    </div>
+
+    <div class="space-y-1">
+        <label class="block text-xs font-bold text-gray-600 mb-2">確認用</label>
+        <div class="relative group">
+            <input :type="showConfirmPassword ? 'text' : 'password'"
+                   name="password_confirmation"
+                   required
+                   autocomplete="new-password"
+                   class="w-full bg-gray-50 border border-gray-300 rounded px-4 py-2.5 pr-10 text-sm outline-none focus:ring-blue-500 focus:bg-white transition">
+            
+          <button type="button" 
+        @click="showConfirmPassword = !showConfirmPassword"
+        class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-indigo-600">
+
+    <!-- Eye -->
+    <svg x-show="!showConfirmPassword" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+    </svg>
+
+    <!-- Eye Off -->
+    <svg x-show="showConfirmPassword" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.956 9.956 0 012.042-3.362M6.223 6.223A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a9.96 9.96 0 01-4.043 5.225M15 12a3 3 0 00-3-3m0 0L3 3m6 6l6 6"/>
+    </svg>
+
+</button>
+        </div>
+    </div>
+</div>
+
                     <div class="pt-6">
                         <button type="submit"
                                 @click="loading = true"
@@ -199,7 +234,6 @@
         </div>
     </div>
 
-    <!-- Lucide Icons -->
     <script src="https://cdn.jsdelivr.net/npm/lucide/dist/lucide.min.js"></script>
     <script>document.addEventListener('alpine:init', () => { lucide.createIcons(); });</script>
 </x-guest-layout>

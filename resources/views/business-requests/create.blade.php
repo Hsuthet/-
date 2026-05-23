@@ -48,9 +48,15 @@
            <div>
                 <label class="block text-sm mb-2">件名 <span class="text-red-500">*</span></label>
                 <input type="text" name="title"
-                    value="{{ old('title', session('form_data.title')) }}"
-                    class="w-full border-gray-300 rounded-md text-sm @error('title') border-red-500 @enderror" 
-                    placeholder="依頼内容の要約を入力" required>
+    list="title-suggestions"
+    value="{{ old('title', session('form_data.title')) }}"
+    class="w-full border-gray-300 rounded-md text-sm"
+    placeholder="依頼内容の要約を入力">
+    <datalist id="title-suggestions">
+    @foreach($recentRequests as $req)
+        <option value="{{ $req->title }}">
+    @endforeach
+</datalist>
                 @error('title') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
             </div>
 
@@ -132,12 +138,16 @@
     @enderror
         </div>
 
-        <div class="mb-6">
-            <label class="block text-sm mb-2">詳細内容 <span class="text-red-500">*</span></label>
-            <textarea name="content" rows="5"
-                class="w-full border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="詳細な手順や要件を入力してください" required>{{ old('content', session('form_data.content')) }}</textarea>
-        </div>
+       <div class="mb-6">
+    <label class="block text-sm mb-2">詳細内容 <span class="text-red-500">*</span></label>
+    <textarea id="content-input" name="content" rows="5"
+        class="w-full border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500"
+        placeholder="詳細な手順や要件を入力してください" required>{{ old('content', session('form_data.content')) }}</textarea>
+
+    <div id="content-suggestions-box" 
+         class="border rounded-md mt-1 hidden bg-white shadow max-h-40 overflow-y-auto">
+    </div>
+</div>
 
         <div>
             <label class="block text-sm mb-2">特記事項</label>
@@ -283,5 +293,58 @@ function removeFile(index) {
         console.error(error);
     });
 }
+</script>
+<script>
+const textarea = document.getElementById('content-input');
+const box = document.getElementById('content-suggestions-box');
+
+// Show suggestions when typing or focusing
+textarea.addEventListener('input', showSuggestions);
+textarea.addEventListener('focus', showSuggestions);
+
+// Hide suggestions when clicking outside
+document.addEventListener('click', (e) => {
+    if (!box.contains(e.target) && e.target !== textarea) {
+        box.classList.add('hidden');
+    }
+});
+
+function showSuggestions() {
+    const value = textarea.value.toLowerCase();
+    box.innerHTML = '';
+
+    const filtered = contentSuggestions.filter(item =>
+        item.toLowerCase().includes(value)
+    );
+
+    if (filtered.length === 0) {
+        box.classList.add('hidden');
+        return;
+    }
+
+    filtered.slice(0, 5).forEach(item => {
+        const div = document.createElement('div');
+        div.textContent = item;
+        div.className = 'p-2 hover:bg-indigo-100 cursor-pointer text-sm';
+
+        div.onclick = () => {
+            textarea.value = item;
+            box.classList.add('hidden');
+        };
+
+        box.appendChild(div);
+    });
+
+    box.classList.remove('hidden');
+}
+</script>
+<script>
+const contentSuggestions = @json(
+    $recentRequests->pluck('requestContent')
+        ->map(fn($c) => $c->description ?? '')
+        ->filter()
+        ->unique()
+        ->values()
+);
 </script>
 </x-app-layout>

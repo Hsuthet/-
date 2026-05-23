@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RequestApprovalController;
 use App\Http\Controllers\WorkerTaskController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\TaskExportController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -64,23 +65,23 @@ Route::middleware(['auth'])->group(function () {
 
     Route::prefix('business-requests')->name('business-requests.')->group(function () {
 
-        //  Custom routes FIRST (important!)
-        Route::get('/list/my-requests', [BusinessRequestController::class, 'myRequests'])->name('requests');
-       // In web.php, change {id} to {business_request}
-Route::get('/list/user/{business_request}', [BusinessRequestController::class, 'show'])->name('display');
-    //      Route::patch('/business-requests/{business_request}/status',
-    //     [BusinessRequestController::class, 'updateStatus']
-    // )->name('business-requests.updateStatus');
+    Route::get('/list/my-requests', [BusinessRequestController::class, 'myRequests'])
+        ->name('requests');
 
-        Route::post('/confirm', [BusinessRequestController::class, 'confirm'])->name('confirm');
-        Route::post('/complete', [BusinessRequestController::class, 'complete'])->name('complete');
-        Route::post('/file/remove', [BusinessRequestController::class, 'remove'])->name('file.remove');
+    Route::get('/list/user/{businessRequest}', [BusinessRequestController::class, 'show'])
+        ->name('display');
 
-        // Approval
-        Route::get('/{request}/approve', [RequestApprovalController::class, 'approveForm'])->name('approve');
-        Route::post('/{businessRequest}/assign', [RequestApprovalController::class, 'assign'])->name('assign');
-        
-    });
+    Route::post('/confirm', [BusinessRequestController::class, 'confirm'])->name('confirm');
+    Route::post('/complete', [BusinessRequestController::class, 'complete'])->name('complete');
+    Route::post('/file/remove', [BusinessRequestController::class, 'remove'])->name('file.remove');
+
+    // FIXED
+    Route::get('/{businessRequest}/approve', [RequestApprovalController::class, 'approveForm'])
+        ->name('approve');
+
+    Route::post('/{businessRequest}/assign', [RequestApprovalController::class, 'assign'])
+        ->name('assign');
+});
 
     // ✅ Resource LAST (important!)
     Route::resource('business-requests', BusinessRequestController::class);
@@ -95,4 +96,7 @@ Route::get('/list/user/{business_request}', [BusinessRequestController::class, '
 
 });
 
+
+Route::get('/tasks/export/excel', [TaskExportController::class, 'exportExcel'])
+    ->name('tasks.export.excel');
 require __DIR__.'/auth.php';

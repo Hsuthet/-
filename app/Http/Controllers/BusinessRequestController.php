@@ -96,7 +96,20 @@ public function create(Request $request)
     $nextNumber = $this->generateNextNumber();
     $user = $request->user()->load('department');
 
-    return view('business-requests.create', compact('categories', 'departments', 'nextNumber', 'user'));
+    // 🔥 Get last 5 requests of this user
+   $recentRequests = BusinessRequest::with('requestContent')
+    ->where('user_id', Auth::id())
+    ->latest()
+    ->take(10)
+    ->get();
+
+    return view('business-requests.create', compact(
+        'categories',
+        'departments',
+        'nextNumber',
+        'user',
+        'recentRequests' // 👈 ADD THIS
+    ));
 }
 
     /**

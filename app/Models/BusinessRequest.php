@@ -20,12 +20,6 @@ class BusinessRequest extends Model
     |--------------------------------------------------------------------------
     */
  
-    // const PENDING = 'PENDING';
-    // const APPROVED = 'APPROVED';
-    // const WORKING = 'WORKING';
-    // const COMPLETED = 'COMPLETED';
-    // const REJECTED = 'REJECTED';
-
 
     protected $fillable = [
         'request_number',
@@ -36,7 +30,8 @@ class BusinessRequest extends Model
         'worker_id',
         'reject_reason',
         'status',
-        'due_date'
+        'due_date',
+        'approved_by'
     ];
 
 
