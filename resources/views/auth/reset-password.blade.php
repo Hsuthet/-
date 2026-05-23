@@ -35,9 +35,13 @@
                         <label class="block text-[11px] uppercase tracking-widest font-bold text-slate-400 mb-2 ml-1" for="email">
                             メールアドレス
                         </label>
-                        <input id="email" type="email" name="email" value="{{ old('email', $request->email) }}" required
-                            class="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-3.5 text-sm text-slate-500 cursor-not-allowed outline-none" 
-                            readonly>
+                        <input 
+    id="email"
+    type="email"
+    name="email"
+    value="{{ old('email', request()->email) }}"
+    readonly
+    class="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-3.5 text-sm text-slate-500 cursor-not-allowed outline-none">
                         <x-input-error :messages="$errors->get('email')" class="mt-2 text-[11px] font-bold text-red-600" />
                     </div>
 

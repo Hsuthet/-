@@ -82,7 +82,23 @@
         $(document).ready(function() {
             if (!$.fn.DataTable.isDataTable('#{{ $id }}')) {
                 const table = $('#{{ $id }}').DataTable({
-    "language": { "url": "//cdn.datatables.net/plug-ins/1.13.7/i18n/ja.json" },
+     language: {
+            processing: "処理中...",
+            search: "検索:",
+            lengthMenu: "_MENU_ 件表示",
+            info: "_TOTAL_ 件中 _START_ から _END_ まで表示",
+            infoEmpty: "0 件中 0 から 0 まで表示",
+            infoFiltered: "（全 _MAX_ 件より抽出）",
+            loadingRecords: "読み込み中...",
+            zeroRecords: "一致するレコードがありません",
+            emptyTable: "テーブルにデータがありません",
+            paginate: {
+                first: "最初",
+                previous: "前へ",
+                next: "次へ",
+                last: "最後"
+            }
+        },
     "pageLength": 10,
     "responsive": false,  
     "scrollX": true,      
